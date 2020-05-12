@@ -1,0 +1,52 @@
+--- 
+title: "MiMeMo code guide"
+author: "Jack H Laverick, University of Strathclyde"
+date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+documentclass: book
+bibliography: [book.bib, packages.bib]
+biblio-style: apalike
+link-citations: yes
+description: "This is a minimal example of using the bookdown package to write a book. The output format for this example is bookdown::gitbook."
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+#devtools::install_github("ropenscilabs/icon")
+library(icon)
+library(readr)
+```
+<br/><br/>
+![](images/MiMeMo Schematic3Dice_cap.cont.png)
+<br/>
+
+# Introduction {-}
+
+This file documents the steps taken to parameterise Strath E2E for use in the Arctic, part of NERC's Changing Arctic Ocean programme, project MiMeMo. To begin with I'll present the code for batch processing all the scripts required for the project. Each script will then be explained. <br/><br/>
+
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+
+I will highlight which portions of code need to be modified, for those who want to use Strat E2E in other locations.  
+As a security, all save lines in the Rscripts are commented out to start with. 
+</div><br/>
+
+In brief, bathymetry data from **GEBCO** was used to define the model domain. **NEMO-MEDUSA** simulations are summarised to provide driving data. Sediment data was provided by the Norwegian Geological Survey (**NGU**); using a random forest model to fill gaps in coverage. Fishing data was obtained from **ICES** and the Global Fishing Watch (**GFW**). <br/>
+
+These scripts use *Simple Features* `library(SF)` and *Spatiotemporal Arrays, Raster and Vector Data Cubes* `library(stars)` for GIS operations in the tidyverse. When scripts are displayed below, I skip the set up section loading data objects and packages. These are still present in the Rscripts. <br/><br/>
+    
+```{r, code = readLines("~/R scripts/@_Full batch.R"), eval = FALSE}
+
+```
+
+<br/>
+Before running the code above you will need to create a directory. The code below will recreate the folder structure I used under your default working directory. You will need to put downloaded data products in the input folder. The exceptions to this are the **NEMO-MEDUSA** model outputs, which can be found on the Stratchlyde idrive and are called directly. Data objects created by this code will be saved into the interim folder. Figures will be saved in Figures. The final data objects required for Strath E2E will be saved in the main directory. <br/><br/>
+
+```{r, code = readLines("~/R scripts/@_Build project.R"), eval = FALSE}
+
+```
+
+<br/>`r icon::fa("exclamation", colour = "yellow3", size = 5, pull = 'left')`
+As a warning, this code works from me joining MiMeMo. Before me there was another... Robert Wilson. Robert performed some data cleaning on the **NEMO-MEDUSA** file names as well as other meta-data. This may need to be repeated if you are using this guide for another project, as my functions use the file names to pull variable types and date information, .

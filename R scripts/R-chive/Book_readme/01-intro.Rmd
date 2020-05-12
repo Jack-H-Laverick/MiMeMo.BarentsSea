@@ -1,0 +1,133 @@
+# Project exploration
+
+Before driving data can be extracted for the project, we need to choose the model domain. Geographically speaking, where do our onshore and offshore boxes map to? Do we need more than one? In our case we needed to duplicate model compartments for the East Greenland shelf and the Barents Sea, as these weren't contiguous. <br/>
+
+There were three broad bits of information we looked at before discussing where we should set the boundaries. Fishing and driving data were extracted for the broad region of interest, to look for particular features. I won't discuss those scripts here, as they're identical to the code in the relevant sections later (with less severe cropping). Thirdly we looked at the bathymetry and distance from shore in the region. We used the global **GEBCO** bathymetry file [(link)](https://www.gebco.net/data_and_products/gridded_bathymetry_data/), cropped to the region of interest. <br/><br/>
+
+## Extracting bathymetry data
+
+<br/>
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+
+* Choose the spatial window of interest (corners in Lat/Lon).
+* Uncomment save lines.
+</div><br/>
+
+```{r, code = read_lines("~/R scripts/bathymetry DATA WRANGLING.R", skip = 10, n_max = 8), eval = FALSE}
+```
+
+<br/>
+Now that we know the dimensions of the netcdf file, we can work out which rows and columns are within our window of interest. The following chunk works this out, and then imports only this subset. You may want to change `W100` and `E120`. I don't define the same limits for Latitude, I simply import everything north of `Equator`. 
+<br/><br/>  
+
+```{r, code = read_lines("~/R scripts/bathymetry DATA WRANGLING.R", skip=18, n_max = 24), eval = FALSE}
+```
+
+<br/>
+A full raster can be overpowering if you want to visualise how other data coincides with bathymetry. A solution to this is to extract depth contours from the bathymetry data. You can control which contours you want to extract by changing the `levels` in `contourLines`.
+<br/><br/>  
+
+```{r, code = read_lines("~/R scripts/bathymetry DATA WRANGLING.R", skip=43, n_max = 11), eval = FALSE}
+```
+
+<br/>
+As the **GEBCO** bathymetry file is large, I reduce the file to half resolution when saving out as a dataframe. This is to combine the bathymetry data with coordinates, for compatibility with tidyverse functions. 
+<br/><br/>  
+
+```{r, code = read_lines("~/R scripts/bathymetry DATA WRANGLING.R", skip=55, n_max = 17), eval = FALSE}
+```
+
+<br/>
+
+## Viewing full bathymetry 
+
+<br/>
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+
+* Choose the CRS you would like your map projected in.
+* Choose how many contours you would like to visualise. 
+* Choose if you want to limit the depths displayed.
+</div><br/>
+
+The standard Lat/Lon Coordinate Reference System (CRS = 4326) expands areas closer to the poles. As we're interested in polar ecosystems, this is going to throw off any visualisation. Luckily it's really easy to reproject `SF` objects using a different CRS. I've chosen to use 3035 throughout the project. For large datasets, like the full GEBCO file, this can be slow. It's best to perform the below operations once and save out a new data object. After the code you can see the different results for visualising the bathymetry. <br/><br/>
+
+```{r, code = read_lines("~/R scripts/bathymetry PLOTTING.R", skip = 20, n_max = 13), eval = FALSE}
+```
+
+![](images/FIG_GEBCO Polar Bathymetry.png)
+![](images/FIG_GEBCO many contours.png)
+  
+<br/>
+
+## Creating choice maps
+
+In this section I use the bathymetry data to show the geographical area captured between a maximum and minimum sea bed depth. We can use this in combination with the distance from shore to define the offshore zone for Strath E2E. This code also turns the gridded point data into a polygon. This speeds up plotting, but also allows us to use the shape in cropping functions later. The trick is to define a raster grid, check which of the cells contain points, and then pull a polygon from the raster boundary. This has the handy side effect of creating boundaries parallel to a Lat/Lon grid. <br/>
+<br/>
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+
+* Choose the combinations of upper and lower depths you would like to see.
+* Uncomment save lines. 
+</div><br/>
+
+```{r, code = read_lines("~/R scripts/bathymetry CHOICES.R", skip = 15, n_max = 37), eval = FALSE}
+```
+
+![](images/FIG_depth choices2.png)
+
+<br/>
+For MiMeMo the bathymetry is very steep close to shore in places. We don't want a situation where the offshore polygon touches the coast, as model inputs from land flow through the inshore compartment. We therefore need to know how far away from shore each depth estimate is. Note that I use some code to reduce the land polygon to the countries of interest. Otherwise the code would be slowed by calculating minimum distances to all countries, which is unneccessary.
+<br/><br/>  
+
+```{r, code = read_lines("~/R scripts/bathymetry CHOICES.R", skip = 65, n_max = 12), eval = FALSE}
+```
+
+![](images/FIG_distance from shore.png)
+  
+<br/>
+
+## Define model domain
+
+Once the depth boundaries have been chosen we can begin making final polygons for use in visualisations and data cropping operations. The main challenge is that the inshore zone will be contiguous around the coast, you'll probably want the shape to stop somewhere, so the code below allows you to cut a polygon at a linestring into two pieces. <br/>
+<br/>
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+
+* Choose the depth boundaries for the offshore and inshore zone.
+* Choose if you also want to define model boxes by distance from shore.
+* Inspect the separate polygons created, and drop those outside your area of interest.
+* Choose where you want to cut the polygons to limit their extent.
+</div><br/>
+
+First we load the bathymetry and distance product from the previous script. Then we can filter to our chosen limits, and create spatial polygons in the same way as before. You can see below I filter the data by bathymetry AND the distance from shore. The last two lines of code calculate the area of each zone.  <br/><br/>
+
+```{r, code = read_lines("~/R scripts/bathymetry MODEL DOMAIN.R", skip = 16, n_max = 22), eval = FALSE}
+```
+
+<br/>
+We've now created a set of polygons, but not all of these are of interest. We can simply filter out the polygons we don't need by row id. It's a good bet that you probably want to keep the largest polygon. The `which` lines below allow you to identify this polygon. I found the best way to pick which other polygons to keep was to plot the polygons with a text label, and then choose manually. Luckily this only has to be done once, and there is a spatial pattern in how polygons get numbered.
+<br/><br/>  
+
+```{r, code = read_lines("~/R scripts/bathymetry MODEL DOMAIN.R", skip = 38, n_max = 11), eval = FALSE}
+```
+<br/><br/>
+![](images/FIG_Polygon dropping.png)
+
+<br/>
+Larger polygons which extend beyond the area of interest will need to be cut, and the excess dropped. The following code performs this. It looks busy because for MiMeMo we have 4 large polygons which need cutting. The `get_blade` function takes a series of Lat/Lon points and creates an SF linestring we can cut along. `st_split` then performs the cut. It's important that the line extends over the edges of the polygon, otherwise the cut won't work. Cuts can only be made sequentially, hence the verbose code for each polygon to be cut.
+<br/><br/> 
+
+```{r, code = read_lines("~/R scripts/bathymetry MODEL DOMAIN.R", skip = 69, n_max = 56), eval = FALSE}
+```
+
+![](images/FIG_Domains.png)

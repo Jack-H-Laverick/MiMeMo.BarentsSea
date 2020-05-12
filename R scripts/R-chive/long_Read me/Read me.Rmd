@@ -1,0 +1,450 @@
+---
+title: "MiMeMo code guide"
+author: "Jack H Laverick, University of Strathclyde"
+output: 
+  html_document:  
+    toc: true
+        toc_float: 
+      collapsed: false  
+    number_sections: true
+    theme:  flatly
+    highlight: haddock
+    code_folding: hide
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+#devtools::install_github("ropenscilabs/icon")
+library(icon)
+library(readr)
+```
+<br/><br/>
+![](images/MiMeMo Schematic3Dice_cap.cont.png)
+<br/>
+
+# Introduction {-}
+
+This file documents the steps taken to parameterise Strath E2E for use in the Arctic, part of NERC's Changing Arctic Ocean programme, project MiMeMo. To begin with I'll present the code for batch processing all the scripts required for the project. Each script will then be explained. <br/><br/>
+
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+
+I will highlight which portions of code need to be modified, for those who want to use Strat E2E in other locations.  
+As a security, all save lines in the Rscripts are commented out to start with. 
+</div><br/>
+
+In brief, bathymetry data from **GEBCO** was used to define the model domain. **NEMO-MEDUSA** simulations are summarised to provide driving data. Sediment data was provided by the Norwegian Geological Survey (**NGU**); using a random forest model to fill gaps in coverage. Fishing data was obtained from **ICES** and the Global Fishing Watch (**GFW**). <br/>
+
+These scripts use *Simple Features* `library(SF)` and *Spatiotemporal Arrays, Raster and Vector Data Cubes* `library(stars)` for GIS operations in the tidyverse. When scripts are displayed below, I skip the set up section loading data objects and packages. These are still present in the Rscripts. <br/><br/>
+    
+```{r, code = readLines("~/R scripts/@_Full batch.R"), eval = FALSE}
+
+```
+
+<br/>
+Before running the code above you will need to create a directory. The code below will recreate the folder structure I used under your default working directory. You will need to put downloaded data products in the input folder. The exceptions to this are the **NEMO-MEDUSA** model outputs, which can be found on the Stratchlyde idrive and are called directly. Data objects created by this code will be saved into the interim folder. Figures will be saved in Figures. The final data objects required for Strath E2E will be saved in the main directory. <br/><br/>
+
+```{r, code = readLines("~/R scripts/@_Build project.R"), eval = FALSE}
+
+```
+
+<br/>`r icon::fa("exclamation", colour = "yellow3", size = 5, pull = 'left')`
+As a warning, this code works from me joining MiMeMo. Before me there was another... Robert Wilson. Robert performed some data cleaning on the **NEMO-MEDUSA** file names as well as other meta-data. This may need to be repeated if you are using this guide for another project, as my functions use the file names to pull variable types and date information.
+
+
+<br/><br/><br/>
+  
+***
+
+<br/><br/><br/>
+
+# Project exploration
+
+Before driving data can be extracted for the project, we need to choose the model domain. Geographically speaking, where do our onshore and offshore boxes map to? Do we need more than one? In our case we needed to duplicate model compartments for the East Greenland shelf and the Barents Sea, as these weren't contiguous. <br/>
+
+There were three broad bits of information we looked at before discussing where we should set the boundaries. Fishing and driving data were extracted for the broad region of interest, to look for particular features. I won't discuss those scripts here, as they're identical to the code in the relevant sections later (with less severe cropping). Thirdly we looked at the bathymetry and distance from shore in the region. We used the global **GEBCO** bathymetry file [(link)](https://www.gebco.net/data_and_products/gridded_bathymetry_data/), cropped to the region of interest. <br/><br/>
+
+## Extracting bathymetry data
+
+<br/>
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+
+* Choose the spatial window of interest (corners in Lat/Lon).
+* Uncomment save lines.
+</div><br/>
+
+```{r, code = read_lines("~/R scripts/bathymetry DATA WRANGLING.R", skip = 10, n_max = 8), eval = FALSE}
+```
+
+<br/>
+Now that we know the dimensions of the netcdf file, we can work out which rows and columns are within our window of interest. The following chunk works this out, and then imports only this subset. You may want to change `W100` and `E120`. I don't define the same limits for Latitude, I simply import everything north of `Equator`. 
+<br/><br/>  
+
+```{r, code = read_lines("~/R scripts/bathymetry DATA WRANGLING.R", skip=18, n_max = 24), eval = FALSE}
+```
+
+<br/>
+A full raster can be overpowering if you want to visualise how other data coincides with bathymetry. A solution to this is to extract depth contours from the bathymetry data. You can control which contours you want to extract by changing the `levels` in `contourLines`.
+<br/><br/>  
+
+```{r, code = read_lines("~/R scripts/bathymetry DATA WRANGLING.R", skip=43, n_max = 11), eval = FALSE}
+```
+
+<br/>
+As the **GEBCO** bathymetry file is large, I reduce the file to half resolution when saving out as a dataframe. This is to combine the bathymetry data with coordinates, for compatibility with tidyverse functions. 
+<br/><br/>  
+
+```{r, code = read_lines("~/R scripts/bathymetry DATA WRANGLING.R", skip=55, n_max = 17), eval = FALSE}
+```
+
+<br/>
+
+## Viewing full bathymetry 
+
+<br/>
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+
+* Choose the CRS you would like your map projected in.
+* Choose how many contours you would like to visualise. 
+* Choose if you want to limit the depths displayed.
+</div><br/>
+
+The standard Lat/Lon Coordinate Reference System (CRS = 4326) expands areas closer to the poles. As we're interested in polar ecosystems, this is going to throw off any visualisation. Luckily it's really easy to reproject `SF` objects using a different CRS. I've chosen to use 3035 throughout the project. For large datasets, like the full GEBCO file, this can be slow. It's best to perform the below operations once and save out a new data object. After the code you can see the different results for visualising the bathymetry. <br/><br/>
+
+```{r, code = read_lines("~/R scripts/bathymetry PLOTTING.R", skip = 20, n_max = 13), eval = FALSE}
+```
+
+![](images/FIG_GEBCO Polar Bathymetry.png)
+![](images/FIG_GEBCO many contours.png)
+  
+<br/>
+
+## Creating choice maps
+
+In this section I use the bathymetry data to show the geographical area captured between a maximum and minimum sea bed depth. We can use this in combination with the distance from shore to define the offshore zone for Strath E2E. This code also turns the gridded point data into a polygon. This speeds up plotting, but also allows us to use the shape in cropping functions later. The trick is to define a raster grid, check which of the cells contain points, and then pull a polygon from the raster boundary. This has the handy side effect of creating boundaries parallel to a Lat/Lon grid. <br/>
+<br/>
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+
+* Choose the combinations of upper and lower depths you would like to see.
+* Uncomment save lines. 
+</div><br/>
+
+```{r, code = read_lines("~/R scripts/bathymetry CHOICES.R", skip = 15, n_max = 37), eval = FALSE}
+```
+
+![](images/FIG_depth choices2.png)
+
+<br/>
+For MiMeMo the bathymetry is very steep close to shore in places. We don't want a situation where the offshore polygon touches the coast, as model inputs from land flow through the inshore compartment. We therefore need to know how far away from shore each depth estimate is. Note that I use some code to reduce the land polygon to the countries of interest. Otherwise the code would be slowed by calculating minimum distances to all countries, which is unneccessary.
+<br/><br/>  
+
+```{r, code = read_lines("~/R scripts/bathymetry CHOICES.R", skip = 65, n_max = 12), eval = FALSE}
+```
+
+![](images/FIG_distance from shore.png)
+  
+<br/>
+
+## Define model domain
+
+Once the depth boundaries have been chosen we can begin making final polygons for use in visualisations and data cropping operations. The main challenge is that the inshore zone will be contiguous around the coast, you'll probably want the shape to stop somewhere, so the code below allows you to cut a polygon at a linestring into two pieces. <br/>
+<br/>
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+
+* Choose the depth boundaries for the offshore and inshore zone.
+* Choose if you also want to define model boxes by distance from shore.
+* Inspect the separate polygons created, and drop those outside your area of interest.
+* Choose where you want to cut the polygons to limit their extent.
+</div><br/>
+
+First we load the bathymetry and distance product from the previous script. Then we can filter to our chosen limits, and create spatial polygons in the same way as before. You can see below I filter the data by bathymetry AND the distance from shore. The last two lines of code calculate the area of each zone.  <br/><br/>
+
+```{r, code = read_lines("~/R scripts/bathymetry MODEL DOMAIN.R", skip = 16, n_max = 22), eval = FALSE}
+```
+
+<br/>
+We've now created a set of polygons, but not all of these are of interest. We can simply filter out the polygons we don't need by row id. It's a good bet that you probably want to keep the largest polygon. The `which` lines below allow you to identify this polygon. I found the best way to pick which other polygons to keep was to plot the polygons with a text label, and then choose manually. Luckily this only has to be done once, and there is a spatial pattern in how polygons get numbered.
+<br/><br/>  
+
+```{r, code = read_lines("~/R scripts/bathymetry MODEL DOMAIN.R", skip = 38, n_max = 11), eval = FALSE}
+```
+<br/><br/>
+![](images/FIG_Polygon dropping.png)
+
+<br/>
+Larger polygons which extend beyond the area of interest will need to be cut, and the excess dropped. The following code performs this. It looks busy because for MiMeMo we have 4 large polygons which need cutting. The `get_blade` function takes a series of Lat/Lon points and creates an SF linestring we can cut along. `st_split` then performs the cut. It's important that the line extends over the edges of the polygon, otherwise the cut won't work. Cuts can only be made sequentially, hence the verbose code for each polygon to be cut.
+<br/><br/> 
+
+```{r, code = read_lines("~/R scripts/bathymetry MODEL DOMAIN.R", skip = 69, n_max = 56), eval = FALSE}
+```
+
+![](images/FIG_Domains.png)
+
+<br/><br/><br/>
+
+***
+
+<br/><br/><br/>
+
+# Internal model drivers 
+
+blah blah blah. Mention not cropping for initial exploration. <br/><br/>
+
+## Data extraction
+
+<br/>
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+
+* Choose the spatial window of interest (corners in Lat/Lon).
+* Uncomment save lines. 
+</div><br/>
+
+```{r, code = read_lines("~/R scripts/NM EXTRACTION.R", n_max = 20), eval = FALSE}
+```
+
+<br/>
+
+## Generate time series
+
+Strath E2E requires a monthly average per model box of each driving variable. This code takes each monthly data object created from the **NEMO-MEDUSA** outputs, and calcuates the mean value for named variables by box. The code saves this as a single dataframe (approximately 1 mb )  <br/> 
+<br/>
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+
+* If your project uses different variables, change the column selections within `summarise_ts` in the function file. 
+</div><br/>
+
+```{r, code = read_lines("~/R scripts/NM TIME SERIES.R", skip = 12, n_max = 12), eval = FALSE}
+```
+
+<br/>
+
+## Generate spatial summaries
+
+We may want to visualise any spatial patterns in the **NEMO-MEDUSA** output. However, a plot for every month, in every year, for every variable, would quickly become unmanageable. This code performs some intermediate data processing to make viewing the data tractable. <br/> 
+
+The monthly data products are averaged by deacade and month. The data is then saved out as a single list (of approximately 200 mb). Each element in the list contains the data required for a single plot, i.e. the decadal average for a depth layer by month of all non-grouping variables. Organising the data in this way allows us to speed up the plotting code by parallelising the map functions. We can independently send data packets to different cores to be plotted.  <br/>
+<br/>
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+
+* Nothing to change here!
+  * Unless you want a different map projection, in which case go into the function file and change the crs in  `st_transform` within `reproj`. 
+</div><br/>
+
+```{r, code = read_lines("~/R scripts/NM SPATIAL.R", skip = 12, n_max = 14), eval = FALSE}
+```
+
+<br/>
+
+## Plot the summaries
+
+The following code takes the spatial and time series summary objects and creates plots. As there will be a fairly large number they are saved directly into their own subdirectory. Spatial plots are facetted by month, and dispaly a decadal average. The plotting functions for spatial maps `point_plot`, time series `ts_plot`, and current diagrams `stick_plot` are all defined in the functions file. If you want to alter the figures at all, work in the functions file. Note that the `point_plot` call is parrellised in two batches, this is as I maxed out the RAM copying the data across cores if all the data was used. An example of each plot is displayed beneath the code chunk. <br/>
+<br/>
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+
+* List the column headings you want to create plots from
+* Any stylistic choices can be made in the function file
+</div><br/>
+
+```{r, code = read_lines("~/R scripts/NM PLOTTING.R", skip = 22, n_max = 22), eval = FALSE}
+```
+
+```{r, echo=FALSE, out.width="49%", out.height="20%",fig.cap="caption",fig.show='hold',fig.align='center'}
+knitr::include_graphics(c("images/FIG_SP_Temperature S 2030.png","images/FIG_TS_Temperature_avg.png"))
+``` 
+
+<br/><br/><br/>
+
+***
+
+<br/><br/><br/>
+
+# Compartment flows 
+
+Unlike the internal model drivers, the current data taken from **NEMO-MEDUSA** doesn't need to be averaged by box. Instead we are interested in using these estimates to drive the exchange between model boxes. We therefore need to estimate the flow of water into a focal model box from it's neighbours, and also the water flowing out. To do this I extract the current speeds at the geographical boundaries of model boxes, and sum these by direction and neighbour.  <br/><br/>
+
+## Vertical water exchange
+
+Vertical water exchange is more straightforward to calculate. We only need currents to control the vertical exchanges between the offshore shallow and deep compartments. We therefore only have a single plane of interest per region (instead of many segments of an irregularly shaped horizontal boundary). We also know the location of this exchange, as we chose to set this to 60 m depth (and we know it only applies offshore). <br/>
+
+Sadly we weren't lucky enough to have a **NEMO-MEDUSA** depth level coincide with our boundary depth. We have to interpolate to get an estimate of vertical current veolcity and vertical eddy diffusitivity at interfaces between model boxes. Once we have these values within the geographical boundary of a box, it's a simple case of averaging. <br/>
+<br/>
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+
+* We are extracting **NEMO-MEDUSA** outputs again, so check the file names and paths are correct for your data.
+* Set the depth you want to interpolate to at `vert_depths` within `avg_day`.
+* Uncomment save lines. 
+</div><br/>
+
+After loading in the points you want to extract, and the file names you want to extract from (look into the Rscript), we're going to use Robert's rcdo package. the package contains a `nc_remap` function which allows you to easily regrid a netcdf file to a different set of 3D coordinates. You can either populate the new grid through bilinear interpolation (defualt), nearest neighbour matching, or distance weighted averaging. By providing 1 depth to the `vert_depths` argument we can extract a slice for a variable at the given depth straight from the netcdf file. After this extraction, it's the usual pattern of averaging together the variables in a day by region, then in a month, across multiple cores with `future_map`.   
+<br/><br/>
+
+```{r, code = read_lines("~/R scripts/bounds VC-EXTRACTION.R", skip = 42, n_max = 41), eval = FALSE}
+```
+
+![](images/FIG_TS_Vertical currents.png)
+
+<br/>
+
+## Horizontal water exchange
+
+Extracting horizontal flows between model boxes from a grid of currents poses two challenges: 
+
+* Identifying which current estimates are relevant for the exchange of water from one box to a neighbour.
+* Identifying which direction an exchange of water occurs in.
+
+The approach I chose to take involved converting the point estimates of current velocities from **NEMO-MEDUSA** into a continous field as a *stars* object. I then use the polygons of the model domain to select cells which intersect the boundary. Before sampling I break the boundary polygons into transects, to allow me to label portions of the boundary as contributing to different exchanges.
+<br/><br/>
+
+### Make boundary transects
+
+The script for making the transects takes the domain polygon file, and breaks each polygon at the corners. You get back a list of separate lines joining each corner of the original shape. The figure below is proof that each straight line of the boundary is now separate, as I've been able to map the `colour` aesthetic to segment ID. <br/>
+
+You can't cast an *SF* polygon straight to points, you first have to convert to a *multilinestring*, and then to single *linestrings* before getting *points*. Once we have a collection of points for corners I have two custom functions in the functions file, the `boundaries` function is a wrapper for applying the `to_segments` function, while also adding an ID column and the length of the segments (which we need for weighting). The `to_segments` function matches pairs of consecutive corners and returns a line. <br/>
+<br/>
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+
+* Within the `boundaries` function change the `pull` call to the name of the geometry column in your domain file.
+* Within the `to_segments` check the crs is consistent with the rest of your project.
+* Uncomment save lines. 
+</div><br/>
+
+```{r, code = read_lines("~/R scripts/bounds MAKE TRANSECTS.R", skip = 29, n_max = 7), eval = FALSE}
+```
+
+![](images/FIG_Segments.png)
+
+<br/>
+
+### Label transects
+
+Now that we have transects, we need to figure out what each one represents when it comes to the final summing operations. We need to know four things to correctly classify a transect:
+
+* How much water does this flow rate represent when summing exchanges?
+* Do we need to extract the Zonal or Meridional current velocities?
+* Which of the neighbouring model boxes does this flow link to?
+* Is the direction of flow in or out of the focal model box?
+
+<br/>
+<br/>
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+
+* Check your CRSs match in the setup section and throughout
+* Uncomment save lines. 
+</div><br/>
+
+In this first step I calculate the weights of each transect. We will only get the mean water velocity through a transect from the following code, but the amount of water exchanged between model boxes depends on the area of the interface. We need to get the mean depth, and the length of the transect, so we know the size of the window the water is flowing through. <br/>
+
+We already measured the length of the trasencts when creating them in the previous script. I use a custom `sample` function, which can be found in the "bounds FUNCTIONS" file, to calculate the mean depth of a transect overlapping a *stars* bathymetry object `B_raster`. I'll use this again later to sample currents. Just to warn you, it isn't the fastest function!.    
+<br/><br/>
+
+```{r, code = read_lines("~/R scripts/bounds LABEL TRANSECTS.R", skip = 27, n_max = 8), eval = FALSE}
+```
+
+<br/>
+We want to know the flow rate of water across the transect. The model outputs we have are of Zonal and Meridional current, which are orthogonal in latitude and longitude. As long as our transects also line up on latitude and longitude, this is as simple as choosing which flow variable to sample for each transect. <br/>
+
+I use my `check_grid` function to ask whether x=x or y=y for the two ends of a given transect (runs along the grid). I then create a look-up table `outcomes` holding which current needs to be extracted depending on the results of `check_grid`. Finally I attach the decisions to the main dataframe and remove lines which aren't parellel to the grid. These lines are the manual cuts we made when limiting the extent of the inshore and offshore zones. I will step these myself, and then add them back in.    
+<br/><br/>
+
+```{r, code = read_lines("~/R scripts/bounds LABEL TRANSECTS.R", skip = 44, n_max = 13), eval = FALSE}
+```
+
+<br/>
+We also need to work out the direction of flows within the model schematic (in or out). The behaviour of my `direction` function can be seen below. The function takes a transect, finds the mid point, and then takes one point either side of the line. We then check which of the points falls inside the focal polygon. By knowing which side is in, and which is out, we can define the direction of the flow relative to the model box.     
+<br/><br/>
+![](images/FIG_curent example zoom.png)
+
+```{r, code = read_lines("~/R scripts/bounds LABEL TRANSECTS.R", skip = 58, n_max = 7), eval = FALSE}
+```
+
+<br/>
+`direction` cotains rules which identify whether a positive flow value is flowing in or out of a model compartment. We want positive values to represent inflows, and negative values outflows. The function therefore creates a column `Flip`, to allow us to multiply the flow by -1 if required. The result is the image below, where I show the script correctly identifies the current and direction of flows into a toy example. If you want to create the plot above, uncomment the ggplot lines within `direction` and comment out the return line.       
+<br/><br/>
+
+![](images/FIG_curent direction example.png)
+<br/><br/>
+
+The final step before extracting current values and summing by model box is to define the neighbour the flow is connected to.
+
+### Extract currents
+
+<br/>
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+
+* Choose the spatial window of interest (corners in Lat/Lon)
+* Uncomment save lines. 
+</div><br/>
+
+```{r, code = read_lines("~/R scripts/bathymetry DATA WRANGLING.R", n_max = 20), eval = FALSE}
+```
+
+<br/>
+
+### Sample at transects
+
+<br/>
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+
+* Choose the spatial window of interest (corners in Lat/Lon)
+* Uncomment save lines. 
+</div><br/>
+
+```{r, code = read_lines("~/R scripts/bathymetry DATA WRANGLING.R", n_max = 20), eval = FALSE}
+```
+
+<br/><br/><br/>
+
+***
+
+<br/><br/><br/>
+
+# Fishing 
+
+
+<br/><br/><br/><br/><br/><br/>
+
+# Sediment 
+
+
+<br/><br/><br/><br/><br/><br/>

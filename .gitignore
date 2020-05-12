@@ -1,9 +1,9 @@
- /Data
- /Figure
- /Objects
- /Old data
- /results
- /StratE2E
- *.png
- *.html
+/Data
+/Figures
+/Objects
+/Old data
+/results
+/StrathE2E
+*.png
+*.html
 .Rproj.user
