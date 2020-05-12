@@ -45,7 +45,7 @@ unique(Space$nc_lat[crop_lat != Space$nc_lat])                              # Lo
 s <- st_as_stars(values) %>%                                                # Pass matrix of extracted variable
   st_as_stars(curvilinear=list(X1 = crop_lon, X2 = crop_lat)) %>%           # Pass coordinate matrices and start the grid is curved
   st_as_sf(as_points = FALSE, merge = FALSE) %>%                            # geom_stars doesn't like a curvilinear grid, convert each cell to an SF polygon
-  st_transform(crs = crs)                                                  # Reproject
+  st_transform(crs = crs)                                                   # Reproject
 
 ggplot() + geom_sf(data = s, aes(fill = A1), colour = NA) +
   geom_sf(data = world) +

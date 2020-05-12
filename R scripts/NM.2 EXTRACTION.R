@@ -85,11 +85,11 @@ output <- st_drop_geometry(output)
 
 #  profvis({
     
-  overnight <- all_files %>%  
-    split(., f = list(.$Month, .$Year)) %>%                                   # Get a DF of file names for each time step to summarise to
-    .[sapply(., function(x) dim(x)[1]) > 0] %>%                               # Drop empty dataframes (Months which weren't observed but split introduces)
-    future_map(whole_month, crop = Window, # Progress bar costs X amount of time
-               grid = output, space = Space)                                  # Perform the extraction and save an object for each month (in parallel)
+overnight <- all_files %>%  
+  split(., f = list(.$Month, .$Year)) %>%                                   # Get a DF of file names for each time step to summarise to
+  .[sapply(., function(x) dim(x)[1]) > 0] %>%                               # Drop empty dataframes (Months which weren't observed but split introduces)
+  future_map(whole_month, crop = Window, # Progress bar costs X amount of time
+             grid = output, space = Space)                                  # Perform the extraction and save an object for each month (in parallel)
 #  })
 #  toc()                                                                       # Stop timing 
 
