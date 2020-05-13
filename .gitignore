@@ -4,6 +4,5 @@
 /Old data
 /results
 /StrathE2E
-*.png
-*.html
+/R scripts/R-chive
 .Rproj.user
