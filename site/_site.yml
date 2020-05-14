@@ -15,10 +15,10 @@ navbar:
    - icon: fa-project-diagram
      text: "Code overview"
      href: overview.html
-   - text: "Greenland"
-     href: https://jack-h-laverick.github.io/MiMeMo.EastGreenlandShelf/
 
   right:
+   - text: "Greenland"
+     href: https://jack-h-laverick.github.io/MiMeMo.EastGreenlandShelf/
    - icon: fa-screwdriver fa-lg
      test: "MiMeMo.tools"
      href: https://jack-h-laverick.github.io/MiMeMo.tools/
