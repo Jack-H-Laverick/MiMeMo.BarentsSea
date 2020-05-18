@@ -16,19 +16,19 @@ execute <- function(x) {
 #### Batch process scripts ####
 
 scripts <- c(                                            # List scripts in the order you want to run them
-   "./R scripts/bathymetry.1 DATA WRANGLING.R",
-   "./R scripts/bathymetry.2 PLOTTING.R",
-   "./R scripts/bathymetry.3 RAYSHADER.R",
-   "./R scripts/bathymetry.4 DOMAIN CHOICES.R",
-   "./R scripts/bathymetry.5 DEFINE DOMAIN.R",
+    "./R scripts/bathymetry.1 DATA WRANGLING.R",
+    "./R scripts/bathymetry.2 PLOTTING.R",
+    "./R scripts/bathymetry.3 RAYSHADER.R",
+    "./R scripts/bathymetry.4 DOMAIN CHOICES.R",
+    "./R scripts/bathymetry.5 DEFINE DOMAIN.R",
    
-   "./R scripts/NM.1 GRID.R",
-   "./R scripts/NM.2 EXTRACTION.R",
-   "./R scripts/NM.3 SPATIAL.R",
-   "./R scripts/NM.4 TIME SERIES.R",             
-   "./R scripts/NM.5 PLOTTING.R",
-   "./R scripts/NM.6 LIGHT AND TEMP.R",
-   
+    "./R scripts/NM.1 GRID.R",
+    "./R scripts/NM.2 EXTRACTION.R",
+    "./R scripts/NM.3 SPATIAL.R",
+    "./R scripts/NM.4 TIME SERIES.R",
+    "./R scripts/NM.5 PLOTTING.R",
+    "./R scripts/NM.6 LIGHT AND TEMP.R",
+
    "./R scripts/detritus.1 GRID.R",
    "./R scripts/detritus.2 EXTRACTION.R",
 ###"./R scripts/detritus.3 SPATIAL.R",
@@ -38,12 +38,12 @@ scripts <- c(                                            # List scripts in the o
    "./R scripts/flows.1 VC-EXTRACTION.R",
    "./R scripts/flows.2 MAKE TRANSECTS.R",
    "./R scripts/flows.3 LABEL TRANSECTS.R",
-   "./R scripts/flows.4 SAMPLE PERIMETER.R",
-   "./R scripts/flows.5 SAMPLE FLUXES.R",
-   "./R scripts/flows.6 VOLUME CHECK.R",
-   "./R scripts/flows.7 PLOT EXCHANGES.R",
+##   "./R scripts/flows.4 SAMPLE PERIMETER.R",
+##   "./R scripts/flows.5 SAMPLE FLUXES.R",
+#  "./R scripts/flows.6 VOLUME CHECK.R",
+#   "./R scripts/flows.7 PLOT EXCHANGES.R",
   
-   "./R scripts/atmosphere.1 EXTRACTION.R",
+   "./R scripts/saltless.1 ATMOSPHERE.R",
 
    "./R scripts/spm.1 EXTRACTION.R",
 
@@ -77,3 +77,4 @@ saveRDS(timings, "./Objects/Run time.rds")
 
 source("./R scripts/@_Script runtimes.R")                                              # Plot run times
 
+   
