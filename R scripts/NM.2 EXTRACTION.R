@@ -13,8 +13,8 @@ source("./R scripts/@_Region file.R")                                       # De
 plan(multiprocess)                                                          # Choose the method to parallelise by with furrr
 
 all_files <- list.files("/mnt/idrive/Science/MS/Shared/CAO/mimemo/clipped_medusa", recursive = TRUE, full.names = TRUE) %>%
-  as_tibble() %>%                                                           # Turn the vector into a dataframe/tibble
-  separate(value, into = c("Path", "File"), sep = 61) %>%                   # Extract the year and month from the file name
+  as.data.frame() %>%                                                       # Turn the vector into a dataframe
+  separate(".", into = c("Path", "File"), sep = 61) %>%                   # Extract the year and month from the file name
   separate(File, into = c("Type", "Date"), 
            remove = FALSE, sep = -11) %>%                                   # Extract the year and month from the file name
   mutate(Date = str_sub(Date, end = -4))                                    # Drop file extension to get number
@@ -26,7 +26,7 @@ all_files  <- all_files %>%
   separate(Date, into = c("Year", "Month", "Day"),sep = c(4, 6)) %>%        # Extract the year and month from the file name 
   mutate(Year = as.integer(Year),                                           # Set time as integers 
          Month = as.integer(Month), 
-         Day = as.integer(Day))  
+         Day = as.integer(Day))
 
 examples <- group_by(all_files, Type) %>% slice(1)                          # Get one example for each file type
 trial <- group_by(all_files, Type) %>% slice(1:3)                           # Get one example for each file type
@@ -75,13 +75,14 @@ Window <- st_join(output, domains) %>%
   anti_join(filter(., Depth == "D" & Shore == "Inshore")) %>%               # Remove Inshore deep which doesn't exist                 
   mutate(weights = abs(Bathymetry)) %>%                                     # Get weights for pixel when calculating compartment averages
   mutate(weights = ifelse(Depth == "S" & weights > 60, 60,                  # Set shallow pixel thickness to 60 m deep, even if there is deep inshore pixels close to shore 
-                    ifelse(Depth == "D", weights - 60, weights)))           # If it's a deep pixel reduce thickness by 60 m, otherwise keep thickness as is 
+                    ifelse(Depth == "D", weights - 60, weights))) %>%       # If it's a deep pixel reduce thickness by 60 m, otherwise keep thickness as is 
+ as.data.frame() #tibbles are slow
 
-output <- st_drop_geometry(output)
+output <- st_drop_geometry(output) %>% as.data.frame()                      # tibbles slow down the script
 
 #### Build the monthly sumaries ####
 
-#tic("Creating monthly data objects from netcdf files")                      # Time the data extraction
+tic("Creating monthly data objects from netcdf files")                      # Time the data extraction
 
 #  profvis({
     
@@ -91,26 +92,26 @@ overnight <- all_files %>%
   future_map(whole_month, crop = Window, # Progress bar costs X amount of time
              grid = output, space = Space)                                  # Perform the extraction and save an object for each month (in parallel)
 #  })
-#  toc()                                                                       # Stop timing 
+  toc()                                                                       # Stop timing 
 
 
 #### Looking for improvements ####
 
-# library(profvis)
-# library(microbenchmark)
+#  library(profvis)
+#  library(microbenchmark)
+#  
+#  test <- all_files %>%  
+#    split(., f = list(.$Month, .$Year, .$Type)) %>% 
+#    .[sapply(., function(x) dim(x)[1]) > 0] %>%                               # Drop empty dataframes (Months which weren't observed but split introduces)
+#    .[[1]] # Get a DF of file names for each time step to summarise to
 # 
-# test <- all_files %>%  
-#   split(., f = list(.$Month, .$Year, .$Type)) %>% 
-#   .[sapply(., function(x) dim(x)[1]) > 0] %>%                               # Drop empty dataframes (Months which weren't observed but split introduces)
-#   .[[1]] # Get a DF of file names for each time step to summarise to
+# test_big <- all_files %>%  
+#   split(., f = list(.$Month, .$Year)) %>%                                   # Get a DF of file names for each time step to summarise to
+#   .[1:144]
 #
-#test_big <- all_files %>%  
-#  split(., f = list(.$Month, .$Year)) %>%                                   # Get a DF of file names for each time step to summarise to
-#  .[1:144]
-#
-# profvis({
-#   
-#   look <- type_in_month(test, grid = output, space = Space)
+#profvis({
+   
+#   look2 <- type_in_month(test, grid = output, space = Space)
 #   look_big <-future_map(test_big, whole_month, crop = Window, 
 #                    grid = output, space = Space)                    # Perform the extraction and save an object for each month (in parallel)
 #* next target is reduce
