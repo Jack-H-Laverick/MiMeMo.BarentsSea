@@ -12,10 +12,6 @@ SP <- readRDS("./Objects/SPATIAL.rds") %>%                                  # Re
   select(Ice_conc, Month, Shore) %>% 
   drop_na()
 
-ggplot(SP) + 
-  geom_density(aes(x = Ice_conc)) +
-  facet_wrap(vars(Month), scales = "free_y")
-
 # ggplot(SP) + 
 #   geom_density(aes(x = Ice_conc), fill = "steelblue2") +
 #   theme_minimal() +
@@ -26,14 +22,24 @@ ggplot(SP) +
 
 names(month.abb) <- seq(1:12) # Give months numeric name to work in faect
 
-ggplot(SP, aes(Ice_conc)) + stat_ecdf(geom = "line") +
+ggplot(SP) + 
+  geom_density(aes(x = Ice_conc)) +
   theme_minimal() +
   labs(y = "Cumulative density", x = "Sea Ice Concentration", 
        caption = "Mean monthly values at a pixel from 2000-2009") +
-  facet_wrap(vars(Month), 
+  facet_wrap(vars(Month), scales = "free_y",
              labeller = labeller(Month = month.abb[])) +
   coord_cartesian(xlim = c(0,1), expand = F) +
   theme(axis.text.x = element_text(angle = 90))
+
+# ggplot(SP, aes(Ice_conc)) + stat_ecdf(geom = "line") +
+#   theme_minimal() +
+#   labs(y = "Cumulative density", x = "Sea Ice Concentration", 
+#        caption = "Mean monthly values at a pixel from 2000-2009") +
+#   facet_wrap(vars(Month), 
+#              labeller = labeller(Month = month.abb[])) +
+#   coord_cartesian(xlim = c(0,1), expand = F) +
+#   theme(axis.text.x = element_text(angle = 90))
 
 #ggsave("Ice thesholds.png", width = 18, height = 10, units = "cm", dpi = 500)
 
