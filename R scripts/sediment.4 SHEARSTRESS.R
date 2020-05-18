@@ -110,4 +110,7 @@ weighted <- future_map(1:nrow(domain), ~{                          # For each po
 saveRDS(weighted, "./Objects/Stress95.rds")                                 # Save
 
 ggplot(weighted) + geom_sf(aes(fill = Stress95), lwd = 0) +
-  viridis::scale_fill_viridis(option = 2)
+  viridis::scale_fill_viridis(option = 2) +
+  theme_minimal()
+
+ggsave_map("./Figures/sediment/stress95.png", last_plot())
