@@ -48,7 +48,7 @@ Window <- function(file, w, e, s, n) {
 
 #### Waves ECMWF ####
 
-Space <- Window(all_files[1,]$File, w = 0, e = 76, s = 65, n = 84)          # Get values to crop a netcdf file spatially at import. 
+Space <- Window(ECMF_example[1,]$File, w = 0, e = 76, s = 65, n = 84)          # Get values to crop a netcdf file spatially at import. 
 
 tic()
 domains_mask <- expand.grid(Longitude = Space$Lons, Latitude = Space$Lats) %>%  # Get the data grid
