@@ -48,5 +48,5 @@ mat %>%
           windowsize = c(1840, 1150), zoom = 0.55,
           water = TRUE, waterdepth = 0, wateralpha = 0.5, watercolor = "lightblue",
           waterlinecolor = "white", waterlinealpha = 0.5)
-Sys.sleep(600)                                                                       # Pause for RGL to open
+Sys.sleep(300)                                                                       # Pause for RGL to open
 render_snapshot("./Figures/bathymetry/Rayshade")                                     # Save the current view in the RGL window
