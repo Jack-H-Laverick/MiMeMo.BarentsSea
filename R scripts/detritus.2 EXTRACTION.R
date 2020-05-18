@@ -12,21 +12,23 @@ source("./R scripts/@_Region file.R")                                       # De
 
 plan(multiprocess)                                                          # Choose the method to parallelise by with furrr
 
-all_files <- list.files("/import/fish/southampton/combined/timestep/", pattern = "P.nc", full.names = TRUE) %>%                                                      # List all file names in a folder and below
-  as_tibble() %>%                                                           # Turn the vector into a dataframe/tibble
-  separate(value, into = c(NA, "Metadata"), 
+all_files <- list.files("../../../../import/fish/southampton/combined/timestep/", pattern = "P.nc", full.names = TRUE) %>%                                                      # List all file names in a folder and below
+  as.data.frame() %>%                                                           # Turn the vector into a dataframe/tibble
+  separate('.', into = c(NA, "Metadata"), 
            remove = FALSE, sep = "//") %>%                                  
   separate(Metadata, into = c("Year", "Month", "Day", NA), 
            sep = c(4, 6, 8)) %>%                                            # Extract the year and month from the file name
   mutate(Year = as.integer(Year), Month = as.integer(Month), Day = as.integer(Day)) %>% # Set time as integers
-  filter(Year <2006)
+  filter(Year <2006) %>% 
+  rename(File = ".") %>% 
+  mutate(File = as.character(File))
 
 #### Set the spatial environment ####
 
 domains <- readRDS("./Objects/Domains.rds") %>%                             # Load SF polygons of the MiMeMo model domains
   select(-c(Elevation, area))                                               # Drop uneeded data which would get included in new NM files
 
-Space <- get_spatial(all_files$value[1])                                    # Pull space from the first file
+Space <- get_spatial(all_files$File[1])                                    # Pull space from the first file
 
 output <- readRDS("./Objects/grid_detritus.rds")                            # Load in Bathymetry pulled from GEBCO
 mask_bathy <- matrix(abs(output$Bathymetry), 490, 445)                      # Create a bathymetry matrix
@@ -50,9 +52,10 @@ Window <- st_join(output, domains) %>%
   anti_join(filter(., Depth == "D" & Shore == "Inshore")) %>%               # Remove Inshore deep which doesn't exist                 
   mutate(weights = abs(Bathymetry)) %>%                                     # Get weights for pixel when calculating compartment averages
   mutate(weights = ifelse(Depth == "S" & weights > 60, 60,                  # Set shallow pixel thickness to 60 m deep, even if there is deep inshore pixels close to shore 
-                          ifelse(Depth == "D", weights - 60, weights)))     # If it's a deep pixel reduce thickness by 60 m, otherwise keep thickness as is 
+                          ifelse(Depth == "D", weights - 60, weights))) %>% # If it's a deep pixel reduce thickness by 60 m, otherwise keep thickness as is 
+as.data.frame() #tibbles are slow
 
-output <- st_drop_geometry(output)
+output <- st_drop_geometry(output) %>% as.data.frame()                      # tibbles slow down the script
 
 #### Build the monthly sumaries ####
 
