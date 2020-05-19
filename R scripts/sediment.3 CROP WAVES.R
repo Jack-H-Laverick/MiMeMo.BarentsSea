@@ -11,8 +11,8 @@ plan(multiprocess)                                                       # Set p
 Waves_mask <- readRDS("./Objects/ECMWF Targets.rds")                     # Import locations of traget pixels in SINMOD grid
 
 all_files <- list.files("./Data/ECMWF_Waves", recursive = TRUE, full.names = TRUE, pattern = ".nc") %>%
-  as_tibble() %>%                                                        # Turn the vector into a dataframe/tibble
-  separate(value, into = c("path", "file"), sep = -7) %>%               
+  as.data.frame() %>%                                                    # Turn the vector into a dataframe
+  separate(".", into = c("path", "file"), sep = -7) %>%   
   mutate(year = as.integer(str_sub(file, 1, 4))) %>%                     # Extract the year from the file name
   filter(year > 2002)                                                    # We only need data which overlaps with tides from SINMOD
 
@@ -55,7 +55,7 @@ toc()
 
 ## Concatenate files
 # Concatenate along time dimension from the start, from SINMOD_blah.nc files, into a tides file
-system(str_glue("ncrcat -d time,0, ./Data/ECMWF_Waves/crop????.nc ./Data/ECMWF_Waves/waves.nc")) 
+system(str_glue("ncrcat -d time,0, ./Data/ECMWF_Waves/crop????.nc ./Objects/waves.nc")) 
 
 ## Delete redundant subsets
 cleaning <- list.files(unique(all_files$path), full.names = TRUE) %>%    # What do we have now?

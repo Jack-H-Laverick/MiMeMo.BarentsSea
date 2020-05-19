@@ -9,15 +9,16 @@ lapply(packages, library, character.only = TRUE)                            # Lo
 domains <- readRDS("./Objects/Domains.rds") %>%                             # Load SF polygons of the MiMeMo model domains
   st_transform(crs = 4326)
 
-ECMF_example <- list.files("./Data/ECMWF Waves/", full.names = TRUE, pattern = ".nc") %>%
-  as_tibble() %>%
+ECMWF_example <- list.files("./Data/ECMWF_Waves/", full.names = TRUE, pattern = ".nc") %>%
+  as.data.frame() %>%
   slice(1) %>% 
-  rename(File = "value") %>% 
-  mutate(Year = str_sub(File, start = -7, end = -4))
+  rename(File = ".") %>% 
+  mutate(File = as.character(File),
+         Year = str_sub(File, start = -7, end = -4))
 
 SINMOD_example <- list.files("/mnt/idrive/Science/MS/Shared/CAO/SINMOD", recursive = TRUE, full.names = TRUE, pattern = ".nc") %>%
-  as_tibble() %>%                                                           # Turn the vector into a dataframe/tibble
-  separate(value, into = c("path", "file"), sep = "_") %>%                  # Extract the year and month from the file name
+  as.data.frame() %>%                                                       # Turn the vector into a dataframe/tibble
+  separate(".", into = c("path", "file"), sep = "_") %>%                    # Extract the year and month from the file name
   mutate(path = paste0(path, "_")) %>%                                      # Replace the dropped separator
   filter(!file %in% c("200301.nc", "ncdump")) %>%                           # First time step isn't accessible, and don't want the dump file
   slice(1)                                                                  # Take 1 file as an example
@@ -48,7 +49,7 @@ Window <- function(file, w, e, s, n) {
 
 #### Waves ECMWF ####
 
-Space <- Window(ECMF_example[1,]$File, w = 0, e = 76, s = 65, n = 84)          # Get values to crop a netcdf file spatially at import. 
+Space <- Window(ECMWF_example[1,]$File, w = 0, e = 76, s = 65, n = 84)          # Get values to crop a netcdf file spatially at import. 
 
 tic()
 domains_mask <- expand.grid(Longitude = Space$Lons, Latitude = Space$Lats) %>%  # Get the data grid
@@ -58,16 +59,13 @@ domains_mask <- expand.grid(Longitude = Space$Lons, Latitude = Space$Lats) %>%  
          y_index = match(Latitude, Space$Lats) + Space$Limits$Lat_start - 1)    # Find y index in the netcdf file each pixel sits at
 toc()
 
-ggplot(domains_mask) + geom_sf(aes(fill = Shore), lwd = 0.1)                # Check
+ggplot(domains_mask) + geom_sf(aes(fill = Shore), lwd = 0.1)                    # Check
 
-saveRDS(domains_mask, "./Objects/ECMWF Targets.rds")                        # Save
+saveRDS(domains_mask, "./Objects/ECMWF Targets.rds")                            # Save
 
 #### Tides SINMOD ####
 
 raw <- nc_open(paste0(SINMOD_example$path[1], SINMOD_example$file[1]))      # Open example file
-
-ldepths <- ncvar_get(raw, "LayerDepths")                                    # Check a variable
-depths <- ncvar_get(raw,  "depth")                                          # Check a variable
 
 Lats <- ncvar_get(raw, "gridLats")                                          # Pull latitudes
 Lons <- ncvar_get(raw, "gridLons")                                          # Pull longitudes

@@ -11,8 +11,8 @@ plan(multiprocess)                                                       # Set p
 SINMOD_mask <- readRDS("./Objects/SINMOD Targets.rds")                   # Import locations of traget pixels in SINMOD grid
 
 all_files <- list.files("/mnt/idrive/Science/MS/Shared/CAO/SINMOD", recursive = TRUE, full.names = TRUE, pattern = ".nc") %>%
-  as_tibble() %>%                                                        # Turn the vector into a dataframe/tibble
-  separate(value, into = c("path", "file"), sep = "_") %>%               # Extract the year and month from the file name
+  as.data.frame() %>%                                                    # Turn the vector into a dataframe
+  separate(".", into = c("path", "file"), sep = "_") %>%                 # Extract the year and month from the file name
   separate(file, into = c("year", NA),  
            remove = FALSE, sep = 4) %>%                                  # Extract the year and month from the file name
   mutate(path = paste0(path, "_"),                                       # Replace the dropped separator

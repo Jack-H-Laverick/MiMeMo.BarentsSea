@@ -53,15 +53,13 @@ scripts <- c(                                            # List scripts in the o
 ###  "./R scripts/fish.4 GFW FRESH FIGURE.R",
 ###"./R scripts/fish.5 GFW PLOTTING.R",
 
- # "./R scripts/sediment.1 TIDES.R",
- # "./R scripts/sediment.2 WAVES.R",
    "./R scripts/sediment.1 GRID WATER.R",
    "./R scripts/sediment.2 CROP SINMOD.R", 
-   "./R scripts/sediment.2 CROP WAVES.R",
-   "./R scripts/sediment.3 WATER TS.R",
-   "./R scripts/sediment.4 SHEARSTRESS.R",
-   "./R scripts/sediment.4 GRID.R",
-   "./R scripts/sediment.5 RANDOM FOREST.R"
+   "./R scripts/sediment.3 CROP WAVES.R",
+   "./R scripts/sediment.4 WATER TS.R",
+   "./R scripts/sediment.5 SHEARSTRESS.R",
+   "./R scripts/sediment.6 GRID.R",
+   "./R scripts/sediment.7 RANDOM FOREST.R"
 ) %>% 
   map(execute)
 
