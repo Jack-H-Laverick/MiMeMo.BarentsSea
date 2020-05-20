@@ -3,7 +3,7 @@
 
 rm(list=ls())                                                               # Wipe the brain
 
-packages <- c("MiMeMo.tools", "tidyverse", "sf", "tictoc", "ncdf4")         # List packages
+packages <- c("MiMeMo.tools", "tidyverse", "sf", "tictoc", "ncdf4", "data.table") # List packages
 lapply(packages, library, character.only = TRUE)                            # Load packages
 
 domains <- readRDS("./Objects/Domains.rds") %>%                             # Load SF polygons of the MiMeMo model domains
