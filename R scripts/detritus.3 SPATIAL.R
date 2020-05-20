@@ -20,8 +20,11 @@ SP <- list.files("./Objects/Detritus/", full.names = T) %>%                 # Ge
   future_map(decadal, .progress = TRUE) %>%                                 # Read in data, remove unnecessary columns and create a decade column
   rbindlist() %>%                                                           # Combine dataframes
   mutate(Decade = as.factor(Decade)) %>%                                    # Change decade to factor
-  split(., f = list(.$Decade, .$Depth)) %>%                                 # Split into a large dataframe per decade (and depth to help plotting)
-  lapply(summarise_sp, dt = T) %>%                                          # Average the variables per decade, dt method is faster
+  split(., f = list(.$Decade, .$Depth))                                     # Split into a large dataframe per decade (and depth to help plotting)
+
+lapply(SP, setDT)                                                           # Break pipe to set all dataframes to datatables
+    
+  lapply(SP, summarise_sp, dt = T) %>%                                      # Average the variables per decade, dt method is faster
   future_map(reproj, crs = crs, .progress = TRUE) %>%
   saveRDS("./Objects/SPATIAL_detritus.rds")                                 # Save out spatial file
 toc()                                                                       # Stop timing
