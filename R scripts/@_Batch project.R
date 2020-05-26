@@ -31,7 +31,7 @@ scripts <- c(                                            # List scripts in the o
 
    "./R scripts/detritus.1 GRID.R",
    "./R scripts/detritus.2 EXTRACTION.R",
-###"./R scripts/detritus.3 SPATIAL.R",
+   "./R scripts/detritus.3 SPATIAL.R",
    "./R scripts/detritus.4 TIME SERIES.R",             
    "./R scripts/detritus.5 PLOTTING.R",
   
