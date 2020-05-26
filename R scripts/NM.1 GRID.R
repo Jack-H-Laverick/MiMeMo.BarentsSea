@@ -53,16 +53,19 @@ ggplot() + geom_sf(data = s, aes(fill = A1), colour = NA) +
   
 #### Convert to a dataframe ####
 
-grid <- crop_lat %>%                                                        # Create a spatial dataframe, grab latitudes
-  as.numeric() %>%                                                          # Make numeric
-  as_tibble() %>%                                                           # Convert to tibble/dataframe
-  rename(Latitude = value) %>%                                              # Rename single column
-  mutate(Longitude = as.numeric(crop_lon))                                  # Add in Longitudes
+# grid <- crop_lat %>%                                                        # Create a spatial dataframe, grab latitudes
+#   as.numeric() %>%                                                          # Make numeric
+#   as_tibble() %>%                                                           # Convert to tibble/dataframe
+#   rename(Latitude = value) %>%                                              # Rename single column
+#   mutate(Longitude = as.numeric(crop_lon))                                  # Add in Longitudes
+
+grid <- data.frame(Latitude = as.numeric(crop_lat),
+                   Longitude = as.numeric(crop_lon))
 
 #### Extract GEBCO bathymetry at points ####
 
 closest <- nn2(nc_bath[,c(2,1)], grid[,1:2], k = 1, searchtype = "priority") %>% # Fast nearest neighbour search
-  sapply(cbind) %>% as_tibble                                               # Format as dataframe
+  sapply(cbind) %>% as.data.frame                                            # Format as dataframe
 
 Depths <- nc_bath[["Elevation"]] %>%                                        # Select the depths
   .[closest$nn.idx]  
