@@ -69,12 +69,15 @@ raw <- nc_open(paste0(SINMOD_example$path[1], SINMOD_example$file[1]))      # Op
 
 Lats <- ncvar_get(raw, "gridLats")                                          # Pull latitudes
 Lons <- ncvar_get(raw, "gridLons")                                          # Pull longitudes
+Depth <- ncvar_get(raw, "elevation")                                        # Pull depths
 
 coords <- reshape2::melt(Lons) %>%                                          # Reshape the matrix to a 3 column data.frame
   as.data.table() %>%                                                       # Convert to a data.table for speed
   .[as.data.table(reshape2::melt(Lats)),                                    # Bind latitudes treated in the same way
     on = c("Var1", "Var2")] %>%                                             # using the matrix indices
-  setnames(c("V1", "V2", "Longitude", "Latitude")) %>%                      # Rename
+  .[as.data.table(reshape2::melt(Depth)),                                   # Bind depths treated in the same way
+    on = c("Var1", "Var2")] %>%                                             # using the matrix indices
+  setnames(c("V1", "V2", "Longitude", "Latitude", "Depth")) %>%             # Rename
   .[Latitude %between% c(65, 85) & Longitude %between% c(0,90)]             # Clip to points within rough crop
 
 voronoi <- st_as_sf(setDF(coords), coords = c("Longitude", "Latitude"), remove = FALSE, crs = 4326) %>% # Convert to sf 
