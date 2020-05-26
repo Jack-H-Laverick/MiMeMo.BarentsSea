@@ -51,7 +51,7 @@ Boundary_new <- mutate(Boundary_template,
                        ## Rivers
                         #RIV_nitrate = ,     
                         #RIV_ammonia = ,          
-                        #RIV_detritus = ,
+                       RIV_detritus = 0,
                        ## Atmosphere, daily deposition as monthly averages
                        SO_ATM_nitrate_flux = My_atmosphere$Offshore_O,
                        SO_ATM_ammonia_flux = My_atmosphere$Offshore_R,
