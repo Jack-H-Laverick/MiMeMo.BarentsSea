@@ -59,16 +59,30 @@ outcomes <- data.frame(X = c(TRUE, FALSE), Y = c(TRUE, FALSE), current = c("Awkw
 
 #Checked <- mutate(Weighted, checks = future_map(Segment, check_grid, Weighted, .progress = TRUE)) # Check segments are parlell in Lat/Lon
 
-Checked <- mutate(Weighted, checks = map(Segment, check_grid, Weighted)) %>%  # Check segments are parlell in Lat/Lon
-  unnest(checks) %>%                                                          # Expose nested columns
-  left_join(outcomes)                                                         # Add column of which current to grab
+# Checked <- mutate(Weighted, checks = map(Segment, check_grid, Weighted)) %>%  # Check segments are parlell in Lat/Lon
+#   unnest(checks) %>%                                                          # Expose nested columns
+#   left_join(outcomes)                                                         # Add column of which current to grab
+
+Checks <- map_dfr(Weighted$Segment, check_grid, Weighted) %>%                   # Check segments are parlell in Lat/Lon
+  left_join(outcomes)                                                           # Add column of which current to grab
+
+Checked <- mutate(Weighted, current = Checks$current)                           # Add checks to weighted transects
 
 #### Which direction do currents flow over transects (in or out of box) and categorise by the exchange between boxes ####
 
-Transects <- mutate(Checked, direction = future_map(1:nrow(Checked), direction, .progress = T)) %>% # Get a labesl of each transect
-  unnest(direction, names_repair = "universal") %>%                           # Expose new columns
-  select(-c(X, Y, Length, Depth))                                             # Drop redundant information
-saveRDS(Transects, "./Objects/Boundary_transects.rds")
+# Transects <- mutate(Checked, direction = future_map(1:nrow(Checked), direction, .progress = T)) %>% # Get a labesl of each transect
+#   unnest(direction, names_repair = "universal") %>%                           # Expose new columns
+#   select(-c(X, Y, Length, Depth))                                             # Drop redundant information
+# saveRDS(Transects, "./Objects/Boundary_transects.rds")
+
+direction <- future_map_dfr(1:nrow(Checked), direction, .progress = T) %>%      # Get a label of each transect
+#  unnest(direction, names_repair = "universal") %>%                            # Expose new columns
+#  select(-c(X, Y, Length, Depth))                                              # Drop redundant information
+  select(-c(Length, Depth))                                                     # Drop redundant information
+
+  Transects <- mutate(Checked, Flip = direction$Flip,                             # Bind direction information
+                    Neighbour = direction$Neighbour)
+#saveRDS(Transects, "./Objects/Boundary_transects.rds")
 
 ## To visualise "direction function" behaviour, uncomment the plot in the end of the function 
 #direction(1)                                                               # Grab current directions relative to domain
