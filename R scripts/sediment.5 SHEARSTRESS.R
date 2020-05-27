@@ -6,6 +6,8 @@ rm(list=ls())                                                               # Wi
 packages <- c("MiMeMo.tools", "tidyverse", "tictoc", "furrr", "sf")         # List packages
 lapply(packages, library, character.only = TRUE)                            # Load packages
 
+source("./R scripts/@_Region file.R")
+
 plan(multiprocess)
 
 wave_ts <- readRDS("./Objects/Wave_ts.rds")                                 # Read in a list of time series for waves at pixels
@@ -16,7 +18,7 @@ pairs <- readRDS("./Objects/Water look up table.rds")                       # Im
 
 #### function ####
 
-align_stress <- function (tide_ts, wave_ts, depth = 40, percentile = 0.95) {
+align_stress <- function (tide_ts, wave_ts, percentile = 0.95) {
   
   #  align <- merge(tide_ts, wave_ts)                                # Match up time series (identify missing steps)
   
@@ -26,7 +28,7 @@ align_stress <- function (tide_ts, wave_ts, depth = 40, percentile = 0.95) {
   
   } else {                       # If we do have data calculate bed shear stress
     
-  align <- zoo::merge.zoo(tide_ts, wave_ts, all = c(T,T))                   # Match up time series (identify missing steps)
+  align <- zoo::merge.zoo(tide_ts, wave_ts, all = c(T,T))          # Match up time series (identify missing steps)
   
   align$mwd <- zoo::na.approx(align$mwd, rule = 2)                 # Interpolate wave direction onto tide time steps
   align$swh <- zoo::na.approx(align$mwd, rule = 2)                 # Interpolate wave height onto tide time steps
@@ -36,19 +38,21 @@ align_stress <- function (tide_ts, wave_ts, depth = 40, percentile = 0.95) {
   
   ## CALCULATE BED SHEAR STRESS ##
   
-  stress <- bedshear::shear_stress(
-    bathymetry = depth,                                            # Depth to sea floor
-    D50 = 0.02,                                                    # Nominal median grain size
-    tidal_velocity = align[,"uvSpeed"],                            # Water movements
-    tidal_direction = align[,"uvDirection"], 
-    wave_height = align[,"swh"],
-    wave_period = align[,"mwp"],
-    wave_direction = align[,"mwd"]/10,
-    switch = 0) %>% 
-    select(shear_mean) #%>%                                         # Keep only mean bed shear stress
-#    dplyr::mutate(Time_step = zoo::index(align))                  # Add time 
+depth <- mean(align[which(align[,"depth"]>0), "depth"])              # Mean depth when submerged
+
+stress <- bedshear::shear_stress(
+  bathymetry = depth,                                            # Depth to sea floor
+  D50 = 0.02,                                                    # Nominal median grain size
+  tidal_velocity = align[,"uvSpeed"],                            # Water movements
+  tidal_direction = align[,"uvDirection"],
+  wave_height = align[,"swh"],
+  wave_period = align[,"mwp"],
+  wave_direction = align[,"mwd"]/10,
+  switch = 0) %>%
+  select(shear_mean) #%>%                                        # Keep only mean bed shear stress
+ #  dplyr::mutate(Time_step = zoo::index(align))                  # Add time
     
-    stress <- quantile(stress$shear_mean, percentile)                 # Calculate the percentile over the time series
+  stress <- quantile(stress$shear_mean, percentile)                 # Calculate the percentile over the time series
       }
 
   return(stress)  
@@ -60,7 +64,7 @@ align_stress <- function (tide_ts, wave_ts, depth = 40, percentile = 0.95) {
 ## Can I split time series to parallelise? I can't just do it straight away because the objects exceed memory limits
 # ggplot(pairs) + geom_point(aes(x= tide_entry, y = wave_entry)) # both indices increase together so we should be able to break the data into chunks
 
-pairs_chunked <- split(pairs, (seq(nrow(pairs)) -1) %/% 1100)               # Split into chunks of 1000 rows
+pairs_chunked <- split(pairs, (seq(nrow(pairs)) -1) %/% 500)               # Split into chunks of 1000 rows
 tides_chunked <- map(pairs_chunked, ~{tide_ts[.x$tide_entry] })             # For each chunk of the dataframe, copy the appropriate time series
 waves_chunked <- map(pairs_chunked, ~{wave_ts[.x$wave_entry] })
 
@@ -72,11 +76,15 @@ tic()
 fast <- map2(chunked$tides, chunked$waves,                                  # Over chunks of input sequentially, so that chunks are small enough to be copied
              ~ { future_map2_dbl(.x, .y,                                    # For each pairing of waves and tides
                                  ~ { align_stress(.x,                       # Align both time series 
-                                                  .y,                       # and calculate bed shear stress
-                                                  depth = 40)          
+                                                  .y)                       # and calculate bed shear stress
                                     }, .progress = TRUE)
                })
 toc()
+
+# tic()
+# test <- align_stress(chunked$tides$`0`[[300]], 
+#                      chunked$waves$`0`[[300]])
+# toc()
 
 #### Bind ####
 
