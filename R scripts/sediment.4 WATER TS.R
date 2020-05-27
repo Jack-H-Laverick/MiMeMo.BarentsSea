@@ -96,9 +96,10 @@ rm(swh, mwp, mwd, Wave_list)                                                # Cl
 raw <- nc_open("./Data/SINMOD/tides.nc")                                    # Open file containing all the data
 u <-  ncvar_get(raw, "u_east")                                              # Import u tidal currents
 v <-  ncvar_get(raw, "u_east")                                              # Import v tidal currents
+depth <-  ncvar_get(raw, "elevation")                                       # Import changing depths
 nc_close(raw)                                                               # Close file
 
-empty <- apply(u, c(1,2), empty)                                            # Which pixels never have water movement (probably land), same result for two variables
+empty <- apply(u, c(1,2), empty)                                            # Which pixels never have water movement (probably land), same result for two water variables)
 
 u[is.na(u)] <- 0                                                            # replace NA's with 0, unless there's never water movement, a pixel shold be still when NA
 v[is.na(v)] <- 0
@@ -106,16 +107,22 @@ v[is.na(v)] <- 0
 u[empty] <- NA                                                              # Put back NA's on pixels which never have water movement
 v[empty] <- NA
 
+depth[depth >= 0] <- 0                                                      # Set all exposed land to depth of 0
+depth <- depth * -1                                                         # Convert elevation to depth
+  
 Tide_step <- seq(ISOdate(2003, 02, 1, 0), by = "2 hours", length.out = length(u[40,40,])) # Calculate time steps for the dataset
 
-tide_ts <- function(u, v) {
+tide_ts <- function(depth, u, v) {
   
-  tide_ts <- zoo::zoo(vectors_2_direction(u, v), # Convert UV to speed and direction
-                      Tide_step)                 # Convert to zoo object to align time series
+  tide_ts <- zoo::zoo(cbind(depth,                      # Bind depths to 
+                            vectors_2_direction(u, v)), # Converted UV to speed and direction
+                      Tide_step)                        # Convert to zoo object to align time series
 }                                             # Convert UV vectors to a time series of speed and direction
 
-Tide_list <- map2(tide_pixels$tide_x, tide_pixels$tide_y,                   # For each unique pixel
-                  ~ tide_ts(u[.x,.y,], v[.x,.y,]))                          # Pull a time series of tide data
+Tide_list <- map2(tide_pixels$tide_x, tide_pixels$tide_y,              # For each unique pixel
+                  ~ tide_ts(depth[.x,.y,],                            # Pull a times series of tide data
+                            u[.x,.y,],                                 # Sampling at specific pixels
+                            v[.x,.y,]))                                 
 
 saveRDS(Tide_list, "./Objects/Tide_ts.rds")
 
@@ -126,3 +133,4 @@ Water_pairs <- left_join(aligned, mutate(tide_pixels, tide_entry = row_number())
   select(-ends_with(c("_y", "_x")))                                         # Drop redundant columns          
                          
 saveRDS(Water_pairs, "./Objects/Water look up table.rds")                   # Save
+
