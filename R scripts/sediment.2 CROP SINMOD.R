@@ -27,11 +27,12 @@ window <- list(xmin = min(SINMOD_mask$V1),                               # Defin
 
 out_dir <- "./Data/SINMOD/"                                              # Define location to save new files
 
-#### Subset files ####
+#### Summarise files ####
 
 ## Subset files
 tic()
-future_map(all_files$file, reshape_SINMOD, path = unique(all_files$path), out_dir = out_dir, window = window)
+future_map(all_files$file, reshape_SINMOD, path = unique(all_files$path), 
+           out_dir = out_dir, window = window, .progress = TRUE)
 toc()
 
 ## Concatenate files
