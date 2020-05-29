@@ -13,7 +13,7 @@ source("./R scripts/@_Region file.R")                                       # De
 
 world <- ne_countries(scale = "medium", returnclass = "sf") %>%             # Get a world map
   filter(subregion %in% c("Northern America", "Northern Europe", "Eastern Europe")) %>%
-  st_transform(crs = 3035)                                                  # Assign polar projection
+  st_transform(crs = crs)                                                  # Assign polar projection
 
 nc_bath <- readRDS("./Objects/Bathymetry_points.rds")  # Get bathymetry
 
@@ -59,8 +59,22 @@ ggplot() + geom_sf(data = s, aes(fill = A1), colour = NA) +
 #   rename(Latitude = value) %>%                                              # Rename single column
 #   mutate(Longitude = as.numeric(crop_lon))                                  # Add in Longitudes
 
-grid <- data.frame(Latitude = as.numeric(crop_lat),
-                   Longitude = as.numeric(crop_lon))
+#grid <- data.frame(Latitude = as.numeric(crop_lat),
+#                   Longitude = as.numeric(crop_lon))
+
+## Speed crop ##
+
+test <- crop_lat > 65 & crop_lat < 84 & crop_lon > 6 & crop_lon < 68
+
+E <- min(which(test == TRUE, arr.ind = TRUE)[,"row"])
+W <- max(which(test == TRUE, arr.ind = TRUE)[,"row"])
+S <- min(which(test == TRUE, arr.ind = TRUE)[,"col"])
+N <- max(which(test == TRUE, arr.ind = TRUE)[,"col"])
+
+dims <- crop_lat[E:W, S:N]   # Check the matrix dimensions match
+
+grid <- data.frame(Latitude = as.numeric(crop_lat[E:W, S:N]),
+                   Longitude = as.numeric(crop_lon[E:W, S:N]))
 
 #### Extract GEBCO bathymetry at points ####
 
