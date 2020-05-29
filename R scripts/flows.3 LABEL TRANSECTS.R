@@ -75,14 +75,14 @@ Checked <- mutate(Weighted, current = Checks$current)                           
 #   select(-c(X, Y, Length, Depth))                                             # Drop redundant information
 # saveRDS(Transects, "./Objects/Boundary_transects.rds")
 
-direction <- future_map_dfr(1:nrow(Checked), direction, .progress = T) %>%      # Get a label of each transect
+direction <- future_map_dfr(1:nrow(Checked), direction, .progress = T) #%>%      # Get a label of each transect
 #  unnest(direction, names_repair = "universal") %>%                            # Expose new columns
 #  select(-c(X, Y, Length, Depth))                                              # Drop redundant information
-  select(-c(Length, Depth))                                                     # Drop redundant information
+#  select(-c(Length, Depth))                                                     # Drop redundant information
 
   Transects <- mutate(Checked, Flip = direction$Flip,                             # Bind direction information
                     Neighbour = direction$Neighbour)
-#saveRDS(Transects, "./Objects/Boundary_transects.rds")
+saveRDS(Transects, "./Objects/Boundary_transects.rds")
 
 ## To visualise "direction function" behaviour, uncomment the plot in the end of the function 
 #direction(1)                                                               # Grab current directions relative to domain
