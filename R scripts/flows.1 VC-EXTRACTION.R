@@ -22,8 +22,8 @@ grid_points <- readRDS("./Objects/Fixed_grid.rds") %>%                      # Lo
 #### Get the names of vertical current files ####
 
 all_files <- list.files("/mnt/idrive/Science/MS/Shared/CAO/mimemo/clipped_medusa", recursive = TRUE, full.names = TRUE) %>%
-  as_tibble() %>%                                                           # Turn the vector into a dataframe/tibble
-  separate(value, into = c("Path", "File"), sep = 61) %>%                   # Extract the year and month from the file name
+  as.data.frame() %>%                                                           # Turn the vector into a dataframe/tibble
+  separate(".", into = c("Path", "File"), sep = 61) %>%                   # Extract the year and month from the file name
   separate(File, into = c("Type", "Date"), 
            remove = FALSE, sep = -11) %>%                                   # Extract the year and month from the file name
   mutate(Date = str_sub(Date, end = -4))                                    # Drop file extension to get number
