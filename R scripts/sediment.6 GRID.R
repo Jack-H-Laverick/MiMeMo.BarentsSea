@@ -23,19 +23,19 @@ box <- st_bbox(domains)
 
 star <- st_as_stars(box, dx = 0.01, dy = 0.01, values = 0)
 
-samples <- st_as_sf(star, as_points = TRUE, merge = FALSE) %>%               # Switch the GFW grid into a collection of sampling points
-  st_transform(crs = 4326)                                                   # Set CRS
+samples <- st_as_sf(star, as_points = TRUE, merge = FALSE) %>%                # Switch the GFW grid into a collection of sampling points
+  st_transform(crs = 4326)                                                    # Set CRS
 
 ####  Regrid GEBCO ####
 
-raster_extract <- function(x, y, fun = NULL, na.rm = FALSE) {
+star_extract <- function(x, y, fun = NULL, na.rm = FALSE) {
   x = as(x, "Raster")
   y = as(y, "Spatial")
   raster::extract(x = x, y = y, fun = fun, na.rm = na.rm)
 }
  
 bathymetry <- samples %>%                                                     # Start with the GFW grid
-  mutate(elevation = raster_extract(nc_bath, ., fun = mean)) %>%              # Sample the Bathymetry at GFW
+  mutate(elevation = star_extract(nc_bath, ., fun = mean)) %>%                # Sample the Bathymetry at GFW
   dplyr::select(-values)                                                      # Drop unneccessary column
 
 #### Compute terrain variables ####
@@ -53,39 +53,27 @@ star_terrain <- function (x, y, opt) {
   terrain <- raster::extract(x = x, y = y, fun = fun, na.rm = na.rm)
 
   return(terrain)
-}                            # Wrapper for using terrain function from raster package
-
-# tic()
-# test <- star_terrain(st_rasterize(Samples2, deltax = 0.01, deltay = 0.01),
-#                      Samples2, "flowdir")      # Convert SF to Stars
-# toc()
+}                                    # Wrapper for using terrain function from raster package
 
 bath_star <- st_rasterize(bathymetry, deltax = 0.01, deltay = 0.01)
 plot(bath_star)                                                               # Plot as a check, ggplot can't cope with the full file
 
-vars <- c("slope", "aspect", "TPI", "TRI", 
-  "roughness", "flowdir")                                    # Variables to calculate in terrain function
-
-tic()
-Terrain <- map_dfc(vars, star_terrain,                          # Calculate each in turn, binding by column into a DF
-             x = st_rasterize(bathymetry, deltax = 0.01, deltay = 0.01), # From rasterised bathymetry
-             y = bathymetry) %>%                                # Using samples (which also have bathymetry information appended)
-  bind_cols(bathymetry)                                         # Add bathymetry
-
-test <- rename_at(Terrain, 1:length(vars), ~ vars)              # Rename the columns
-toc()
+Terrain <- map(c("slope", "aspect", "TPI", "TRI", 
+                 "roughness", "flowdir"),                                     # Variables to calculate in terrain function
+             star_terrain,                                                    # Calculate each in turn
+             x = bath_star,                                                   # From rasterised bathymetry
+             y = bathymetry) %>%                                              # Using samples (which also have bathymetry information appended)
+  data.frame(bathymetry) %>%                                                  # Bind into a dataframe and add bathymetry
+  st_as_sf()                                                                  # Reinstate SF class
 
 #### Sample sediment ####
 
 Sediment <- readOGR(dsn="./Data/NGU oversikt", 
-                    layer = "KornstorrelseFlate_oversikt") %>%               # Import FAO shapefile
-  st_as_sf(crs = 4326) %>%                                                   # Assign CRS                                   
-  st_join(Terrain, ., left = TRUE) %>%                                       # Sample polygons bathymetric grid
+                    layer = "KornstorrelseFlate_oversikt") %>%                # Import NGU shapefile
+  st_as_sf(crs = 4326) %>%                                                    # Assign CRS                                   
   select(SEDKORNSTR) %>% 
-    mutate(Hard = if_else(SEDKORNSTR > 179 | SEDKORNSTR == 1, 1, 0, missing = NaN)) # Create a column for Hard/Soft bottom
-
-
-
+  st_join(Terrain, ., left = TRUE) %>%                                        # Sample polygons by bathymetric grid
+  mutate(Hard = if_else(SEDKORNSTR > 179 | SEDKORNSTR == 1, 1, 0, missing = NaN)) # Create a column for Hard/Soft bottom
 
 Sed_class_star <- st_rasterize(Sediment["SEDKORNSTR"], deltax = 0.01, deltay = 0.01) # Extract bottom classification
 Sed_Hard_star <- st_rasterize(Sediment["Hard"], deltax = 0.01, deltay = 0.01) # Extract hard/soft classification
@@ -100,13 +88,14 @@ ggplot() +
 
 ggsave("./Figures/sediment/Classed sediment.png", plot = last_plot(), scale = 1, width = 16, height = 10, units = "cm", dpi = 500)
 
-##
+#### Sample be shear stress ####
 
-Samples3 <- st_join(Samples2, Sediment["SEDKORNSTR"], left = FALSE)
+Stress <- st_join(Sediment,                                                   # Join previous data
+                 readRDS("./Objects/Stress95.rds"))                           # to bed shear stress estimates
 
-#Stars <- c(bath_star, Sed_class_star, Sed_Hard_star) %>%             # Binding in an ugly (but functional) way for stars
-#  st_as_sf(as_points = FALSE, merge = FALSE) %>%                     # Convert to SF dataframe for modelling.
-#  st_join(vars)
+ggplot(Stress, aes(x = Longitude, y = Latitude, fill = SEDKORNSTR)) +         # Check the bathymetry looks believable
+  geom_raster()
 
+Stress <- select(Stress, -c(Shore, Elevation, area, Cell_area, Longitude, Latitude)) # Drop excess columns
 
-#saveRDS(Stars, "./Objects/RF_sediment_observations.rds")          
+saveRDS(Stress, "./Objects/RF_sediment_observations.rds")          
