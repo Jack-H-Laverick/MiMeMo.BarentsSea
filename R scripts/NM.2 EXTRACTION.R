@@ -85,34 +85,31 @@ output <- st_drop_geometry(output) %>%
 
 #### Build the monthly sumaries ####
 
-tic("Creating monthly data objects from netcdf files")                      # Time the data extraction
-
-#  profvis({
-
-overnight <- all_files %>%
-  split(., f = list(.$Month, .$Year)) %>%                                   # Get a DF of file names for each time step to summarise to
-  .[sapply(., function(x) dim(x)[1]) > 0] %>%                               # Drop empty dataframes (Months which weren't observed but split introduces)
-  future_map(whole_month, crop = Window, 
-             grid = output, space = Space, .progress = T)                   # Perform the extraction and save an object for each month (in parallel)
-#  })
-  toc()                                                                       # Stop timing
+# tic("Creating monthly data objects from netcdf files")                      # Time the data extraction
+# 
+# overnight <- all_files %>%
+#   split(., f = list(.$Month, .$Year)) %>%                                   # Get a DF of file names for each time step to summarise to
+#   .[sapply(., function(x) dim(x)[1]) > 0] %>%                               # Drop empty dataframes (Months which weren't observed but split introduces)
+#   future_map(whole_month, crop = Window,
+#              grid = output, space = Space, .progress = T)                   # Perform the extraction and save an object for each month (in parallel)
+#   toc()                                                                       # Stop timing
  
 #### Looking for improvements ####
 
 #  library(profvis)
 #  library(microbenchmark)
-#  
-# test <- all_files %>%
-#   split(., f = list(.$Month, .$Year, .$Type)) %>%
-#   .[sapply(., function(x) dim(x)[1]) > 0] %>%                               # Drop empty dataframes (Months which weren't observed but split introduces)
-#   .[[1]] # Get a DF of file names for each time step to summarise to
-# 
+  
+ test <- all_files %>%
+   split(., f = list(.$Month, .$Year, .$Type)) %>%
+   .[sapply(., function(x) dim(x)[1]) > 0] %>%                               # Drop empty dataframes (Months which weren't observed but split introduces)
+   .[[1]] # Get a DF of file names for each time step to summarise to
+ 
 # test_big <- all_files %>%  
 #   split(., f = list(.$Month, .$Year)) %>%                                   # Get a DF of file names for each time step to summarise to
 #   .[1:144]
 
 
-#simple <- get_sea(path = test$Path[1], file = test$File[1],space = Space)
+#simple <- get_sea(path = test$Path[1], file = test$File[1], space = Space)
 ##**## target apply next
   
 #tic() 
@@ -143,64 +140,22 @@ overnight <- all_files %>%
 # check <- readRDS("./Objects/Months/NM.12.1984.rds")
  
 # ggplot(check) + geom_point(aes(x = Longitude, y = Latitude, colour = Temperature), size = 0.1)
-#  
- # simple <- cbind(temp = 1:10, 50)
- #  list <- list(cbind(a = 1:44650, b = 1:44650, c = 1:44650),
- #               cbind(d = 2:44651, e = 2:44651, f = 2:44651),
- #               cbind(d = 3:44652, e = 3:44652, f = 3:44652),
- #               cbind(d = 4:44653, e = 4:44653, f = 4:44653),
- #               cbind(g = 5:44654, h = 5:44654, i = 5:44654))
- # 
- #  
- # microbenchmark(reduce(list, cbind),
- #                do.call(cbind, list),
- #                do.call(cbind, lapply(as.data.frame,list)),
- #                cbind(list[[1]], list[[2]], list[[3]]),
- #                matrix(unlist(list), nrow = nrow(list[[1]])))
-  
-# list[[1:2]]
-# 
-# test_bind <- matrix(1:336270, nrow = 30570, ncol = 11) %>%  as.data.frame
-# 
-# microbenchmark(rbind(test_bind, test_bind),
-#                bind_rows(test_bind, test_bind),
-#                rbindlist(list(test_bind, test_bind)))
 
-#   empty <- function(x) all(is.na(x))  
-#   empty_lazy <- function(x) !any(!is.na(x))  
-#   library(Rcpp)
-#   
-#   cppFunction('bool emptyC(NumericVector x) {
-# return is_true(all(is_na(x)));
-# }')
-#   
-# ignore <- 1:75  
-# grab <- rep(NA, 75)
-# improve <- ignore ; improve[37] <- NA   
-# 
-# empty(ignore)
-# empty(grab)
-# empty(improve)
-# 
-# emptyC(ignore)
-# emptyC(grab)
-# emptyC(improve)
-# 
-# empty_lazy(ignore)
-# empty_lazy(grab)
-# empty_lazy(improve)
-# 
-# empty_lazyC(ignore)
-# empty_lazyC(grab)
-# empty_lazyC(improve)
-# 
-# anyNA(ignore)
-# anyNA(grab)
-# anyNA(improve)
-# 
-# test <- improve
-# 
-#  microbenchmark(empty(test),
-#                 empty_lazy(test),
-#                 emptyC(test),
-#                 anyNA(test))
+#### c++ trial ####
+
+library(microbenchmark)
+
+nc_raw <- ncdf4::nc_open(paste0(path = test$Path[1], file = test$File[1]))                                 # Open up a netcdf file to see it's raw contents (var names)
+nc_saline <- ncdf4::ncvar_get(nc_raw, "vosaline", Space$start3D, Space$count3D)          # Extract an array of salinities
+ncdf4::nc_close(nc_raw)                                                      # You must close an open netcdf file when finished to avoid data loss
+
+shallow <- nc_saline[,,Space$shallow]
+
+Rcpp::sourceCpp("./emptyRcpp.cpp")
+
+microbenchmark(emptyRcpp(shallow),
+               emptyRcpp2(shallow))
+
+identical(emptyRcpp(shallow),
+          emptyRcpp2(shallow))
+
