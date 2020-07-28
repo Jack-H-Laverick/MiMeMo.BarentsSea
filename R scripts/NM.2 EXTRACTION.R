@@ -14,7 +14,7 @@ plan(multiprocess)                                                          # Ch
 
 all_files <- list.files("/mnt/idrive/Science/MS/Shared/CAO/mimemo/clipped_medusa", recursive = TRUE, full.names = TRUE) %>%
   as.data.frame() %>%                                                       # Turn the vector into a dataframe
-  separate(".", into = c("Path", "File"), sep = 61) %>%                   # Extract the year and month from the file name
+  separate(".", into = c("Path", "File"), sep = 61) %>%                     # Extract the year and month from the file name
   separate(File, into = c("Type", "Date"), 
            remove = FALSE, sep = -11) %>%                                   # Extract the year and month from the file name
   mutate(Date = str_sub(Date, end = -4))                                    # Drop file extension to get number
@@ -61,8 +61,8 @@ Space$d.weights <- get_weights(60, 400, bathymetry)
 Space$s.weights_W <- get_weights.W(0, 60, bathymetry)                       # And for W files                                                      
 Space$d.weights_W <- get_weights.W(60, 400, bathymetry)
 
-# Space$start3D <- c(1,1,1,1) ; Space$count3D <- c(-1,-1,38,-1)                           # Spatial cropping at import for variables with depths shallower than 400 m
-# Space$start3DW <- c(1,1,1,1) ; Space$count3DW <- c(-1,-1,39,-1)                         # Spatial cropping at import for variables with depths shallower than 400 m (W files)
+# Space$start3D <- c(1,1,1,1) ; Space$count3D <- c(-1,-1,38,-1)             # Spatial cropping at import for variables with depths shallower than 400 m
+# Space$start3DW <- c(1,1,1,1) ; Space$count3DW <- c(-1,-1,39,-1)           # Spatial cropping at import for variables with depths shallower than 400 m (W files)
 Space$start3D <- c(Limits$x_start,Limits$y_start,1,1) ; Space$count3D <- c(Limits$x_count, Limits$y_count,38,-1)                           # Spatial cropping at import for variables with depths shallower than 400 m
 Space$start3DW <- c(Limits$x_start,Limits$y_start,1,1) ; Space$count3DW <- c(Limits$x_count, Limits$y_count,39,-1)                         # Spatial cropping at import for variables with depths shallower than 400 m (W files)
 
@@ -81,31 +81,31 @@ Window <- st_join(output, domains) %>%
 
 output <- st_drop_geometry(output) %>% 
   bind_rows(., .) %>% 
-  mutate(Depth = as.factor(rep(c("S", "D"), each = (nrow(.)/2))))                  # Recode depths from numeric to character
+  mutate(Depth = as.factor(rep(c("S", "D"), each = (nrow(.)/2))))           # Recode depths from numeric to character
 
 #### Build the monthly sumaries ####
 
-# tic("Creating monthly data objects from netcdf files")                      # Time the data extraction
-# 
-# overnight <- all_files %>%
-#   split(., f = list(.$Month, .$Year)) %>%                                   # Get a DF of file names for each time step to summarise to
-#   .[sapply(., function(x) dim(x)[1]) > 0] %>%                               # Drop empty dataframes (Months which weren't observed but split introduces)
-#   future_map(whole_month, crop = Window,
-#              grid = output, space = Space, .progress = T)                   # Perform the extraction and save an object for each month (in parallel)
-#   toc()                                                                       # Stop timing
+ tic("Creating monthly data objects from netcdf files")                     # Time the data extraction
+ 
+ overnight <- all_files %>%
+   split(., f = list(.$Month, .$Year)) %>%                                  # Get a DF of file names for each time step to summarise to
+   .[sapply(., function(x) dim(x)[1]) > 0] %>%                              # Drop empty dataframes (Months which weren't observed but split introduces)
+   future_map(whole_month, crop = Window,
+              grid = output, space = Space, .progress = T)                  # Perform the extraction and save an object for each month (in parallel)
+   toc()                                                                    # Stop timing
  
 #### Looking for improvements ####
 
 #  library(profvis)
 #  library(microbenchmark)
   
- test <- all_files %>%
-   split(., f = list(.$Month, .$Year, .$Type)) %>%
-   .[sapply(., function(x) dim(x)[1]) > 0] %>%                               # Drop empty dataframes (Months which weren't observed but split introduces)
-   .[[1]] # Get a DF of file names for each time step to summarise to
+# test <- all_files %>%
+#   split(., f = list(.$Month, .$Year, .$Type)) %>%
+#   .[sapply(., function(x) dim(x)[1]) > 0] %>%                             # Drop empty dataframes (Months which weren't observed but split introduces)
+#   .[[1]] # Get a DF of file names for each time step to summarise to
  
 # test_big <- all_files %>%  
-#   split(., f = list(.$Month, .$Year)) %>%                                   # Get a DF of file names for each time step to summarise to
+#   split(., f = list(.$Month, .$Year)) %>%                                 # Get a DF of file names for each time step to summarise to
 #   .[1:144]
 
 
@@ -120,22 +120,22 @@ output <- st_drop_geometry(output) %>%
 #                          grid = output, space = Space)                    # Perform the extraction and save an object for each month (in parallel)
     
 # look_big <-future_map(test_big, whole_month, crop = Window, 
-#                      grid = output, space = Space, .progress = TRUE)                    # Perform the extraction and save an object for each month (in parallel)
+#                      grid = output, space = Space, .progress = TRUE)      # Perform the extraction and save an object for each month (in parallel)
 #  })
 #toc() 
  
 #month <- cbind(zonal = c(1:3, 4:6), merid = c(1:3, 4:6))  
  
-#  Month <- test_big[[1]][1,5] ; Year <- test_big[[1]][1,4]                                    # Pull date
+#  Month <- test_big[[1]][1,5] ; Year <- test_big[[1]][1,4]                 # Pull date
 #  
-#  Month <- split(test_big[[1]], f = list(test_big[[1]]$Type)) %>%                             # Split out the files for this month by type, so they can be averaged together
-#    purrr::map(type_in_month, Space) %>%                                      # Pull a whole month of data from a single file type
-#     #  purrr::reduce(dplyr::full_join) %>%                                    # Join together all the data packets
-#    purrr::reduce(cbind) %>%                                                # Join together all the data packets
+#  Month <- split(test_big[[1]], f = list(test_big[[1]]$Type)) %>%          # Split out the files for this month by type, so they can be averaged together
+#    purrr::map(type_in_month, Space) %>%                                   # Pull a whole month of data from a single file type
+#     #  purrr::reduce(dplyr::full_join) %>%                                # Join together all the data packets
+#    purrr::reduce(cbind) %>%                                               # Join together all the data packets
 #    .[, !duplicated(colnames(.))] %>% 
 #    cbind(rbind(output,output)) %>%
-#    mutate(Depth = as.factor(ifelse(Depth ==1, "S", "D"))) %>%              # Recode depths from numeric to character
-#    # dplyr::right_join(spine) %>%   # a)                                   # Cut out rows outside of polygons and attach compartment labels
+#    mutate(Depth = as.factor(ifelse(Depth ==1, "S", "D"))) %>%             # Recode depths from numeric to character
+#    # dplyr::right_join(spine) %>%   # a)                                  # Cut out rows outside of polygons and attach compartment labels
 #    dplyr::right_join(Window)
 # check <- readRDS("./Objects/Months/NM.12.1984.rds")
  
@@ -143,19 +143,19 @@ output <- st_drop_geometry(output) %>%
 
 #### c++ trial ####
 
-library(microbenchmark)
-
-nc_raw <- ncdf4::nc_open(paste0(path = test$Path[1], file = test$File[1]))                                 # Open up a netcdf file to see it's raw contents (var names)
-nc_saline <- ncdf4::ncvar_get(nc_raw, "vosaline", Space$start3D, Space$count3D)          # Extract an array of salinities
-ncdf4::nc_close(nc_raw)                                                      # You must close an open netcdf file when finished to avoid data loss
-
-shallow <- nc_saline[,,Space$shallow]
-
-Rcpp::sourceCpp("./emptyRcpp.cpp")
-
-microbenchmark(emptyRcpp(shallow),
-               emptyRcpp2(shallow))
-
-identical(emptyRcpp(shallow),
-          emptyRcpp2(shallow))
+# library(microbenchmark)
+# 
+# nc_raw <- ncdf4::nc_open(paste0(path = test$Path[1], file = test$File[1]))      # Open up a netcdf file to see it's raw contents (var names)
+# nc_saline <- ncdf4::ncvar_get(nc_raw, "vosaline", Space$start3D, Space$count3D) # Extract an array of salinities
+# ncdf4::nc_close(nc_raw)                                                         # You must close an open netcdf file when finished to avoid data loss
+# 
+# shallow <- nc_saline[,,Space$shallow]
+# 
+# Rcpp::sourceCpp("./emptyRcpp.cpp")
+# 
+# microbenchmark(emptyRcpp(shallow),
+#                emptyRcpp2(shallow))
+# 
+# identical(emptyRcpp(shallow),
+#           emptyRcpp2(shallow))
 

@@ -24,10 +24,10 @@ world <- ne_countries(scale = "medium", returnclass = "sf") %>%             # Ge
 #### Plotting ####
     
 vars_ts <- c("Ice_pres", "Ice_conc_avg", "Ice_Thickness_avg", "Snow_Thickness_avg", 
-          "Vertical_diffusivity_avg", "Vertical_velocity_avg",
-          "Salinity_avg", "Temperature_avg", "DIN_avg", "Chlorophyll_avg")  # List of variables to plot   
+          "Vertical_diffusivity_avg", "Vertical_velocity_avg", "Salinity_avg",
+          "Temperature_avg", "DIN_avg", "Detritus_avg", "Chlorophyll_avg")  # List of variables to plot   
 vars_sp <- c("Ice_conc", "Ice_Thickness", "Snow_Thickness", "Salinity", 
-             "Temperature", "DIN", "Chlorophyll")                            # Tweak the variable names for spatial plots
+             "Temperature", "DIN", "Detritus", "Chlorophyll")               # Tweak the variable names for spatial plots
 
 sapply(vars_ts, ts_plot)                                                    # Save a time series figure for each variable.
 
