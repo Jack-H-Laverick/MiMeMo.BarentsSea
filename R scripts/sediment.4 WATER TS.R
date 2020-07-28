@@ -29,12 +29,12 @@ GFW_grid <- st_make_grid(domains, what = "centers", cellsize = 0.1) %>%     # Ma
   st_sf(dummy = 1)                                                          # Convert tp sf for joining
 
 targets1 <- st_join(GFW_grid, select(ECMWF_mask, wave_x, wave_y, Shore))    # Check pixels from our sources match the new grid
-targets2 <- st_join(GFW_grid, select(SINMOD_mask, tide_x, tide_y, Shore))
+targets2 <- st_join(GFW_grid, select(SINMOD_mask, tide_x, tide_y, Shore, Depth))
 
-aligned <- cbind(targets1, targets2[,c("tide_x", "tide_y")]) %>%            # Combine the matched pixels from the two sources
+aligned <- cbind(targets1, targets2[,c("tide_x", "tide_y", "Depth")]) %>%            # Combine the matched pixels from the two sources
   select(-c(dummy, ..1)) %>% 
-  sfc_as_cols(names = c("Longitude", "Latitude")) %>%                       # Convert to SF object 
-  st_drop_geometry()
+  sfc_as_cols(names = c("Longitude", "Latitude")) %>%                       # Get coordinates 
+  st_drop_geometry()                                                        # Drop SF formatting
 
 tide_pixels <- select(aligned, tide_x, tide_y) %>%                          # Which are the unique grid cells we need to calculate for?
   distinct()                                                                # We can save time indexing duplicate cells later
@@ -96,7 +96,6 @@ rm(swh, mwp, mwd, Wave_list)                                                # Cl
 raw <- nc_open("./Data/SINMOD/tides.nc")                                    # Open file containing all the data
 u <-  ncvar_get(raw, "u_east")                                              # Import u tidal currents
 v <-  ncvar_get(raw, "u_east")                                              # Import v tidal currents
-depth <-  ncvar_get(raw, "elevation")                                       # Import changing depths
 nc_close(raw)                                                               # Close file
 
 empty <- apply(u, c(1,2), empty)                                            # Which pixels never have water movement (probably land), same result for two water variables)
@@ -107,22 +106,19 @@ v[is.na(v)] <- 0
 u[empty] <- NA                                                              # Put back NA's on pixels which never have water movement
 v[empty] <- NA
 
-depth[depth >= 0] <- 0                                                      # Set all exposed land to depth of 0
-depth <- depth * -1                                                         # Convert elevation to depth
-  
 Tide_step <- seq(ISOdate(2003, 02, 1, 0), by = "2 hours", length.out = length(u[40,40,])) # Calculate time steps for the dataset
 
-tide_ts <- function(depth, u, v) {
+tide_ts <- function(u, v) {
   
-  tide_ts <- zoo::zoo(cbind(depth,                      # Bind depths to 
-                            vectors_2_direction(u, v)), # Converted UV to speed and direction
-                      Tide_step)                        # Convert to zoo object to align time series
-}                                             # Convert UV vectors to a time series of speed and direction
+  tide_ts <- zoo::zoo(cbind(                                # Bind 
+                      vectors_2_direction(u, v)),           # Convert UV to speed and direction
+                      Tide_step)                            # Convert to zoo object to align time series
+}                                                           # Convert UV vectors to a time series of speed and direction
 
-Tide_list <- map2(tide_pixels$tide_x, tide_pixels$tide_y,              # For each unique pixel
-                  ~ tide_ts(depth[.x,.y,],                            # Pull a times series of tide data
-                            u[.x,.y,],                                 # Sampling at specific pixels
-                            v[.x,.y,]))                                 
+Tide_list <- map2(tide_pixels$tide_x, tide_pixels$tide_y,   # For each unique pixel
+                  ~ tide_ts(u[.x,.y,],                      # Pull a times series of tide data
+                            v[.x,.y,]))                     # Sampling at specific pixels
+                                                             
 
 saveRDS(Tide_list, "./Objects/Tide_ts.rds")
 

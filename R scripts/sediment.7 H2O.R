@@ -16,33 +16,27 @@ domains <- readRDS("./Objects/Domains.rds") %>%                  # Load SF polyg
 
 Data <- readRDS("./Objects/RF_sediment_observations.rds") %>%    # Read in data
   drop_na() %>%                                                  # Drop point without all estimates ** might get more if you don't filter land out of bathymetry?
-  mutate(Sed_class = as.factor(SEDKORNSTR)) %>%
-  select(-c(SEDKORNSTR, Hard)) %>%                            
-  st_drop_geometry()                                             # Strip out spatial information (this will make the fit worse, but how can we justify this when predicting Greenland?)
+  mutate(Sed_class = as.factor(Sed_class))
 
 #### Split into training and validation ####
 
-Training <- Data %>% group_by(Sed_class) %>% sample_frac(0.7) %>% ungroup()
-Validation <- anti_join(Data, Training)
+Training <- Data %>% st_drop_geometry %>% group_by(Sed_class) %>% sample_frac(0.7) %>% ungroup
+Validation <- Data %>% st_drop_geometry %>% anti_join(Training)
 
 #### Points to predict for ####
 
 To_predict <- readRDS("./Objects/RF_sediment_observations.rds") %>% # Read in data
-  filter(is.na(SEDKORNSTR)) %>%                                  # Limit to points we don't know about sediment
-  select(-c(SEDKORNSTR, Hard, flowdir, aspect)) %>%                               # Drop the sediment columns so we can drop NAs
+  filter(is.na(Sed_class)) %>%                                  # Limit to points we don't know about sediment
+  select(-Sed_class) %>%                                        # Drop the sediment columns so we can drop NAs
   st_join(., domains) %>%                                        # Locate points in model boxes
-  drop_na() %>%     
-  st_transform(crs = 3035)
+  drop_na() 
 
 #### Build model ####
 
-trainh2o <- as.h2o(select(Training, -c(flowdir, aspect)))       # Convert data to h2o objects
-validh2o <- as.h2o(select(Validation, -c(flowdir, aspect)))
-
 tic()
 RF <- h2o.randomForest(y = "Sed_class",                         # Predict Sediments
-                       training_frame = trainh2o,                  
-                       validation_frame = validh2o,
+                       training_frame = as.h2o(Training),                  
+                       validation_frame = as.h2o(Validation),
                        ntrees = 500,
                        seed = 5678)                             # Set seed to ensure reproducibility
 toc()
@@ -55,7 +49,8 @@ tic()
 prediction <- h2o.predict(RF, as.h2o(st_drop_geometry(To_predict))) %>%  # Predict in h2o
   as.data.frame() %>%                                                    # Copy results into R
   bind_cols(select(To_predict, Shore)) %>%                               # Add point geometries
-  st_as_sf()                                                             # Reinstate SF class
+  st_as_sf() %>%                                                         # Reinstate SF class
+  rename(Sed_class = predict)
 toc()
 
 #### Importance of predictors ####
@@ -158,3 +153,13 @@ Imp_plot + ((plots[["Hard"]] + plots[["Gravel"]]) /
         legend.position = "none")
 
 ggsave("./Figures/sediment/4 classess.png", plot = last_plot(), scale = 1, width = 16, height = 15, units = "cm", dpi = 500)
+
+#### Full sediment map ####
+
+Sediment <- rbind(                                # Bind
+  select(Data, Sed_class),                        # Sediment observations
+  select(prediction, Sed_class))                  # To sediment predictions
+
+saveRDS(Sediment, "./Objects/modelled_sediment.rds")
+
+h2o.shutdown(prompt = FALSE)                                                # Close h2o, otherwise you'll hit memory limits later
