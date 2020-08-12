@@ -21,7 +21,7 @@ grid <- readRDS("./Objects/Fixed_grid.rds")                                 # Jo
 lat <- matrix(grid$Latitude, nrow=176, ncol=177)                            # Reshape to a matrix for stars
 lon <- matrix(grid$Longitude, nrow=176, ncol=177)                                  
 
-vars <- c("DIN", "Chlorophyll", "Temperature", "Salinity")                  # Variables to sample
+vars <- c("DIN", "Chlorophyll", "Temperature", "Salinity", "Detritus")                  # Variables to sample
 
 #### Create a spatial object to bind data to ####
 

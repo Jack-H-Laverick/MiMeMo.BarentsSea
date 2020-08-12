@@ -71,7 +71,7 @@ cols <- c("Inshore" = "Yellow", "Ocean" = "lightblue2", "Offshore (S)" = "Yellow
           "Offshore (D)" = "Yellow3", "Shelf" = "lightblue2")    
 
 ggraph(routes_tidy, layout = "linear") + 
-  geom_edge_arc(aes(width = weight, colour = weight, ), alpha = 0.8) + 
+  geom_edge_arc(aes(width = weight, colour = weight), alpha = 0.8) + 
   scale_edge_width(range = c(0.2, 4)) +
   geom_node_label(aes(label = label, fill = label), size = 3) +
   scale_fill_manual(values = cols) +
