@@ -100,3 +100,22 @@ Inshore_Ocean6 <- matrix(c(10.4, 10.7, 9.7, 9.4, 10.4,           # Longitudes
 Inshore_ocean_boundaries <- rbind(Inshore_Ocean1, Inshore_Ocean2, Inshore_Ocean3, Inshore_Ocean4, Inshore_Ocean5, Inshore_Ocean6)
 
 rm(Inshore_Ocean1, Inshore_Ocean2, Inshore_Ocean3, Inshore_Ocean4, Inshore_Ocean5, Inshore_Ocean6)
+
+#### expand polygon for sampling rivers ####
+
+river_expansion <- matrix(c(13, 73,
+                            0, 80,
+                            0, 85,
+                            63, 85,
+                            73, 77,
+                            30, 71,
+                            13, 73),
+                          ncol = 2, byrow = T) %>% 
+  list() %>% 
+  st_polygon() %>% 
+  st_sfc() %>% 
+  st_sf(Region = "Barents Sea",.)
+st_crs(river_expansion) <- st_crs(4326)                                          
+river_expansion <- st_transform(river_expansion, crs = 3035)
+
+
