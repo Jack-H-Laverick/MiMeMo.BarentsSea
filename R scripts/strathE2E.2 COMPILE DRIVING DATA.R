@@ -47,7 +47,7 @@ Boundary_new <- mutate(Boundary_template,
                         #SI_nitrate = ,
                         #SI_ammonia = ,
                        SI_phyt = My_boundary_data$SI_Chlorophyll, 
-                      SI_detritus = My_boundary_data$SI_Detritus,
+                       SI_detritus = My_boundary_data$SI_Detritus,
                        ## Rivers
                         #RIV_nitrate = ,     
                         #RIV_ammonia = ,          
