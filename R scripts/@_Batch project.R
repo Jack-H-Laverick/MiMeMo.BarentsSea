@@ -16,38 +16,38 @@ execute <- function(x) {
 #### Batch process scripts ####
 
 scripts <- c(                                            # List scripts in the order you want to run them
-    "./R scripts/bathymetry.1 DATA WRANGLING.R",
-    "./R scripts/bathymetry.2 PLOTTING.R",
-   # "./R scripts/bathymetry.3 RAYSHADER.R",
-    "./R scripts/bathymetry.4 DOMAIN CHOICES.R",
-    "./R scripts/bathymetry.5 DEFINE DOMAIN.R",
+    "./R scripts/bathymetry.01 DATA WRANGLING.R",
+    "./R scripts/bathymetry.02 PLOTTING.R",
+   # "./R scripts/bathymetry.03 RAYSHADER.R",
+    "./R scripts/bathymetry.04 DOMAIN CHOICES.R",
+    "./R scripts/bathymetry.05 DEFINE DOMAIN.R",
     
-    "./R scripts/NM.1 GRID.R",
-    "./R scripts/NM.2 EXTRACTION.R",
-    "./R scripts/NM.3 SPATIAL.R",
-    "./R scripts/NM.4 TIME SERIES.R",
-    "./R scripts/NM.5 PLOTTING.R",
-    "./R scripts/NM.6 LIGHT AND TEMP.R",
+    "./R scripts/nemo-medusa.01 GRID.R",
+    "./R scripts/nemo-medusa.02 EXTRACTION.R",
+    "./R scripts/nemo-medusa.03 SPATIAL.R",
+    "./R scripts/nemo-medusa.04 TIME SERIES.R",
+    "./R scripts/nemo-medusa.05 PLOTTING.R",
+    "./R scripts/nemo-medusa.06 LIGHT AND TEMP.R",
  
-   # "./R scripts/flows.1 VC-EXTRACTION.R",
-    "./R scripts/flows.2 MAKE TRANSECTS.R",
-    "./R scripts/flows.3 LABEL TRANSECTS.R",
-    "./R scripts/flows.4 SAMPLE PERIMETER.R",
-   # "./R scripts/flows.5 SAMPLE FLUXES.R",
-   # "./R scripts/flows.6 VOLUME CHECK.R",
-    "./R scripts/flows.7 PLOT EXCHANGES.R",
+   # "./R scripts/flows.01 VC-EXTRACTION.R",
+    "./R scripts/flows.02 MAKE TRANSECTS.R",
+    "./R scripts/flows.03 LABEL TRANSECTS.R",
+    "./R scripts/flows.04 SAMPLE PERIMETER.R",
+   # "./R scripts/flows.05 SAMPLE FLUXES.R",
+   # "./R scripts/flows.06 VOLUME CHECK.R",
+    "./R scripts/flows.07 PLOT EXCHANGES.R",
   
-    "./R scripts/saltless.1 ATMOSPHERE.R",
-    #"./R scripts/saltless.1 RIVERS.R",
+    "./R scripts/saltless.01 ATMOSPHERE.R",
+    #"./R scripts/saltless.02 RIVERS.R",
+    "./R scripts/saltless.03 SPM.R",
+   "./R scripts/saltless.04 HABITAT TYPES.R",
    
-    "./R scripts/spm.1 EXTRACTION.R",
-
-    "./R scripts/fish.1 FAO REGIONS.R",
-###"./R scripts/fish.2 ICES.R",
-   "./R scripts/fish.3 GFW WRANGLING.R",
-###  "./R scripts/fish.4 GFW FRESH FIGURE.R",
-###"./R scripts/fish.5 GFW PLOTTING.R",
-   "./R scripts/fish.6 IMR TABLES.R"
+    "./R scripts/fish.01 FAO REGIONS.R",
+###"./R scripts/fish.02 ICES.R",
+   "./R scripts/fish.03 GFW WRANGLING.R",
+###  "./R scripts/fish.04 GFW FRESH FIGURE.R",
+###"./R scripts/fish.05 GFW PLOTTING.R",
+   "./R scripts/fish.06 IMR TABLES.R"
 ) %>% 
   map(execute)
 
