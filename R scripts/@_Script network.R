@@ -8,7 +8,7 @@ library(viridis)
 
 Scripts <- list.files("./R scripts",  pattern = ".R", full.names = T) %>%  # Read in all the Rscripts 
   as.data.frame() %>% 
-  filter(!grepl('@|X_|Z_', .)) %>%                                         # Ignore files labelled in these ways
+  filter(!grepl('@|X_|Z_|rayshader|targets', .)) %>%                               # Ignore files labelled in these ways
   mutate(Script = as.character(.)) %>%                                    
   select(-.)
 
@@ -19,21 +19,21 @@ Links <- function(script) {
   
   imports <- grepl("readRDS\\(", example)                                   # Which lines use readRDS
   exports <- grepl("saveRDS\\(", example)                                   # Which lines use saveRDS
-  functions <- grepl("source\\(", example)                                   # Does the script call a function file?
+  functions <- grepl("source\\(", example)                                  # Does the script call a function file?
   
   From <- example[exports] %>%                                              # Which objects come from this script
     data.frame(Object = .) %>%                                              # A column of objects being saved
     mutate(Object = as.character(Object),                                   
            From = script) %>%                                               # Attach the script name
     separate(From, into = c(NA, "From"), sep = "./R scripts/") %>%          # Shrink the script name
-    separate(Object, into = c(NA, "Object"), sep = "[.]")                  # Isolate the object name between "~ and )"
+    separate(Object, into = c(NA, "Object"), sep = "[.]")                   # Isolate the object name between ". and )"
   
   To <- example[imports] %>%                                                # Which objects are read into this script
     data.frame(Object = .) %>%                                              
     mutate(Object = as.character(Object),
            To = script) %>% 
     separate(To, into = c(NA, "To"), sep = "./R scripts/") %>%              # Shrink the script name
-    separate(Object, into = c(NA, "Object"), sep = "[.]")                  # Isolate the file name between "~ and )"
+    separate(Object, into = c(NA, "Object"), sep = "[.]")                   # Isolate the file name between ". and )"
   
   Functions <- example[functions] %>% 
     data.frame(From = .) %>% 
@@ -80,7 +80,7 @@ Edges <- full_join(From, To) %>%                                          # Join
   select(-To, to = id) %>% 
   mutate(arrows = "middle")                                               # Add arrows in the middle of the edge when plotting
 
-nodes <- separate(nodes, label, into = c("group", NA), remove = F)        # Add a group field for colour
+nodes <- separate(nodes, label, into = c("group", NA), remove = F, sep = "[.]") # Add a group field for colour
 
 #### Work out node level ####
 
@@ -117,19 +117,15 @@ toy <- visNetwork(nodes, Edges, width = "100%", height = "1500") %>%      # Buil
              nodesIdSelection = TRUE, clickToUse = TRUE, selectedBy = "group") %>%                                 # Allow the user to select a script from a drop down list
   visGroups(groupname = "bathymetry", shape = "dot", color = list(background = v[1], border = v[1], # Control colouring and highlighting per group
                                                                 highlight = list(background = "white", border = v[1]))) %>%
-  visGroups(groupname = "NM", shape = "dot", color = list(background = v[2], border = v[2],
+  visGroups(groupname = "nemo-medusa", shape = "dot", color = list(background = v[2], border = v[2],
                                                          highlight = list(background = "white", border = v[2]))) %>% 
-  visGroups(groupname = "atmosphere", shape = "dot", color = list(background = v[3], border = v[3],
-                                                                  highlight = list(background = "white", border = v[3]))) %>% 
-  visGroups(groupname = "flows", shape = "dot", color = list(background = v[4], border = v[4],
-                                                             highlight = list(background = "white", border = v[4]))) %>% 
-  visGroups(groupname = "fish", shape = "dot",color = list(background = v[5], border = v[5],
-                                                          highlight = list(background = "white", border = v[5]))) %>% 
-  visGroups(groupname = "detritus", shape = "dot",color = list(background = v[6], border = v[6],
-                                                           highlight = list(background = "white", border = v[6]))) %>% 
-  visGroups(groupname = "sediment", shape = "dot", color = list(background = v[7], border = v[7],
-                                                                highlight = list(background = "white", border = v[7]))) %>% 
-  visGroups(groupname = "strathE2E", shape = "dot", color = list(background = v[8], border = v[8],
-                                                                 highlight = list(background = "white", border = v[8])))
+  visGroups(groupname = "flows", shape = "dot", color = list(background = v[3], border = v[3],
+                                                             highlight = list(background = "white", border = v[3]))) %>% 
+  visGroups(groupname = "fish", shape = "dot",color = list(background = v[4], border = v[4],
+                                                          highlight = list(background = "white", border = v[4]))) %>% 
+  visGroups(groupname = "saltless", shape = "dot", color = list(background = v[5], border = v[5],
+                                                                highlight = list(background = "white", border = v[5]))) %>% 
+  visGroups(groupname = "strathE2E", shape = "dot", color = list(background = v[6], border = v[6],
+                                                                 highlight = list(background = "white", border = v[6])))
 toy
 #visSave(toy, file = "./Project network tool.html")                              # Save as HTML file
