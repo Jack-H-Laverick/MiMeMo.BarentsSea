@@ -46,9 +46,9 @@ mat %>%
           waterlinecolor = "white", waterlinealpha = 0.5) 
 
 tic()
-render_highquality(print_scene_info = T, parallel = TRUE, lightintensity = 0, samples = 500, #filename = "rayshade-hi.png", 
+render_highquality(print_scene_info = T, parallel = TRUE, lightintensity = 0, samples = 2000, #filename = "rayshade-hi.png", 
     #               scene_elements = rayrender::sphere(z = 0, y = 600, x = 300, radius = 5,
-                   scene_elements = rayrender::sphere(z = 0, y = 1000, x = 500, radius = 45,
-                                       material = rayrender::light(color = "white", intensity = 10000)), clamp_value = 2, aperture = 100, # Bigger aperture, more blur
+                   scene_elements = rayrender::sphere(z = 0, y = 1300, x = 500, radius = 50,
+                                       material = rayrender::light(color = "white", intensity = 10000)), clamp_value = 1, aperture = 120, # Bigger aperture, more blur
                    min_variance = 0)
 toc()

@@ -18,9 +18,8 @@ execute <- function(x) {
 scripts <- c(                                            # List scripts in the order you want to run them
     "./R scripts/bathymetry.01 DATA WRANGLING.R",
     "./R scripts/bathymetry.02 PLOTTING.R",
-   # "./R scripts/bathymetry.03 RAYSHADER.R",
-    "./R scripts/bathymetry.04 DOMAIN CHOICES.R",
-    "./R scripts/bathymetry.05 DEFINE DOMAIN.R",
+    "./R scripts/bathymetry.03 DOMAIN CHOICES.R",
+    "./R scripts/bathymetry.04 DEFINE DOMAIN.R",
     
     "./R scripts/nemo-medusa.01 GRID.R",
     "./R scripts/nemo-medusa.02 EXTRACTION.R",
@@ -36,11 +35,13 @@ scripts <- c(                                            # List scripts in the o
    # "./R scripts/flows.05 SAMPLE FLUXES.R",
    # "./R scripts/flows.06 VOLUME CHECK.R",
     "./R scripts/flows.07 PLOT EXCHANGES.R",
+    "./R scripts/flows.08 WAVES.R",
   
     "./R scripts/saltless.01 ATMOSPHERE.R",
-    #"./R scripts/saltless.02 RIVERS.R",
+   # "./R scripts/saltless.02 RIVERS.R",
     "./R scripts/saltless.03 SPM.R",
-   "./R scripts/saltless.04 HABITAT TYPES.R",
+    "./R scripts/saltless.04 HABITAT TYPES.R",
+    "./R scripts/saltless.04 DISTURBANCE.R",
    
     "./R scripts/fish.01 FAO REGIONS.R",
 ###"./R scripts/fish.02 ICES.R",
