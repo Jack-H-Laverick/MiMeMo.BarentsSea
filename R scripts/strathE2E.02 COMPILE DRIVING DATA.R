@@ -64,8 +64,6 @@ write.csv(Boundary_new, file = "./StrathE2E/Barents Sea/All/Driving_data/boundar
 
 #### Update physics file ####
 
-My_light <- readRDS("./Objects/Air temp and light.rds") %>% filter(Year == 1980, grepl("Light", Type))  
-My_AirTemp <- readRDS("./Objects/Air temp and light.rds") %>% filter(Year == 1980, grepl("Air", Type))  
 My_scale <- readRDS("./Objects/Domains.rds") %>%                             # Calculate the volume of the three zones
   mutate(S = c(T, T),
          D = c(F, T)) %>% 
@@ -74,13 +72,16 @@ My_scale <- readRDS("./Objects/Domains.rds") %>%                             # C
   mutate(Elevation = c(Elevation[1], -60, Elevation[3] + 60)) %>% 
   mutate(Volume = area * abs(Elevation)) %>% 
   select(Shore, Depth, Volume)
+
+My_light <- readRDS("./Objects/Air temp and light.rds") %>% filter(Year == 1980, grepl("Light", Type))  
+My_AirTemp <- readRDS("./Objects/Air temp and light.rds") %>% filter(Year == 1980, grepl("Air", Type))  
 My_H_Flows <- readRDS("./Objects/H-Flows.rds") %>% filter(Year == 1980) %>% left_join(My_scale) %>% mutate(Flow = Flow/Volume) #Scale flows by compartment volume
 My_V_Flows <- readRDS("./Objects/V-Flows.rds") %>% filter(Flow == "Eddy Diffusivity", Year == 1980)  
 My_volumes <- readRDS("./Objects/TS.rds") %>% filter(Year == 2000)   
 My_SPM <- readRDS("./Objects/Suspended particulate matter.rds") %>% filter(Year == 2000)   
 # Rivers
-# Bed shear stress
-My_Waves <- readRDS("./Objects/Significant wave height.rds") %>% filter(Year == 2000)   
+My_Stress <- readRD("./Objects/Habitat disturbance.rds")
+My_Waves <- readRDS("./Objects/Significant wave height.rds")   
 
 Phyics_new <- mutate(Physics_template, SLight = My_light$Measured,
                      ## Flows, should be proportions of volume per day
@@ -103,14 +104,14 @@ Phyics_new <- mutate(Physics_template, SLight = My_light$Measured,
                      log10Kvert = log(My_V_Flows$Value),
                      mixLscale = mixLscale,   # Length scale over which vertical diffusion acts, nominal
                      ## Daily proportion disturbed by natural bed shear stress
-                      #habS1_pdist = , 
-                      #habS2_pdist = ,
-                      #habS3_pdist = ,
-                      #habD1_pdist = ,
-                      #habD2_pdist = ,
-                      #habD3_pdist = , 
+                     habS1_pdist = filter(My_stress, Shore == Inshore, Habitat = "Gravel")$Disturbance, 
+                     habS2_pdist = filter(My_stress, Shore == Inshore, Habitat = "Sand")$Disturbance,
+                     habS3_pdist = filter(My_stress, Shore == Inshore, Habitat = "Silt")$Disturbance,
+                     habD1_pdist = filter(My_stress, Shore == Offshore, Habitat = "Gravel")$Disturbance,
+                     habD2_pdist = filter(My_stress, Shore == Offshore, Habitat = "Sand")$Disturbance,
+                     habD3_pdist = filter(My_stress, Shore == Offshore, Habitat = "Silt")$Disturbance, 
                      ## Monthly mean significant wave height inshore                     
-                     Inshore_waveheight = filter(My_Waves, Shore == "Inshore")$SWH,
+                     Inshore_waveheight = My_Waves$SWH,
                      ## Cryo variables
                      SO_IceFree = 1 - filter(My_volumes, Depth == "S", Shore == "Offshore")$Ice_pres,
                      SI_IceFree = 1 - filter(My_volumes, Depth == "S", Shore == "Inshore")$Ice_pres,
@@ -127,12 +128,12 @@ write.csv(Physics_new, file = "./StrathE2E/Barents Sea/All/Driving_data/physics_
 
 #### test ####
 
-list_models(path = "./StrathE2E")                                                              # List my models
-
-model <- read_model("Barents Sea", "All", user.path = "./StrathE2E")                           # Import the model 
-results <- StrathE2E(model,nyears=5)                                                           # Run for 5 years
-plot_full_length_timeseries(model, results)                                                    # Plot
-
-model <- read_model("North_Sea", "1970-1999", user.path = "./StrathE2E")                       # Check the results now look a bit different 
-results <- StrathE2E(model,nyears=5)                                                           
-plot_full_length_timeseries(model, results)                           
+# list_models(path = "./StrathE2E")                                                              # List my models
+# 
+# model <- read_model("Barents Sea", "All", user.path = "./StrathE2E")                           # Import the model 
+# results <- StrathE2E(model,nyears=5)                                                           # Run for 5 years
+# plot_full_length_timeseries(model, results)                                                    # Plot
+# 
+# model <- read_model("North_Sea", "1970-1999", user.path = "./StrathE2E")                       # Check the results now look a bit different 
+# results <- StrathE2E(model,nyears=5)                                                           
+# plot_full_length_timeseries(model, results)                           
