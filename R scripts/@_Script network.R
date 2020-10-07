@@ -8,7 +8,7 @@ library(viridis)
 
 Scripts <- list.files("./R scripts",  pattern = ".R", full.names = T) %>%  # Read in all the Rscripts 
   as.data.frame() %>% 
-  filter(!grepl('@|X_|Z_|rayshader|targets', .)) %>%                               # Ignore files labelled in these ways
+  filter(!grepl('@|X_|Z_|rayshader|targets', .)) %>%                       # Ignore files labelled in these ways
   mutate(Script = as.character(.)) %>%                                    
   select(-.)
 
@@ -114,7 +114,7 @@ toy <- visNetwork(nodes, Edges, width = "100%", height = "1500") %>%      # Buil
   visHierarchicalLayout(direction = "UD") %>%                             # Control the randomisation of the layout
   visLegend(width = 0.15) %>%                                             # Add a legend
   visOptions(highlightNearest = list(enabled = TRUE, labelOnly = FALSE),  # Control the highlighting when you select a script
-             nodesIdSelection = TRUE, clickToUse = TRUE, selectedBy = "group") %>%                                 # Allow the user to select a script from a drop down list
+             nodesIdSelection = TRUE, clickToUse = TRUE, selectedBy = "group") %>% # Allow the user to select a script from a drop down list
   visGroups(groupname = "bathymetry", shape = "dot", color = list(background = v[1], border = v[1], # Control colouring and highlighting per group
                                                                 highlight = list(background = "white", border = v[1]))) %>%
   visGroups(groupname = "nemo-medusa", shape = "dot", color = list(background = v[2], border = v[2],
@@ -128,4 +128,4 @@ toy <- visNetwork(nodes, Edges, width = "100%", height = "1500") %>%      # Buil
   visGroups(groupname = "strathE2E", shape = "dot", color = list(background = v[6], border = v[6],
                                                                  highlight = list(background = "white", border = v[6])))
 toy
-#visSave(toy, file = "./Project network tool.html")                              # Save as HTML file
+#visSave(toy, file = "./Project network tool.html")                       # Save as HTML file
