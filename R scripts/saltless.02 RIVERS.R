@@ -50,3 +50,5 @@ domains <- readRDS("./Objects/Domains.rds") %>%                             # Im
 
 rivers <- future_pmap(all_files, get_rivers, domains, .progress = TRUE) %>% # Extract summed river output per month in the model domain
   data.table::rbindlist()
+
+saveRDS(rivers, "./Objects/River volume input.rds")

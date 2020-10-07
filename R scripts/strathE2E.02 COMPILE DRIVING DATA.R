@@ -79,7 +79,7 @@ My_H_Flows <- readRDS("./Objects/H-Flows.rds") %>% filter(Year == 1980) %>% left
 My_V_Flows <- readRDS("./Objects/V-Flows.rds") %>% filter(Flow == "Eddy Diffusivity", Year == 1980)  
 My_volumes <- readRDS("./Objects/TS.rds") %>% filter(Year == 2000)   
 My_SPM <- readRDS("./Objects/Suspended particulate matter.rds") %>% filter(Year == 2000)   
-# Rivers
+My_Rivers <- readRDS("./Objects/River volume input.rds") %>% filter(Year == 2000)
 My_Stress <- readRD("./Objects/Habitat disturbance.rds")
 My_Waves <- readRDS("./Objects/Significant wave height.rds")   
 
@@ -99,17 +99,17 @@ Phyics_new <- mutate(Physics_template, SLight = My_light$Measured,
                      D_temp = filter(My_volumes, Depth == "D")$Temperature_avg,
                      SI_temp = filter(My_volumes, Depth == "S", Shore == "Inshore")$Temperature_avg ,
                      ## River inflow,
-                      # Rivervol_SI = , 
+                     Rivervol_SI = My_rivers$Runoff, 
                      ## Vertical diffusivity
                      log10Kvert = log(My_V_Flows$Value),
                      mixLscale = mixLscale,   # Length scale over which vertical diffusion acts, nominal
                      ## Daily proportion disturbed by natural bed shear stress
-                     habS1_pdist = filter(My_stress, Shore == Inshore, Habitat = "Gravel")$Disturbance, 
+                     habS1_pdist = filter(My_stress, Shore == Inshore, Habitat = "Silt")$Disturbance, 
                      habS2_pdist = filter(My_stress, Shore == Inshore, Habitat = "Sand")$Disturbance,
-                     habS3_pdist = filter(My_stress, Shore == Inshore, Habitat = "Silt")$Disturbance,
-                     habD1_pdist = filter(My_stress, Shore == Offshore, Habitat = "Gravel")$Disturbance,
+                     habS3_pdist = filter(My_stress, Shore == Inshore, Habitat = "Gravel")$Disturbance,
+                     habD1_pdist = filter(My_stress, Shore == Offshore, Habitat = "Silt")$Disturbance,
                      habD2_pdist = filter(My_stress, Shore == Offshore, Habitat = "Sand")$Disturbance,
-                     habD3_pdist = filter(My_stress, Shore == Offshore, Habitat = "Silt")$Disturbance, 
+                     habD3_pdist = filter(My_stress, Shore == Offshore, Habitat = "Gravel")$Disturbance, 
                      ## Monthly mean significant wave height inshore                     
                      Inshore_waveheight = My_Waves$SWH,
                      ## Cryo variables
