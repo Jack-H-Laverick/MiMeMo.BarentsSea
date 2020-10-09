@@ -3,8 +3,7 @@
 
 rm(list=ls(all.names = TRUE))                                               # Wipe the brain
 
-packages <- c("MiMeMo.tools", "tidyverse", "sf")
-lapply(packages, library, character.only = TRUE)                            # Load packages
+library(MiMeMo.tools)
 
 domains <- readRDS("./Objects/Domains.rds")                                 # Import model domain
 
