@@ -6,7 +6,7 @@
 
 rm(list=ls())                                                               # Wipe the brain
 
-packages <- c("MiMeMo.tools", "tidyverse", "data.table", "sf", "tictoc", "furrr", "ncdf4") # List packages
+packages <- c("nemomedusR", "tidyverse", "data.table", "sf", "tictoc", "furrr", "ncdf4") # List packages
 lapply(packages, library, character.only = TRUE)                            # Load packages
 source("./R scripts/@_Region file.R")                                       # Define project region 
 
@@ -94,68 +94,3 @@ output <- st_drop_geometry(output) %>%
               grid = output, space = Space, .progress = T)                  # Perform the extraction and save an object for each month (in parallel)
    toc()                                                                    # Stop timing
  
-#### Looking for improvements ####
-
-#  library(profvis)
-#  library(microbenchmark)
-  
-# test <- all_files %>%
-#   split(., f = list(.$Month, .$Year, .$Type)) %>%
-#   .[sapply(., function(x) dim(x)[1]) > 0] %>%                             # Drop empty dataframes (Months which weren't observed but split introduces)
-#   .[[1]] # Get a DF of file names for each time step to summarise to
- 
-# test_big <- all_files %>%  
-#   split(., f = list(.$Month, .$Year)) %>%                                 # Get a DF of file names for each time step to summarise to
-#   .[1:144]
-
-
-#simple <- get_sea(path = test$Path[1], file = test$File[1], space = Space)
-##**## target apply next
-  
-#tic() 
-#  profvis({
-    
-#   look2 <- type_in_month(test, space = Space)
-#    month <- whole_month(test_big[[1]], crop = Window, 
-#                          grid = output, space = Space)                    # Perform the extraction and save an object for each month (in parallel)
-    
-# look_big <-future_map(test_big, whole_month, crop = Window, 
-#                      grid = output, space = Space, .progress = TRUE)      # Perform the extraction and save an object for each month (in parallel)
-#  })
-#toc() 
- 
-#month <- cbind(zonal = c(1:3, 4:6), merid = c(1:3, 4:6))  
- 
-#  Month <- test_big[[1]][1,5] ; Year <- test_big[[1]][1,4]                 # Pull date
-#  
-#  Month <- split(test_big[[1]], f = list(test_big[[1]]$Type)) %>%          # Split out the files for this month by type, so they can be averaged together
-#    purrr::map(type_in_month, Space) %>%                                   # Pull a whole month of data from a single file type
-#     #  purrr::reduce(dplyr::full_join) %>%                                # Join together all the data packets
-#    purrr::reduce(cbind) %>%                                               # Join together all the data packets
-#    .[, !duplicated(colnames(.))] %>% 
-#    cbind(rbind(output,output)) %>%
-#    mutate(Depth = as.factor(ifelse(Depth ==1, "S", "D"))) %>%             # Recode depths from numeric to character
-#    # dplyr::right_join(spine) %>%   # a)                                  # Cut out rows outside of polygons and attach compartment labels
-#    dplyr::right_join(Window)
-# check <- readRDS("./Objects/Months/NM.12.1984.rds")
- 
-# ggplot(check) + geom_point(aes(x = Longitude, y = Latitude, colour = Temperature), size = 0.1)
-
-#### c++ trial ####
-
-# library(microbenchmark)
-# 
-# nc_raw <- ncdf4::nc_open(paste0(path = test$Path[1], file = test$File[1]))      # Open up a netcdf file to see it's raw contents (var names)
-# nc_saline <- ncdf4::ncvar_get(nc_raw, "vosaline", Space$start3D, Space$count3D) # Extract an array of salinities
-# ncdf4::nc_close(nc_raw)                                                         # You must close an open netcdf file when finished to avoid data loss
-# 
-# shallow <- nc_saline[,,Space$shallow]
-# 
-# Rcpp::sourceCpp("./emptyRcpp.cpp")
-# 
-# microbenchmark(emptyRcpp(shallow),
-#                emptyRcpp2(shallow))
-# 
-# identical(emptyRcpp(shallow),
-#           emptyRcpp2(shallow))
-
