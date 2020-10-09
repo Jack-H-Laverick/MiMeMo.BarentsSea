@@ -23,28 +23,28 @@ data <- cbind(data[,1:8], select(data, starts_with(c("Ammonium", "Nitrate")))) %
   group_by(`CTD cast_`) %>%                                                 # Per cast
   arrange(`Depth (m)_`, .by_group = TRUE)                                   # Order depths ascending
   
-#### Calculate ratios ####
+#### Calculate proportion ####
 
-shallow_ratios <- data %>% 
+shallow_proportion <- data %>% 
   mutate(weights = calculate_depth_share(`Depth (m)_`, min_depth = 0, max_depth = 60), # Calculate share of the depth column per sample
          Depth = "Shallow")                                                 # Label depth layer 
 
-deep_ratios <- data %>% 
+deep_proportion <- data %>% 
   mutate(weights = calculate_depth_share(`Depth (m)_`, min_depth = 60, max_depth = 400), # Calculate share of the depth column per sample
          Depth = "Deep")                                                    # Label depth layer 
 
-final <- rbind(shallow_ratios, deep_ratios) %>%                             # Combine estimates
+final <- rbind(shallow_proportion, deep_proportion) %>%                     # Combine estimates
   filter(weights > 0) %>%                                                   # Drop samples outside the depth window
   group_by(`CTD cast_`, Depth) %>% 
   summarise(Ammonium = weighted.mean(`Ammonium_mM l-1`, weights),           # Weighted averages
-            Nitrate =  weighted.mean(`Nitrate+nitrite_mM l-1`, weights),
+            DIN =  weighted.mean(`Nitrate+nitrite_mM l-1` +`Ammonium_mM l-1`, weights),
             Samples = n()) %>%                                              # Number of samples contributing to each estimate
-  mutate(Ratio = Ammonium/Nitrate) %>%                                      # Get a ratio
+  mutate(Proportion = Ammonium/DIN) %>%                                     # Get a proportion of ammonium to total DIN
   st_join(domains) %>%                                                      # Check which are in the model domain
   st_drop_geometry() %>%                                                    # Simplify the output
   drop_na() %>% 
   group_by(Shore, Depth) %>%                        
-  summarise(Ratio = weighted.mean(Ratio, Samples),                          # Calculate average, weighting by the number of samples
+  summarise(Proportion = weighted.mean(Proportion, Samples),                # Calculate average, weighting by the number of samples
             Casts = n())                                                    # Number of CTD casts contributing to each estimate
 
-saveRDS(final, "./Objects/Ammonia to nitrate ratio.rds")
+saveRDS(final, "./Objects/Ammonia to DIN.rds")

@@ -28,6 +28,8 @@ My_boundary_data<- readRDS("./Objects/Boundary measurements.rds") %>%
          Measured = ifelse(Variable == "Chlorophyll", Measured * 40 / 12 * (106/16), Measured)) %>%  # g C : g Chla, convert to moles of C, Redfield ratio C to N 
   pivot_wider(names_from = c(Compartment, Variable), names_sep = "_", values_from = Measured)
 
+My_DIN_fix <- readRDS("./Objects/Ammonia to DIN.rds")
+
 My_atmosphere <- readRDS("./Objects/Atmospheric N deposition.rds") %>% 
   filter(Year == 2000) %>%   
   group_by(Month, Year, Oxidation_state, Shore) %>%
@@ -36,16 +38,16 @@ My_atmosphere <- readRDS("./Objects/Atmospheric N deposition.rds") %>%
   pivot_wider(names_from = c(Shore, Oxidation_state), values_from = Measured)
 
 Boundary_new <- mutate(Boundary_template, 
-                        #SO_nitrate = ,
-                        #SO_ammonia = ,      
+                       SO_nitrate = My_boundary_data$SO_DIN * (1-filter(My_DIN_fix, Depth == "S")$Proportion), # Multiply DIN by the proportion of total DIN as nitrate
+                       SO_ammonia = My_boundary_data$SO_DIN * filter(My_DIN_fix, Depth == "S")$Proportion, # Multiply DIN by the proportion of total DIN as ammonium
                        SO_phyt = My_boundary_data$SO_Chlorophyll, # Chlorophyll has been converted to N from phytoplankton
                        SO_detritus = My_boundary_data$SO_Detritus,
-                        #D_nitrate = ,      
-                        #D_ammonia = ,
+                       D_nitrate = My_boundary_data$D_DIN * (1-filter(My_DIN_fix, Depth == "D")$Proportion), # Multiply DIN by the proportion of total DIN as nitrate
+                       D_ammonia = My_boundary_data$D_DIN * filter(My_DIN_fix, Depth == "D")$Proportion, # Multiply DIN by the proportion of total DIN as ammonium
                        D_phyt = My_boundary_data$D_Chlorophyll,
                        D_detritus = My_boundary_data$D_Detritus,
-                        #SI_nitrate = ,
-                        #SI_ammonia = ,
+                       SI_nitrate = My_boundary_data$SI_DIN * (1-filter(My_DIN_fix, Depth == "S")$Proportion), # Multiply DIN by the proportion of total DIN as nitrate
+                       SI_ammonia = My_boundary_data$SI_DIN * filter(My_DIN_fix, Depth == "S")$Proportion, # Multiply DIN by the proportion of total DIN as ammonium
                        SI_phyt = My_boundary_data$SI_Chlorophyll, 
                        SI_detritus = My_boundary_data$SI_Detritus,
                        ## Rivers
