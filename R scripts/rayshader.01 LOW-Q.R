@@ -111,9 +111,11 @@ render_camera(theta=60,phi=30,fov=60,zoom= 0.3)                                 
 toc()
 
 tic()
-render_highquality(print_scene_info = T, parallel = TRUE, lightintensity = 0, samples = 2000, filename = "rayshade.png", 
-                   scene_elements = rayrender::sphere(z = 0, y = 200, x = 100, radius = 5,
-                   material = rayrender::light(color = "white", intensity = 10000)), clamp_value = 2, aperture = 20, # Bigger aperture, more blur
-                   min_variance = 0)
+render_highquality(print_scene_info = T, parallel = TRUE, lightintensity = 0, samples = 2000, #filename = "rayshade.png", 
+                   scene_elements = bind_rows(rayrender::sphere(z = 0, y = 200, x = 100, radius = 5,
+                   material = rayrender::light(color = "white", intensity = 10000)),
+                   rayrender::text3d(label = "Barents Sea", angle = c(30, 60, 0), z = 75, y = 100, x = -100, 
+                                     text_height = 30, material = rayrender::light(color = "white", intensity = 100))),  
+                   clamp_value = 2, aperture = 20) # Bigger aperture, more blur,0,0))), 
 
 toc()
