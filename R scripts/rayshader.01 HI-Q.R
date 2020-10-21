@@ -27,8 +27,6 @@ Bathymetry <- read_ncdf("./Data/GEBCO_2019.nc", ncsub = cbind(
 matrix <- Bathymetry$elevation %>% as.numeric() %>% 
   matrix(nrow = nrow(Bathymetry$elevation), ncol= ncol(Bathymetry$elevation))
 
-# 8192 x 8192 maximum textured syrface allowed by RGL
-#mat <- matrix[seq(nrow(matrix), 1, by = -6), seq(1, ncol(matrix), by = 2)]                               # Use for full resolution, divide zscales by 10                
 mat <- matrix[seq(nrow(matrix), 1, by = -3),]                               # Use for full resolution, divide zscales by 10                
 
 #### Plot area ####
@@ -41,14 +39,16 @@ mat %>%
   add_shadow(shadow, 0.5) %>%
   add_shadow(ambient) %>%
   plot_3d(mat, zscale = 20, fov = 60, theta = 60, phi = 30, 
-          windowsize = c(1280, 640), zoom = 0.3,
+          windowsize = c(1170, 585), zoom = 0.3,
           water = TRUE, waterdepth = 0, wateralpha = 0.75, watercolor = "lightblue",
           waterlinecolor = "white", waterlinealpha = 0.5) 
-
+#z = 450, y = 800, x = -600
 tic()
-render_highquality(print_scene_info = T, parallel = TRUE, lightintensity = 0, samples = 2000, #filename = "rayshade-hi.png", 
-    #               scene_elements = rayrender::sphere(z = 0, y = 600, x = 300, radius = 5,
-                   scene_elements = rayrender::sphere(z = 0, y = 1300, x = 500, radius = 50,
-                                       material = rayrender::light(color = "white", intensity = 10000)), clamp_value = 1, aperture = 120, # Bigger aperture, more blur
+render_highquality(print_scene_info = T, parallel = TRUE, lightintensity = 0, samples = 1500, filename = "rayshade-hi.png", 
+                   scene_elements = bind_rows(rayrender::sphere(z = 0, y = 1750, x = 600, radius = 50,
+                                                  material = rayrender::light(color = "white", intensity = 4500)),
+                                              rayrender::text3d(label = "Barents Sea", angle = c(30, 60, 0), z = 500, y = 800, x = -650, 
+                                                  text_height = 150, material = rayrender::light(color = "white", intensity = 100))),  
+                   clamp_value = 2, aperture = 120, # Bigger aperture, more blur
                    min_variance = 0)
 toc()
