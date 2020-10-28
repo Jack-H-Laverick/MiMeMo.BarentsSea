@@ -95,14 +95,3 @@ unlink(netcdfs[-1])                                                           # 
 # tic()
 # system("ncecat './Data/GFW daily_csvs/*.nc' ./Objects/GFW_ncecat.nc")                        # In turn bind a variable to the main file
 # toc()
-
-#### Extracting a domain wide summary ####
-
-library(exactextractr)
- 
-check <- brick("./Objects/GFW.nc")
-plot(check)
- 
-domain <- readRDS("./Objects/Domains.rds")
- 
-exact_extract(check, domain, fun = "sum")
