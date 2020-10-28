@@ -21,7 +21,7 @@ Proportion_effort <- c("NOR_mobile_gear", "NOR_static_gear",                  # 
          exact_extract(habitats, fun = "sum") %>%                             # Sum fishing hours within habitat types 
          mutate(Variable = .x) %>%                                            # Attach the variable name to keep track
          cbind(st_drop_geometry(habitats))}) %>%                              # Attach habitat metadata
-  rbindlist() %>% 
+  data.table::rbindlist() %>% 
   pivot_longer(starts_with("sum"), names_to = "Year", values_to = "Hours") %>%# Reshape so all years are in a column
   separate(Variable, into = c("Flag", "Gear"), sep = "_") %>%                 # Split variable name into flag and gear type
   mutate(Year = as.numeric(str_remove(Year, "sum.X")) + 2011) %>%                  # Fix year column
@@ -31,7 +31,11 @@ Proportion_effort <- c("NOR_mobile_gear", "NOR_static_gear",                  # 
 
 ggplot(Proportion_effort) +
   geom_path(aes(x = Year, y = Proportion, colour = paste0(Shore, " ", Habitat))) +
-  facet_grid(rows = vars(Flag), cols = vars(Gear))
+  facet_grid(rows = vars(Flag), cols = vars(Gear)) +
+  labs(colour = "Habitat") +
+  theme_minimal()
+
+ggsave("./Figures/GFW_habitat.png")
 
 ## Ignoring habitat types
   
@@ -49,4 +53,5 @@ ggplot(Flag) +
   theme_minimal() +
   theme(legend.position = "none")
 
+ggsave("./Figures/GFW_no habitats.png")
 
