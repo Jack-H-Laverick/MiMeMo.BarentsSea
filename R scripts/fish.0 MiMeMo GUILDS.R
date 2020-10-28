@@ -50,7 +50,7 @@ EU_Arctic <- st_contains(Region_mask, EU_landings, sparse = F) %>%            # 
 
 #### Getting unclassified EU species ####
 
-EU_not_in_IMR <- left_join(EU_Arctic, IMR) %>%                                   # Match FAO codes represented by IMR and EU
+EU_not_in_IMR <- left_join(EU_Arctic, IMR) %>%                                # Match FAO codes represented by IMR and EU
   filter(is.na(`IMR code`)) %>%                                               # If they're represented in the IMR code they will be covered by the next section
   mutate(Common.name = case_when(FAO == "PCR" ~ "Tanner crab nei",            # Label undefined FAO codes
                                  FAO == "LCT" ~ "Arctic eelpout",
@@ -122,17 +122,23 @@ New_guilds <- Classified_by_latin_or_common %>%
   full_join(EU_not_in_IMR) %>%                                                # Join to old file, introducing NAs when unclassified
   full_join(IMR_extras)                                                       # Add New classifications for IMR data
 
-#Translate_categories <- select(New_guilds, Category, Subcategory) %>%         # Save out combinations of categories to label with guilds
+#Translate_categories <- select(New_guilds, Category, Subcategory) %>%        # Save out combinations of categories to label with guilds
 #  distinct() %>% 
 #  write.csv("./Data/Fish categories to guilds.csv")
 
-New_guilds <- left_join(New_guilds, read.csv("./Data/Fish categories to guilds.csv")) %>% # Translate categories into guilds
-  mutate(Guild = case_when(FAO == "PCR" ~ "Decide",                           # Define guilds for undefined FAO codes
-                           FAO == "LCT" ~ "Decide",
-                           FAO == "JPS" ~ "Decide",
-                           FAO == "BRF" ~ "Decide",
-                           FAO == "ARY" ~ "Decide",
-                           FAO == "HYD" ~ "Decide",
-                           FAO == "SRA" ~ "Decide",
-                           T ~ Guild)) #%>% 
-#  saveRDS("./Data/MiMeMo fish guilds.rds")
+MiMeMo_guilds <- left_join(New_guilds, read.csv("./Data/Fish categories to guilds.csv")) %>% # Translate categories into guilds
+  mutate(FAO = case_when(Common.name == "Blackbelly rosefish" ~ "BRF",        # Because I didn't join EU to FAO some species 
+                         Common.name == "Argentine" ~ "ARY",                  # Get duplicated because they lack an FAO code in
+                         Common.name == "Ratfishes nei" ~ "HYD",              # FAO file but not in the EU file.
+                         Common.name == "Atlantic searobins" ~ "SRA",         # This and the filter line stops double joins later
+                         T ~ FAO)) %>% 
+  mutate(Guild = case_when(FAO == "PCR" ~ "Benthos carnivore/scavenge feeder",# Define guilds for undefined FAO codes
+                           FAO == "LCT" ~ "Demersal (non quota)",
+                           FAO == "JPS" ~ "Demersal (non quota)",
+                           FAO == "ARY" & is.na(Guild) ~ "Duplicate",         # Mark the ones which I didn't catch first time rounf
+                           FAO == "BRF" & is.na(Guild) ~ "Duplicate",         # For removal
+                           FAO == "HYD" & is.na(Guild) ~ "Duplicate",
+                           FAO == "SRA" & is.na(Guild) ~ "Duplicate",
+                           T ~ Guild)) %>% 
+  filter(Guild != "Duplicate" ) %>% 
+  write.csv("./Data/MiMeMo fish guilds.csv")
