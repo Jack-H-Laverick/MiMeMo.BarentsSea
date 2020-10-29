@@ -54,7 +54,7 @@ EU_Arctic <- st_contains(Region_mask, EU_landings, sparse = F) %>%            # 
   ungroup() %>% 
   drop_na()                                                                   # Drop unassigned gears
 
-saveRDS(EU_landings, "./Objects/Landings EU.rds")
+saveRDS(EU_Arctic, "./Objects/Landings EU.rds")
 
 ## Plot 
 
