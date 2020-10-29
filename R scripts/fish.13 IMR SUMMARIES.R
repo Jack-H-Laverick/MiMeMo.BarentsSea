@@ -67,5 +67,5 @@ ggplot(landings) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 90))
 
-saveRDS(".Objects/IMR landings by gear and guild.rds")
+saveRDS(landings, "./Objects/IMR landings by gear and guild.rds")
 
