@@ -44,6 +44,8 @@ EU_Arctic <- st_contains(Region_mask, EU_effort, sparse = F) %>%              # 
   drop_na() %>%                                                               # Drop unassigned gears
   mutate(effort = effort*24)                                                  # Convert days to hours
 
+saveRDS(EU_Arctic, "./Objects/Landings EU.rds")
+
 ## Plot 
 
 ggplot(EU_Arctic) +
