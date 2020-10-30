@@ -29,7 +29,7 @@ EU <- readRDS("./Objects/Landings EU.rds") %>%                              # Ge
   replace_na(replace = list(landings = 0)) %>%                              # Nas are actually landings of 0
   pivot_wider(names_from = Aggregated_gear, values_from = landings) %>%     # Spread dataframe to look like a matrix
   column_to_rownames('Guild') %>%                                           # Remove character column
-  as.matrix()                                                               # Convert to matrix
+  as.matrix() %>%                                                           # Convert to matrix
   .[order(row.names(.)), order(colnames(.))]                                # Alphabetise rows and columns
 
 #### Convert IMR landings to a matrix by guild and gear ####
@@ -40,11 +40,11 @@ IMR <- readRDS("./Objects/IMR landings by gear and guild.rds") %>%          # Ge
   replace_na(replace = list(Tonnes = 0)) %>%                                # Nas are actually landings of 0
   pivot_wider(names_from = Aggregated_gear, values_from = Tonnes) %>%       # Spread dataframe to look like a matrix
   column_to_rownames('Guild') %>%                                           # Remove character column
-  as.matrix()                                                               # Convert to matrix
+  as.matrix() %>%                                                           # Convert to matrix
   .[order(row.names(.)), order(colnames(.))]                                # Alphabetise rows and columns
 
 #### Combine EU and IMR landings then inflate to international ####
 
-International <- Inflation$Inflation * (EU + IMR)                           # Sum EU and IMR landings then inflate by Russian activity
+International <- t(Inflation$Inflation * (EU + IMR))                        # Sum EU and IMR landings then inflate by Russian activity
 
 saveRDS(Internationl, "./Objects/International landings.rds")
