@@ -14,12 +14,16 @@ guild <- read.csv("./Data/MiMeMo fish guilds.csv") %>%
 
 #### Get an inflation factor for each guild to get from Non-Russian to International landings ####
 
+##**## Scale the proportiong of landings from each ICES region contributing to the model domain. Could do by area
+##**## Could also use GFW
+
 ICES <-read.csv("./Data/ICES fish/ICES_1903-2017.csv", header=T) %>%        # Import combined ICES landings  
        filter(str_detect(area, "27.1|27.2.b.2|27.2.a.2|27.2.a_NK|27.2.b.NK|27.2_NK") # Limit to areas of interest
               & area != "27.14.a") %>% 
        mutate(Russia = str_detect(cname, "Russia")) %>%                     # Identify Russian activity
        left_join(guild) %>%                                                 # Attach guilds
-       dplyr::select(Russia, Guild, tonnage) %>%                            # Limit to columns of interest
+      ## Add weighting here then keep weights column 
+      dplyr::select(Russia, Guild, tonnage) %>%                            # Limit to columns of interest
        group_by(Guild, Russia) %>%                                          # Per guild and group of flags 
        summarise(tonnage = sum(tonnage, na.rm = T)) %>%                     # Total the landings
        ungroup() %>%                            
