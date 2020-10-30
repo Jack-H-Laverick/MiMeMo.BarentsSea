@@ -38,15 +38,17 @@ ggplot(effort_proportion) +
 #### IMR average absolute activity rates by gear and IMR region ####
 
 effort_absolute <- IMR %>% 
-  group_by(Aggregated_gear, Gear_type, IMR.code) %>% 
+  group_by(Aggregated_gear, Gear_type, Guild, IMR.code) %>% 
   summarise(Effort = mean(Fishing_time, na.rm = TRUE)) %>% 
   ungroup %>% 
   drop_na()
 
-ggplot(effort_absolute) + 
-  geom_raster(aes(x=as.factor(Guild), y=Aggregated_gear, fill = Tonnes)) + 
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90))
+#ggplot(effort_absolute) + 
+#  geom_raster(aes(x=as.factor(Guild), y=Aggregated_gear, fill = Tonnes)) + 
+#  theme_minimal() +
+#  theme(axis.text.x = element_text(angle = 90))
+
+saveRDS(effort_absolute, "./Objects/IMR effort by gear and guild.rds")
 
 ## To scale Russian landings we need a barents sea wide estimate to scale against
 
