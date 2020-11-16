@@ -1,55 +1,60 @@
 
 ## Combine EU and Norwegian fishing effort, then inflate by missing Russian landings to get International effort
 
+# Do we want to scale Russian effort by using the GFW effort data? and assuming it's relatively accurate 
+# i.e. same gears are used in same proportions, doubles harpooning, are the Russians whaling?
+# or do we want to assume constant catch per unit effort and use landings?
+
 #### Set up ####
 
 rm(list=ls())                                                               # Wipe the brain
 
-packages <- c("tidyverse")                                                  # List packages
+packages <- c("tidyverse", "exactextractr", "raster", "furrr", "sf")        # List packages
 lapply(packages, library, character.only = TRUE)                            # Load packages
 
-Guilds <- unique(read.csv("./Data/MiMeMo fish guilds.csv")$Guild)           # Get vector of guilds
+plan(multiprocess)
 
-Gears <- unique(read.csv("./Data/MiMeMo gears.csv")$Aggregated_gear)        # Get vector of gears
+IMR <- readRDS("./Objects/IMR absolute fishing effort")                     # Import Norwegian fishing effort        
 
-target <- expand.grid(Guild = Guilds, Aggregated_gear = Gears)              # Get combinations of gear and guild
+EU <- readRDS("./Objects/EU absolute fishing effort")                       # Import EU fishing effort
 
-Inflation <- readRDS("./Objects/ICES landings inflation.rds") %>%           # Rule to convert non-russian to international landings from ICES
-  right_join(data.frame(Guild = Guilds)) %>%                                # Introduce missing guilds
-  replace_na(replace = list(Inflation = 1)) %>%                             # Any unrepresented guild shouldn't be inflated
-  arrange(Guild)                                                            # Alphabetise to match matrices later
-         
-#### Convert EU landings to a matrix by guild and gear ####
+target <- read.csv("./Data/MiMeMo gears.csv") %>%                           # Load fishing gear classifications
+  dplyr::select(Aggregated_gear, Gear_type) %>%                             # Select gear names
+  distinct() %>%                                                            # Drop duplicates
+  filter(Aggregated_gear != "Dropped")                                      # Drop unused gears
 
-##**## Need to get guild in EU summary
+domain <- st_transform(readRDS("./Objects/Domains.rds"), crs = 4326) %>%    # reproject to match EU data
+  dplyr::select(-c(Shore, Elevation, area)) %>%                             # Drop unnecessary columns
+  st_union() %>%                                                            # Create whole domain shape 
+  nngeo::st_remove_holes() %>%                                              # Drop holes so we don't accidentally lose fishing near Svalbard
+  st_make_valid() %>%                                                       # Still some residual holes so make valid
+  nngeo::st_remove_holes()                                                  # And drop again
 
-EU <- readRDS("./Objects/EU effort.rds") %>%                                # Get landings
-  group_by(Guild, Aggregated_gear) %>%                                      # Per combination of gear and guild
-  summarise(effort = mean(Tonnes, na.rm= TRUE)) %>%                         # Average landings across years
-  right_join(target) %>%                                                    # Join to all combinations of gear and guild
-  filter(Aggregated_gear != "Dropped") %>%                                  # Ditch the uneeded gear class  
-  replace_na(replace = list(effort = 0)) %>%                                # Nas are actually landings of 0
-  pivot_wider(names_from = Aggregated_gear, values_from = effort) %>%       # Spread dataframe to look like a matrix
-  column_to_rownames('Guild') %>%                                           # Remove character column
+#### Get Russian correction factor ####
+
+Inflation <- c("NOR_mobile_gear", "NOR_static_gear",                        # For each variable in the GFW file
+               "RUS_mobile_gear", "RUS_static_gear",
+               "REST_mobile_gear", "REST_static_gear") %>% 
+  future_map(~{ brick("./Objects/GFW.nc", varname = .x) %>%                 # Import a brick of all years
+      calc(mean, na.rm = T) %>%                                             # Take the mean across years
+      exact_extract(st_as_sf(domain), fun = "sum") %>%                      # Sum fishing hours within the model domain 
+      data.frame(Hours = ., Variable = .x)}) %>%                            # Attach the variable name to keep track
+  data.table::rbindlist() %>% 
+  separate(Variable, into = c("Flag", "Gear_type"), sep = "_") %>%          # Split variable name into flag and gear type
+  mutate(Gear_type = str_to_sentence(Gear_type)) %>%                        # Capitalise to match to target
+  group_by(Gear_type) %>%                                                   # Now for each gear type
+  mutate(total_gear_effort = sum(Hours)) %>%                                # Total effort
+  filter(Flag != "RUS") %>%                                                 # Don't need Russian data anymore
+  summarise(Inflation = mean(total_gear_effort)/sum(Hours))%>%              # How do we get from non-Russian effort to our known total?
+  ungroup() %>%
+  right_join(target) %>%                                                    # Bind to all gear names
+  column_to_rownames('Aggregated_gear') %>%                                 # Match names to EU and IMR objects
+  dplyr::select(Inflation) %>%                                              # Select only numeric column
   as.matrix() %>%                                                           # Convert to matrix
-  .[order(row.names(.)), order(colnames(.))]                                # Alphabetise rows and columns
+  .[order(row.names(.)),]                                                   # Alphabetise rows to ensure a match with other objects
 
-#### Convert IMR landings to a matrix by guild and gear ####
+####  Scale to international effort ####
 
-IMR <- readRDS("./Objects/IMR effort by gear and guild.rds") %>%            # Get landings
-  group_by(Guild, Aggregated_gear) %>%                                      # Collate IMR regions and 
-  summarise(Effort = sum(Effort, na.rm = T)) %>% 
-  right_join(target) %>%                                                    # Join to all combinations of gear and guild
-  filter(Aggregated_gear != "Dropped") %>%                                  # Ditch the uneeded gear class
-  replace_na(replace = list(Effort = 0)) %>%                                # Nas are actually landings of 0
-  pivot_wider(names_from = Aggregated_gear, values_from = Effort) %>%       # Spread dataframe to look like a matrix
-  column_to_rownames('Guild') %>%                                           # Remove character column
-  as.matrix() %>%                                                           # Convert to matrix
-  .[order(row.names(.)), order(colnames(.))]                                # Alphabetise rows and columns
+International <- (EU + IMR) * Inflation                                                           
 
-#### Combine EU and IMR landings then inflate to international ####
-
-International <- t(Inflation$Inflation * (EU + IMR)) %>%                    # Sum EU and IMR landings then inflate by Russian activity
-  rowSums()
-  
 saveRDS(Internationl, "./Objects/International effort by gear.rds")
