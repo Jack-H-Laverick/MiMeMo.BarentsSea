@@ -18,7 +18,8 @@ IMR <- data.table::fread("./Data/IMR/logbookNOR_00to20_b.lst", sep = ';', colCla
   filter(Area_Norway %in% c(1:4, 10:18, 20:25)) %>%                                         # Limit to areas of interest
   left_join(gear) %>%                                                                       # Attach labels
   left_join(guild) %>%                                                                      # Attach labels
-  filter(Aggregated_gear != "Dropped") %>% 
+  filter(Aggregated_gear != "Dropped",
+         between(Year, 2011, 2019)) %>% 
   mutate(Weight = Weight/1000)                                                              # Convert Kg to tonnes
 
 #### Proportion IMR effort across gears and guilds ####
