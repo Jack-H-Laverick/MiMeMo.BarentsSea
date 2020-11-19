@@ -8,8 +8,9 @@ packages <- c("tidyverse", "sf", "raster", "exactextractr")                   # 
 lapply(packages, library, character.only = TRUE)                              # Load packages
 
 Domains <- st_transform(readRDS("./Objects/Domains.rds"), crs = 4326) %>%     # reproject to match EU data
-  dplyr::select(-c(Shore, Elevation, area)) %>%                               # Drop unnecessary columns
-  st_union()                                                                  # Create whole domain shape 
+  st_union() %>%                                                              # Create whole domain shape 
+  st_as_sf() %>% 
+  mutate(Keep = T)
 
 gear <- read.csv("./Data/MiMeMo gears.csv") 
 
@@ -32,14 +33,15 @@ IMR <- data.table::fread("./Data/IMR/logbookNOR_00to20_b.lst", sep = ';',     # 
                  "Region", "Location_Norway", "Vessel_length", "IMR.code", "Weight")) %>% # Set column names
   dplyr::select(Year, Month, Day, Gear_code, Fishing_time, Region) %>%        # Ditch unnecessary columns
   left_join(gear) %>%                                                         # Attach gear labels
-  filter(Aggregated_gear != "Dropped", Region %in% Regions$Region) %>%        # Limited to gears and regions of interest
+  filter(Aggregated_gear != "Dropped", Region %in% Regions$Region,            # Limited to gears and regions of interest
+         between(Year, 2011, 2019)) %>%                                       # To when the electronic reporting system started to the last complete year
   group_by(Aggregated_gear, Gear_type, Region, Year) %>%                      # Total up effort within years          
   summarise(Effort = sum(Fishing_time, na.rm = T)) %>%
   summarise(Effort = mean(Effort, na.rm = T)) %>%                             # Then average across years
   ungroup() %>% 
   merge(Regions, .)                                                           # Add in sf geometries by IMR region
 
-#### Proportion IMR effort across gears and guilds ####
+#### Correct IMR effort by overlap with model domain ####
 
 Regions_GFW <- Regions %>% 
   mutate(mobile_total = exact_extract(GFW_mobile, ., fun = "sum"),            # Get all mobile fishing effort from GFW in an IMR region
@@ -55,6 +57,8 @@ IMR_effort <- rownames_to_column(IMR, var = "Feature") %>%                    # 
                                Gear_type == "Static" ~ (static_feature)/static_total)) %>%  # Get proportion of GFW effort from a region within a feature
   replace_na(list(GFW_Scale = 1)) %>%                                         # If there was no GFW activity in the region replace NA with 1 to not use this for scaling
   mutate(corrected_effort = Effort*GFW_Scale)                                 # Scale whole region effort per gear by the proportion of GFW activity by gear type in the model domain 
+
+saveRDS(IMR_effort, "./Objects/IMR regional absolute fishing effort.rds")
 
 #### Summarise ####
 
