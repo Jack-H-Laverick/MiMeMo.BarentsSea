@@ -1,10 +1,6 @@
 
 ## Combine EU and Norwegian fishing effort, then inflate by missing Russian landings to get International effort
 
-# Do we want to scale Russian effort by using the GFW effort data? and assuming it's relatively accurate 
-# i.e. same gears are used in same proportions, doubles harpooning, are the Russians whaling?
-# or do we want to assume constant catch per unit effort and use landings?
-
 #### Set up ####
 
 rm(list=ls())                                                               # Wipe the brain
@@ -48,6 +44,8 @@ Inflation <- c("NOR_mobile_gear", "NOR_static_gear",                        # Fo
   summarise(Inflation = mean(total_gear_effort)/sum(Hours))%>%              # How do we get from non-Russian effort to our known total?
   ungroup() %>%
   right_join(target) %>%                                                    # Bind to all gear names
+  mutate(Inflation = ifelse(Aggregated_gear %in% c("Harpoons", "Rifles", "Kelp harvesting"),
+                            1, Inflation)) %>% 
   column_to_rownames('Aggregated_gear') %>%                                 # Match names to EU and IMR objects
   dplyr::select(Inflation) %>%                                              # Select only numeric column
   as.matrix() %>%                                                           # Convert to matrix
@@ -57,4 +55,4 @@ Inflation <- c("NOR_mobile_gear", "NOR_static_gear",                        # Fo
 
 International <- (EU + IMR) * Inflation                                                           
 
-saveRDS(Internationl, "./Objects/International effort by gear.rds")
+saveRDS(International, "./Objects/International effort by gear.rds")
