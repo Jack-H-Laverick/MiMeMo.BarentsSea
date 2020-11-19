@@ -35,3 +35,13 @@ ICES <-read.csv("./Data/ICES fish/ICES_1903-2017.csv", header=T) %>%        # Im
        dplyr::select(Guild, Inflation)
 
 saveRDS(ICES, "./Objects/ICES landings inflation.rds")
+
+# ICES2 <- filter(ICES, cname == "Norway") %>% 
+#   group_by(year) %>% 
+#   summarise(landings = sum(tonnage, na.rm = T)) %>% 
+#   filter(year > 1999)
+# 
+# ggplot(ICES2) +
+#   geom_line(aes(x = year, y = landings)) +
+#   ylim(0, max(ICES2$landings))
+
