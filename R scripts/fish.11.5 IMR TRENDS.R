@@ -20,12 +20,12 @@ IMR <- data.table::fread("./Data/IMR/logbookNOR_00to20_b.lst", sep = ';', colCla
   left_join(guild) %>%                                                                      # Attach labels
   filter(Aggregated_gear != "Dropped",
          Guild != "Duplicate",
-         Year < 2020) %>%                                                                   # 2020 is low because it's incomplete
+         between(Year, 2011, 2019)) %>%                                                     # 2020 is low because it's incomplete
   mutate(Weight = Weight/1000)                                                              # Convert Kg to tonnes
 
 #### IMR effort across gears 
 
-time_steps <- expand.grid(Year = 2000:2019, Aggregated_gear = unique(IMR$Aggregated_gear))  # Create time steps to fill times with no fishing
+time_steps <- expand.grid(Year = 2011:2019, Aggregated_gear = unique(IMR$Aggregated_gear))  # Create time steps to fill times with no fishing
 
 effort <- IMR %>% 
   group_by(Aggregated_gear, Year) %>%                                                       # By gear per year
@@ -46,7 +46,7 @@ par(mfrow=c(length(effort),2))                                                  
     label <- .x$Aggregated_gear[1]                                                          # And gear ID
 
     acf(data, lag.max = length(data), xlab = "lag position", ylab = "Autocorellation", main = label) # Plot temporal autocorrelation
-    plot(2000:2019, data, type = 'l', col = 'red', xlab = "years", ylab = "Tonnes", main = "Time series") # Plot time series
+    plot(2011:2019, data, type = 'l', col = 'red', xlab = "years", ylab = "Tonnes", main = "Time series") # Plot time series
   })
   
 dev.off()                                                                                   # Finish file
@@ -56,7 +56,7 @@ dev.off()                                                                       
 
 #### IMR landings across guilds ####
 
-time_steps <- expand.grid(Year = 2000:2019, Guild = unique(IMR$Guild))
+time_steps <- expand.grid(Year = 2011:2019, Guild = unique(IMR$Guild))
 
 landings <- IMR %>% 
   group_by(Guild, Year) %>% 
@@ -78,7 +78,7 @@ walk(landings, ~{
   label <- .x$Guild[1]
     
   acf(data, lag.max = length(data), xlab = "lag position", ylab = "Autocorrelation", main = label)
-  plot(2000:2019, data, type = 'l', col = 'red', xlab = "years", ylab = "Tonnes", main = "Time series")
+  plot(2011:2019, data, type = 'l', col = 'red', xlab = "years", ylab = "Tonnes", main = "Time series")
   
   })
 
