@@ -1,5 +1,5 @@
 
-# Calculate absolute fishing effort by gear across EU flags and habitats
+#**# Distribute EU fishing effort over seabed habitats using GFW effort data
 
 #### Set up ####
 
@@ -10,41 +10,78 @@ lapply(c(packages), library, character.only = TRUE)                           # 
 
 source("./R scripts/@_Region file.R")                                         # Get region mask
 
+plan(multiprocess)
+
 Region_mask <- st_transform(Region_mask, crs = 4326)                          # reproject to match EU data
 
 habitats <- readRDS("./Objects/Habitats.rds")                                 # Load habitat polygons
 
 gears <- read.csv("./Data/MiMeMo gears.csv")                                  # Load fishing gear classifications
 
-EU_effort <- rgdal::readOGR(dsn="./Data/EU fish/spatial_effort_2015-2018/") %>% # Import EU effort shapefile
+target <- expand.grid(Habitat = paste0(habitats$Shore, " ", habitats$Habitat), 
+                      Aggregated_gear = unique(gears$Aggregated_gear))        # Get combinations of gear and guild
+
+GFW_mobile <- brick("./Objects/GFW.nc", varname = "REST_mobile_gear") %>%     # Get mean fishing effort across years from Global fishing watch
+  calc(mean, na.rm = T)
+
+GFW_static <- brick("./Objects/GFW.nc", varname = "REST_static_gear") %>%     # For each class of gear
+  calc(mean, na.rm = T)
+
+EU <- rgdal::readOGR(dsn="./Data/EU fish/spatial_effort_2015-2018/") %>%      # Import EU effort shapefile
   st_as_sf() %>%                                                              # Convert to SF
   dplyr::select(year, quarter, ger_typ, rctngl_, ttfshdy) %>%                 # Drop some columns, ttfshdy is "total fishing days"
   rename(Gear_code = ger_typ)
 
-#### Locate EU effort inside habitat types ####
-
-EU_Arctic <- st_contains(Region_mask, EU_effort, sparse = F) %>%              # Which EU polygons are in the model mask?
+EU_Arctic <- st_contains(Region_mask, EU, sparse = F) %>%                     # Which EU polygons are in the model mask?
   t() %>%                                                                     # Transpose to indicate row not columns
-  EU_effort[.,] %>%                                                           # Subset the Eu data spatially
-  rownames_to_column(var = "EU_polygon") %>%                                  # Create a column to track each EU polygon
-  st_intersection(habitats) %>%                                               # Split the EU polygons cross habitat types
-  mutate(area_stat_rectangle = as.numeric(st_area(.))) %>%                    # Work out the area of all the pieces
-  st_drop_geometry() %>%                                                      # Drop geometry column for simplicity
-  drop_na(Shore) %>%                                                          # Drop shapes which fall outside of habitats
-  group_by(EU_polygon) %>%                                                    # Per original EU polygon
-  mutate(share = area_stat_rectangle / sum(area_stat_rectangle)) %>%          # Work out the proportion of the area in each piece split over habitats
-  ungroup() %>% 
-  mutate(effort_contributions = ttfshdy*share,                                # Adjust fishing days to account for breaking up EU polygons
-         Habitat = paste0(Shore, " ", Habitat)) %>%                           # Combine habitat labels
+  EU[.,] %>%                                                                  # Subset the Eu data spatially
   left_join(gears) %>%                                                        # Attach gear classifications
-  filter(Aggregated_gear != "Dropped") %>% 
-  group_by(year, Gear_type, Aggregated_gear, Habitat) %>%                     # By year, habitat and gear
-  summarise(effort = sum(effort_contributions, na.rm = TRUE)) %>%             # total the fishing effort
-  ungroup() %>% 
-  drop_na() %>%                                                               # Drop unassigned gears
-  mutate(effort = effort*24)                                                  # Convert days to hours
+  filter(Aggregated_gear != "Dropped")  
+  
+#### Proportion EU effort across seabed habitats by EU polygon ####
 
-saveRDS(EU_Arctic, "./Objects/Landings EU.rds")
+tictoc::tic()
+habitat_weights <- rownames_to_column(EU_Arctic, var = "EU_polygon") %>%      # Create a column to track each IMR region and gear combination
+  split(f = list(.$EU_polygon)) %>%                                           # Isolate each shape for fast paralel processing
+  future_map( ~ { st_intersection(.x, habitats) %>%                           # Crop the IMR region polygons to habitat types
+      mutate(GFW = ifelse(Gear_type == "Mobile", exact_extract(GFW_mobile, ., fun = "sum"),          # Get the GFW fishing effort in each shape
+                          exact_extract(GFW_static, ., fun = "sum")),
+      Habitat = paste0(Shore, " ", Habitat)) %>%                              # Combine habitat labels
+      st_drop_geometry() %>% 
+      mutate(habitat_share = GFW / sum(GFW, na.rm = T)) %>%                   # Work out the proportion of activity in each piece split over habitats
+      dplyr::select(habitat_share, EU_polygon, Aggregated_gear, Habitat)}, 
+  .progress = T) %>% 
+  data.table::rbindlist()
+
+check <- habitat_weights %>%                                                  # Check shares sum to 1 by gear
+  group_by(EU_polygon, Aggregated_gear) %>% 
+  summarise(check = sum(habitat_share, na.rm = T))
+tictoc::toc()
+
+#### Absolute effort scaled by proportion of GFW activity in an polygon falling in the model domain ####
+
+EU_effort <- readRDS("./Objects/EU corrected pixel fishing effort") %>% 
+  dplyr::select(effort_contributions, Aggregated_gear, EU_polygon)
+
+#### Scale and sum efforts by habitat type and gear ####
+
+Absolute_effort_habitats <- left_join(habitat_weights, EU_effort) %>%         # Combine actual effort with habitat distribution
+  mutate(effort = effort_contributions * habitat_share) %>%                   # Scale
+  group_by(Aggregated_gear, Habitat) %>%                                      # Sum by gear and habitat combination
+  summarise(effort = sum(effort, na.rm = T)) %>%                              # Total by group
+  ungroup() %>%                                                               # Ungroup for speed
+  drop_na() %>%                                                               # Drop habitats labelled as NA
+  right_join(target) %>%                                                      # Join to all combinations of gear and guild
+  filter(Aggregated_gear != "Dropped") %>%                                    # Ditch the unneeded gear class
+  replace_na(replace = list(effort = 0)) %>%                                  # Nas are actually landings of 0
+  pivot_wider(names_from = Aggregated_gear, values_from = effort) %>%         # Spread dataframe to look like a matrix
+  column_to_rownames('Habitat') %>%                                           # Remove character column
+  as.matrix() %>%                                                             # Convert to matrix
+  .[order(row.names(.)), order(colnames(.))]                                  # Alphabetise rows and columns
+saveRDS(Absolute_effort_habitats, "./Objects/EU absolute habitat effort")     # Save
+
+## How much of the corrected effort is allocated a habitat type?
+sum(Absolute_effort_habitats, na.rm = T) / sum(EU_effort$effort_contributions, na.rm = T)
 
 ## Plot 
 
