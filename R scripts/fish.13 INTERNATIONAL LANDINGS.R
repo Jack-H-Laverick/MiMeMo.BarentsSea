@@ -47,4 +47,6 @@ IMR <- readRDS("./Objects/IMR landings by gear and guild.rds") %>%          # Ge
 
 International <- t(Inflation$Inflation * (EU + IMR))                        # Sum EU and IMR landings then inflate by Russian activity
 
-saveRDS(Internationl, "./Objects/International landings.rds")
+heatmap(International)
+
+saveRDS(International, "./Objects/International landings.rds")
