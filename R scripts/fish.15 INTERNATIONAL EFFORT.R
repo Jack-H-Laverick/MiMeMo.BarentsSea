@@ -34,7 +34,7 @@ Inflation <- c("NOR_mobile_gear", "NOR_static_gear",                        # Fo
   future_map(~{ brick("./Objects/GFW.nc", varname = .x) %>%                 # Import a brick of all years
       calc(mean, na.rm = T) %>%                                             # Take the mean across years
       exact_extract(st_as_sf(domain), fun = "sum") %>%                      # Sum fishing hours within the model domain 
-      data.frame(Hours = ., Variable = .x)}) %>%                            # Attach the variable name to keep track
+      data.frame(Hours = ., Variable = .x)}, .progress = T) %>%             # Attach the variable name to keep track
   data.table::rbindlist() %>% 
   separate(Variable, into = c("Flag", "Gear_type"), sep = "_") %>%          # Split variable name into flag and gear type
   mutate(Gear_type = str_to_sentence(Gear_type)) %>%                        # Capitalise to match to target
