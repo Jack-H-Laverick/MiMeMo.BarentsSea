@@ -47,11 +47,10 @@ IMR <- data.table::fread("./Data/IMR/logbookNOR_00to20_b.lst", sep = ';',     # 
 
 habitat_weights <- rownames_to_column(IMR, var = "Feature") %>%               # Create a column to track each IMR region and gear combination
   st_intersection(habitats) %>%                                               # Crop the IMR region polygons to habitat types
-  mutate(mobile = exact_extract(GFW_mobile, ., fun = "sum"),                  # Count all fishing activity in the new shapes
-         static = exact_extract(GFW_static, ., fun = "sum"),                  # From GFW by mobile and static gear
+  mutate(GFW = if_else(Gear_type == "Mobile", 
+                       exact_extract(GFW_mobile, ., fun = "sum"),             # Count all fishing activity in the new shapes
+                       exact_extract(GFW_static, ., fun = "sum")),            # From GFW by mobile and static gear
          Habitat = paste0(Shore, " ", Habitat)) %>%                           # Combine habitat labels
-  mutate(GFW = case_when(Gear_type == "Mobile" ~ mobile,                      # Depending on gear type, use the correct GFW effort data
-                         Gear_type == "Static" ~ static)) %>% 
   group_by(Region, Aggregated_gear) %>%                                       # Per region and gear
   mutate(habitat_share = GFW / sum(GFW, na.rm = T)) %>%                       # Work out the proportion of activity in each piece split over habitats
   ungroup() %>% 
@@ -64,7 +63,7 @@ check <- habitat_weights %>%                                                  # 
 
 #### Absolute effort scaled by proportion of GFW activity in an IMR region falling in the model domain ####
 
-IMR_effort <- readRDS("./Objects/IMR regional absolute fishing effort.rds")
+IMR_effort <- readRDS("./Objects/IMR regional absolute effort and landings.rds") %>% 
 st_drop_geometry() %>% 
   dplyr::select(corrected_effort, Aggregated_gear, Region)
 
