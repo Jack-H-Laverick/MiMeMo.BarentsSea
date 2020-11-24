@@ -18,31 +18,11 @@ Inflation <- readRDS("./Objects/ICES landings inflation.rds") %>%           # Ru
   right_join(data.frame(Guild = Guilds)) %>%                                # Introduce missing guilds
   replace_na(replace = list(Inflation = 1)) %>%                             # Any unrepresented guild shouldn't be inflated
   arrange(Guild)                                                            # Alphabetise to match matrices later
-         
-#### Convert EU landings to a matrix by guild and gear ####
 
-EU <- readRDS("./Objects/Landings EU.rds") %>%                              # Get landings
-  group_by(Guild, Aggregated_gear) %>%                                      # Per combination of gear and guild
-  summarise(landings = mean(Tonnes, na.rm= TRUE)) %>%                       # Average landings across years
-  right_join(target) %>%                                                    # Join to all combinations of gear and guild
-  filter(Aggregated_gear != "Dropped") %>%                                  # Ditch the uneeded gear class  
-  replace_na(replace = list(landings = 0)) %>%                              # Nas are actually landings of 0
-  pivot_wider(names_from = Aggregated_gear, values_from = landings) %>%     # Spread dataframe to look like a matrix
-  column_to_rownames('Guild') %>%                                           # Remove character column
-  as.matrix() %>%                                                           # Convert to matrix
-  .[order(row.names(.)), order(colnames(.))]                                # Alphabetise rows and columns
+IMR <- readRDS("./Objects/IMR landings by gear and guild.rds")              # Import corrected IMR landings
 
-#### Convert IMR landings to a matrix by guild and gear ####
-
-IMR <- readRDS("./Objects/IMR landings by gear and guild.rds") %>%          # Get landings
-  right_join(target) %>%                                                    # Join to all combinations of gear and guild
-  filter(Aggregated_gear != "Dropped") %>%                                  # Ditch the uneeded gear class
-  replace_na(replace = list(Tonnes = 0)) %>%                                # Nas are actually landings of 0
-  pivot_wider(names_from = Aggregated_gear, values_from = Tonnes) %>%       # Spread dataframe to look like a matrix
-  column_to_rownames('Guild') %>%                                           # Remove character column
-  as.matrix() %>%                                                           # Convert to matrix
-  .[order(row.names(.)), order(colnames(.))]                                # Alphabetise rows and columns
-
+EU <- readRDS("./Objects/EU landings by gear and guild.rds")                # Import corrected EU landings
+  
 #### Combine EU and IMR landings then inflate to international ####
 
 International <- t(Inflation$Inflation * (EU + IMR))                        # Sum EU and IMR landings then inflate by Russian activity
