@@ -38,33 +38,39 @@ EU_Arctic <- st_contains(Region_mask, EU, sparse = F) %>%                     # 
   t() %>%                                                                     # Transpose to indicate row not columns
   EU[.,] %>%                                                                  # Subset the Eu data spatially
   left_join(gears) %>%                                                        # Attach gear classifications
-  filter(Aggregated_gear != "Dropped")  
+  filter(Aggregated_gear != "Dropped") %>%  
+  rownames_to_column(var = "EU_polygon") 
 
-#### Locate EU effort inside habitat types ####
+#### Locate EU effort inside the model domain ####
+
+tictoc::tic()
+corrected_effort <- dplyr::select(EU_Arctic, EU_polygon, Gear_type) %>%       # Limit to information needed to calculate the proportion of fishing effort in the model domain
+  split(f = as.factor(as.numeric(.$EU_polygon))) %>%                                                     # Isolate each shape for fast paralel processing
+  future_map( ~{                                                              # In parallel
+    mutate(.x, total = if_else(Gear_type == "Mobile",                         # If this is a mobile gear
+                               exact_extract(GFW_mobile, .x, fun = "sum"),    # Get all mobile fishing effort from GFW, else static effort
+                               exact_extract(GFW_static, .x, fun = "sum"))) %>% # This is the total effort to scale features to within a polygon
+      st_intersection(domain) %>%                                             # Crop the polygons to the model domain
+      mutate(feature = if_else(Gear_type == "Mobile",                         # Now count fishing effort again
+                               as.numeric(exact_extract(GFW_mobile, ., fun = "sum")),       
+                               as.numeric(exact_extract(GFW_static, ., fun = "sum")))) %>% 
+               st_drop_geometry()}, .progress = T) %>%            
+  data.table::rbindlist() %>%                                                 # Bind each fishing feature back into a DF
+  mutate(GFW_Scale = feature/total) %>%                                       # Get the proportion of effort per polygon in the domain
+  replace_na(list(GFW_Scale = 1)) %>%                                         # If there was no GFW activity in the polygon replace NA with 1 to not use this for scaling
+  dplyr::select(GFW_Scale, EU_polygon) %>% 
+  left_join(EU_Arctic) %>% 
+  mutate(effort_contributions = ttfshdy*GFW_Scale*24)                         # Scale fishing effort by area in the model domain
+tictoc::toc()    
+
+saveRDS(corrected_effort, "./Objects/EU corrected pixel fishing effort")      # Save
+
+#### Summarise ####
 
 target <- dplyr::select(gears, Aggregated_gear) %>%                           # Select gear names
   distinct() %>%                                                              # Drop duplicates
   filter(Aggregated_gear != "Dropped")                                        # Drop unused gears
 
-tictoc::tic()
-corrected_effort <- rownames_to_column(EU_Arctic, var = "EU_polygon") %>%      # Create a column to track each IMR region and gear combination
-  split(f = list(.$EU_polygon)) %>%                                           # Isolate each shape for fast paralel processing
-  future_map( ~ {bind_rows(.x, rename(st_sf(domain), geometry = domain)) %>%  # Bind the domain polygon to the object 
-    st_intersection() %>%                                                     # Split the polygons by areas of overlap
-    mutate(GFW = ifelse(Gear_type == "Mobile", exact_extract(GFW_mobile, ., fun = "sum"),          # Get the GFW fishing effort in each shape
-                                               exact_extract(GFW_static, ., fun = "sum"))) %>% 
-    st_drop_geometry() %>%                                                    # Drop geometry column for simplicity
-    drop_na() %>%                                                             # Drop the model domain area which isn't under the fishing polygon
-    mutate(weight = GFW/sum(GFW, na.rm = T)) %>%                              # Calculate the proportion each piece of fishing area represents
-    filter(n.overlaps == 2)                                                   # Limit to the piece where domain and fishing overlapped
-    }, .progress = T) %>%
-  data.table::rbindlist() %>%                                                 # Bind each fishing feature back into a DF
-  mutate(effort_contributions = ttfshdy*weight*24)                            # Scale fishing effort by area in the model domain
-                                                                              # Convert days to hours
-saveRDS(corrected_effort, "./Objects/EU corrected pixel fishing effort")      # Save
-
-#### Summarise ####
-  
 summary <- group_by(corrected_effort, Aggregated_gear, year) %>%              # By year and gear
   summarise(effort = sum(effort_contributions, na.rm = TRUE)) %>%             # total the fishing effort
   drop_na() %>%                                                               # Drop unassigned gears
@@ -74,21 +80,20 @@ summary <- group_by(corrected_effort, Aggregated_gear, year) %>%              # 
   column_to_rownames('Aggregated_gear') %>%                                   # Remove character column
   as.matrix() %>%                                                             # Convert to matrix
   .[order(row.names(.)),]                                                     # Alphabetise rows to ensure a match with other objects
-tictoc::toc()
 
 saveRDS(summary, "./Objects/EU absolute fishing effort")                      # Save
 
 #### Visualise ####
 
-library(ggnewscale)
-library(stars)
-
-star <- st_as_stars(GFW_mobile)    # convert GFW to stars objects for use in sf plots
-star2 <- st_as_stars(GFW_static)
-
-ggplot() +
-  geom_sf(data = domain, fill = "yellow", colour = "black") +
-  geom_sf(data = EU_Arctic, aes(fill = ttfshdy), alpha = 0.3, colour = NA) +
-  new_scale("fill") +
-  geom_stars(data=star) +
-  scale_fill_continuous(na.value = NA, low = "purple", high = "limegreen", trans = "sqrt")
+# library(ggnewscale)
+# library(stars)
+# 
+# star <- st_as_stars(GFW_mobile)    # convert GFW to stars objects for use in sf plots
+# star2 <- st_as_stars(GFW_static)
+# 
+# ggplot() +
+#   geom_sf(data = domain, fill = "yellow", colour = "black") +
+#   geom_sf(data = EU_Arctic, aes(fill = ttfshdy), alpha = 0.3, colour = NA) +
+#   new_scale("fill") +
+#   geom_stars(data=star) +
+#   scale_fill_continuous(na.value = NA, low = "purple", high = "limegreen", trans = "sqrt")
