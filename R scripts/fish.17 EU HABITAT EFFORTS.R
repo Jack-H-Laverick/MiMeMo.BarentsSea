@@ -42,14 +42,15 @@ EU_Arctic <- st_contains(Region_mask, EU, sparse = F) %>%                     # 
 
 tictoc::tic()
 habitat_weights <- rownames_to_column(EU_Arctic, var = "EU_polygon") %>%      # Create a column to track each IMR region and gear combination
-  split(f = list(.$EU_polygon)) %>%                                           # Isolate each shape for fast paralel processing
+  split(f = as.factor(as.numeric(.$EU_polygon))) %>%                                                     # Isolate each shape for fast paralel processing
   future_map( ~ { st_intersection(.x, habitats) %>%                           # Crop the IMR region polygons to habitat types
       mutate(GFW = ifelse(Gear_type == "Mobile", exact_extract(GFW_mobile, ., fun = "sum"),          # Get the GFW fishing effort in each shape
                           exact_extract(GFW_static, ., fun = "sum")),
       Habitat = paste0(Shore, " ", Habitat)) %>%                              # Combine habitat labels
       st_drop_geometry() %>% 
       mutate(habitat_share = GFW / sum(GFW, na.rm = T)) %>%                   # Work out the proportion of activity in each piece split over habitats
-      dplyr::select(habitat_share, EU_polygon, Aggregated_gear, Habitat)}, 
+      dplyr::select(habitat_share, EU_polygon, Aggregated_gear, Habitat)
+    }, 
   .progress = T) %>% 
   data.table::rbindlist()
 
@@ -80,18 +81,20 @@ Absolute_effort_habitats <- left_join(habitat_weights, EU_effort) %>%         # 
   .[order(row.names(.)), order(colnames(.))]                                  # Alphabetise rows and columns
 saveRDS(Absolute_effort_habitats, "./Objects/EU absolute habitat effort")     # Save
 
+heatmap(Absolute_effort_habitats)
+
 ## How much of the corrected effort is allocated a habitat type?
 sum(Absolute_effort_habitats, na.rm = T) / sum(EU_effort$effort_contributions, na.rm = T)
 
 ## Plot 
 
-ggplot(EU_Arctic) +
-  geom_col(aes(y = Habitat, x = effort, fill = Habitat), position = "dodge2") +
+#ggplot(EU_Arctic) +
+#  geom_col(aes(y = Habitat, x = effort, fill = Habitat), position = "dodge2") +
 #  geom_text(data = filter(EU_Arctic, Habitat == "Offshore Silt",
 #                            Gear_type == "mobile"), aes(y = Habitat, x = 0, group = year, label = year), 
 #            position = position_dodge(0.9), angle = 0,  colour = "firebrick4", fontface = "bold", hjust = 0,
 #            family = "AvantGarde") +
-  labs(y = "Habitats", x = "Fishing effort (hours)") +
-  facet_grid(cols = vars(Aggregated_gear)) +
-  theme_minimal() +
-  theme(legend.position = "none")
+#  labs(y = "Habitats", x = "Fishing effort (hours)") +
+#  facet_grid(cols = vars(Aggregated_gear)) +
+#  theme_minimal() +
+#  theme(legend.position = "none")
