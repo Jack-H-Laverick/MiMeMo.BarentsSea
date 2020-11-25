@@ -10,6 +10,11 @@ lapply(packages, library, character.only = TRUE)                            # Lo
 
 plan(multiprocess)
 
+domain_size <- readRDS("./Objects/Domains.rds") %>%                         # We need effort scaled per m^2
+  sf::st_union() %>% 
+  sf::st_area() %>% 
+  as.numeric()
+
 IMR <- readRDS("./Objects/IMR absolute fishing effort")                     # Import Norwegian fishing effort        
 
 EU <- readRDS("./Objects/EU absolute fishing effort")                       # Import EU fishing effort
@@ -55,4 +60,6 @@ Inflation <- c("NOR_mobile_gear", "NOR_static_gear",                        # Fo
 
 International <- (EU + IMR) * Inflation                                                           
 
-saveRDS(International, "./Objects/International effort by gear.rds")
+transformed_International <- International / 365 * 60 / domain_size         # Convert to daily effort in seconds per m^2  
+
+saveRDS(transformed_International, "./Objects/International effort by gear.rds")
