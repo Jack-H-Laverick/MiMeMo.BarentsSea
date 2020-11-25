@@ -13,6 +13,7 @@ Physical_parameters <- read.csv("./StrathE2E/Models/Barents Sea/2011-2019/Param/
 #### Update Spatial file ####
 
 My_space <- readRDS("./Objects/Domains.rds") %>%                            # Calculate the volume of the three zones
+  sf::st_drop_geometry() %>% 
   mutate(S = c(T, T),
          D = c(F, T)) %>% 
   gather(key = "Depth", value = "Exists", S, D) %>% 
