@@ -8,7 +8,7 @@ rm(list=ls())                                                               # Wi
 library(StrathE2E2)
 library(tidyverse)
 
-Physical_parameters <- read.csv("./StrathE2E/Barents Sea/All/Parameters/physical_parameters_NORTH_SEA.csv") # Read in example Physical drivers
+Physical_parameters <- read.csv("./StrathE2E/Models/Barents Sea/2011-2019/Param/physical_parameters_NORTH_SEA.csv") # Read in example Physical drivers
 
 #### Update Spatial file ####
 
@@ -42,4 +42,5 @@ Physical_parameters[16,"Value"] <- mean(c(0.0625, 0.00098)) # Offshore_sediment_
 Physical_parameters[17,"Value"] <- mean(c(2,0.0625))        # Offshore_sediment_d2_median_grain_size_(mm)_(sandy_but_if_set_to_0=rock) sand
 Physical_parameters[18,"Value"] <- 2                        # Offshore_sediment_d3_median_grain_size_(mm)_(gravelly_but_if_set_to_0=rock) gravel
 
-write.csv(Physics_new, file = "./StrathE2E/Barents Sea/All/Driving_data/physics_drivers_NORTH_SEA_1970-1999.csv", row.names = F)
+write.csv(Physical_parameters, file = "./StrathE2E/Models/Barents Sea/2011-2019/Param/physical_parameters_BARENTS_SEA.csv", row.names = F) # Read in example Physical drivers
+unlink("./StrathE2E/Models/Barents Sea/2011-2019/Param/physical_parameters_NORTH_SEA.csv") # Rename file
