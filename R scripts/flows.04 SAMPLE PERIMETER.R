@@ -48,6 +48,7 @@ Intersections <- list(S = st_intersects(Transects[["S"]], cells),
                       D = st_intersects(Transects[["D"]], cells))
 
 #### Extract water exchanges between horizontal compartments ####
+
 Transects <- lapply(Transects, st_drop_geometry) %>%         # furrr isn't playing nice with list columns
   lapply(select, -Depth)                                     # Depth columns get confused
   cells <- st_drop_geometry(cells)
