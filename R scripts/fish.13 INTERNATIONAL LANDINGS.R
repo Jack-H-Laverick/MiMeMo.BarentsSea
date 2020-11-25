@@ -8,6 +8,11 @@ rm(list=ls())                                                               # Wi
 packages <- c("tidyverse")                                                  # List packages
 lapply(packages, library, character.only = TRUE)                            # Load packages
 
+domain_size <- readRDS("./Objects/Domains.rds") %>%                         # We need landings as tonnes per m^2
+  sf::st_union() %>% 
+  sf::st_area() %>% 
+  as.numeric()
+  
 Guilds <- unique(read.csv("./Data/MiMeMo fish guilds.csv")$Guild)           # Get vector of guilds
 
 Gears <- unique(read.csv("./Data/MiMeMo gears.csv")$Aggregated_gear)        # Get vector of gears
@@ -25,7 +30,7 @@ EU <- readRDS("./Objects/EU landings by gear and guild.rds")                # Im
   
 #### Combine EU and IMR landings then inflate to international ####
 
-International <- t(Inflation$Inflation * (EU + IMR))                        # Sum EU and IMR landings then inflate by Russian activity
+International <- t(Inflation$Inflation * (EU + IMR))/domain_size            # Sum EU and IMR landings then inflate by Russian activity and conver to per m^2
 
 heatmap(International)
 
