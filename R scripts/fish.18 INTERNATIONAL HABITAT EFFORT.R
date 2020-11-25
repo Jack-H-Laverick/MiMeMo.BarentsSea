@@ -55,7 +55,8 @@ Russian <- t(t(Habitat_weights) * Russian_effort)                           # Sc
 ####  Scale to international effort ####
 
 International <- Non_Russian + Russian                                      # Get international effort by gear and habitat
-International_proportion <- International/sum(International, na.rm = T)     # Scale as proportions
+
+International_proportion <- t(t(International)/colSums(International))      # Scale as proportions within gears
 
 heatmap(International_proportion)                                           # Visualise
 
