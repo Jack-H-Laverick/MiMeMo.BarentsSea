@@ -21,12 +21,8 @@ all_files <- list.files("./Data/SPM/", full.names = TRUE, pattern = ".nc") %>% #
   select(-Date) %>% 
   rename(File = "value")
 
-target <- select(all_files, - File) %>%                                     # Create a final object to bind to, we don't want to lose time steps if the satellite observed no pixels due to ice
-  mutate(Inshore = "Inshore",                                               # Get each time step for each model zone
-         Offshore = "Offshore") %>% 
-  pivot_longer(c(Inshore, Offshore), names_to = "Shore", values_to = "Drop") %>% # Switch to long format
-  mutate(Shore = as.factor(Shore)) %>% 
-  select(-Drop)
+target <- select(all_files, - File) %>%                                     # Target to reintroduce dropped time steps
+  zoo::zoo(ISOdate(.$Year, .$Month, 1, 0))                                  # Convert to a zoo object for interpolation
 
 #### Extract data ####
 
@@ -56,9 +52,21 @@ setDT(data, key = c("longitude","latitude"))
 SPM <- data[coords,][,                                                      # For points in the model domain
   .(SPM = mean(SPM, na.rm = T)),                                            # Calculate mean SPM
   by = c("Month", "Year", "Shore")] %>%                                     # By monthly, year, and model zone
-  right_join(target) %>%                                                    # Reintroduce dropped time steps
-  replace_na(list(SPM = 0)) %>%                                             # Overwrite NAs with 0 (assume the pixels weren't observed because ice so give a value of 0)
-  mutate(Date = as.Date(paste("01", Month, Year, sep = "/"), format = "%d/%m/%Y")) # Get date column for plotting
+  split(.$Shore) %>%                                                        # For each model zone
+  map(~{                                                                    # Interpolate missing months
+  zoo <- zoo::zoo(.x, ISOdate(.x$Year, .x$Month, 1, 0))                     # Convert to a zoo object
+  align <- zoo::merge.zoo(target, zoo, all = c(T,T))                        # Introduce missing time steps
+        
+  align$SPM <- zoo::na.approx(align$SPM, rule = 2)                          # Interpolate SPM
+  
+  align <- as.data.frame(align) %>%                                         # Coerce to dataframe and clean columns
+    transmute(SPM = as.numeric(SPM),
+              Shore = unique(.x$Shore),
+              Year = as.numeric(Year.target),
+              Month = as.numeric(Month.target))
+  }) %>% 
+  rbindlist() %>% 
+  mutate(Date = as.Date(paste("01", Month, Year, sep = "/"), format = "%d/%m/%Y")) #%>%  # Get date column for plotting
 saveRDS(SPM, "./Objects/Suspended particulate matter.rds")
 
 #### Plot ####
