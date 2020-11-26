@@ -16,11 +16,11 @@ domains <- readRDS("./Objects/Domains.rds")                                 # Im
 # Get an example set of points to plot
 # example <- raster(all_files[1], varname = "nav_lat") %>% 
 #   as.data.frame(xy = TRUE) %>% 
-#   dplyr::left_join(as.data.frame(raster(all_files[1], varname = "nav_lon"), xy = TRUE)) %>% 
-#   dplyr::left_join(as.data.frame(raster(all_files[1], varname = "sorunoff"), xy = TRUE)) %>% 
-#   sf::st_as_sf(coords = c("nav_lon", "nav_lat"), crs = 4326) %>% 
+#   left_join(as.data.frame(raster(all_files[1], varname = "nav_lon"), xy = TRUE)) %>% 
+#   left_join(as.data.frame(raster(all_files[1], varname = "sorunoff"), xy = TRUE)) %>% 
+#   st_as_sf(coords = c("nav_lon", "nav_lat"), crs = 4326) %>% 
 #   dplyr::select(-c(x,y)) %>% 
-#   tidyr::drop_na()
+#   drop_na()
   
 #### Check domain overlaps point estimates of river runoff ####
 
