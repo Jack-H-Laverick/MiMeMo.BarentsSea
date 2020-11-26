@@ -62,11 +62,11 @@ coords <- raster(all_files[1], varname = "nav_lat") %>%
 #### Extract data ####
 
 rivers <- future_map(all_files, ~{
-
-  data <- as.data.frame(brick(.x, varname = "sorunoff"), na.rm = T, xy = TRUE) %>% # Extract non-NA pixels of river runoff
+  data <- brick(.x, varname = "sorunoff") %>%                               # Extract river runoff
+  as.data.frame(na.rm = T, xy = T) %>%                                      # Convert to XY dataframe of non-empty pixels
   pivot_longer(starts_with("X9."), names_to = "Month", values_to = "Runoff") %>% # Collect all months into one column
-  mutate(Month = str_replace(Month, "X9.96920996838687e.36.", ""),          # Clean character string indicating month
-         Year = str_sub(.x, start = -7, end = -4))                          # Extract Year from file name
+    mutate(Month = str_replace(Month, "X9.96920996838687e.36.", ""),        # Clean character string indicating month
+           Year = str_sub(.x, start = -7, end = -4))                        # Extract Year from file name
 }, .progress = TRUE) %>%                        
   data.table::rbindlist()                                                   # Bind
 
