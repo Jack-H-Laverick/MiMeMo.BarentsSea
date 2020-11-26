@@ -145,35 +145,35 @@ My_Waves <- readRDS("./Objects/Significant wave height.rds") %>%  #*2000 - 2010
   arrange(Month)                                                            # Arrange to match template
 
 Physics_new <- mutate(Physics_template, SLight = My_light$Measured,
-                     ## Flows, should be proportions of volume per day
+                      ## Flows, should be proportions of volume per day
                      SO_OceanIN = filter(My_H_Flows, Depth == "S", Shore == "Offshore", Neighbour == "Ocean", Direction == "In")$Flow,
                      D_OceanIN = filter(My_H_Flows, Depth == "D", Shore == "Offshore", Neighbour == "Ocean", Direction == "In")$Flow,
                      SI_OceanIN = filter(My_H_Flows, Depth == "S", Shore == "Inshore", Neighbour == "Ocean", Direction == "In")$Flow,
                      SI_OceanOUT = filter(My_H_Flows, Depth == "S", Shore == "Inshore", Neighbour == "Ocean", Direction == "Out")$Flow,
                      SO_SI_flow = filter(My_H_Flows, Depth == "S", Shore == "Offshore", Neighbour == "Inshore", Direction == "Out")$Flow,
                      Upwelling = 0, # Nominal value   
-                     # ## log e transformed suspended particulate matter concentration in zones
-            # Fix -Inf        SO_LogeSPM = log(filter(My_SPM, Shore == "Offshore")$SPM),  
-            #         SI_LogeSPM = log(filter(My_SPM, Shore == "Inshore")$SPM),
-                     # ## Temperatures in volumes for each zone
+                      ## log e transformed suspended particulate matter concentration in zones
+                     SO_LogeSPM = log(filter(My_SPM, Shore == "Offshore")$SPM),  
+                     SI_LogeSPM = log(filter(My_SPM, Shore == "Inshore")$SPM),
+                      ## Temperatures in volumes for each zone
                      SO_temp = filter(My_volumes, Compartment == "Offshore S")$Temperature_avg,
                      D_temp = filter(My_volumes, Compartment == "Offshore D")$Temperature_avg,
                      SI_temp = filter(My_volumes, Compartment == "Inshore S")$Temperature_avg ,
-                     # ## River inflow,
-                     Rivervol_SI = My_Rivers$Runoff, 
-                     # ## Vertical diffusivity
+                      ## River inflow,
+                     Rivervol_SI = My_Rivers$Runoff * filter(My_scale, Shore == "Inshore")$Volume, # Scale as proportion of inshore volume
+                      ## Vertical diffusivity
                      log10Kvert = log10(My_V_Flows$Value),
                      mixLscale = mixLscale,   # Length scale over which vertical diffusion acts, nominal
-                     ## Daily proportion disturbed by natural bed shear stress
+                      ## Daily proportion disturbed by natural bed shear stress
                      habS1_pdist = filter(My_Stress, Shore == "Inshore", Habitat == "Silt")$Disturbance, 
                      habS2_pdist = filter(My_Stress, Shore == "Inshore", Habitat == "Sand")$Disturbance,
                      habS3_pdist = filter(My_Stress, Shore == "Inshore", Habitat == "Gravel")$Disturbance,
                      habD1_pdist = filter(My_Stress, Shore == "Offshore", Habitat == "Silt")$Disturbance,
                      habD2_pdist = filter(My_Stress, Shore == "Offshore", Habitat == "Sand")$Disturbance,
                      habD3_pdist = filter(My_Stress, Shore == "Offshore", Habitat == "Gravel")$Disturbance, 
-                     ## Monthly mean significant wave height inshore                     
+                      ## Monthly mean significant wave height inshore                     
                      Inshore_waveheight = My_Waves$SWH,
-                     ## Cryo variables
+                      ## Cryo variables
                      SO_IceFree = 1 - filter(My_volumes, Compartment == "Offshore S")$Ice_pres,
                      SI_IceFree = 1 - filter(My_volumes, Compartment == "Inshore S")$Ice_pres,
                      SO_IceCover = filter(My_volumes, Compartment == "Offshore S")$Ice_conc_avg,
