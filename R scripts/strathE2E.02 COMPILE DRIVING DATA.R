@@ -45,15 +45,15 @@ My_atmosphere <- readRDS("./Objects/Atmospheric N deposition.rds") %>%
 Boundary_new <- mutate(Boundary_template, 
                        SO_nitrate = My_boundary_data$SO_DIN * (1-filter(My_DIN_fix, Depth == "Shallow")$Proportion), # Multiply DIN by the proportion of total DIN as nitrate
                        SO_ammonia = My_boundary_data$SO_DIN * filter(My_DIN_fix, Depth == "Shallow")$Proportion, # Multiply DIN by the proportion of total DIN as ammonium
-                       SO_phyt = My_boundary_data$SO_Chlorophyll, # Chlorophyll has been converted to N from phytoplankton
+                       SO_phyt = My_boundary_data$SO_Chlorophyll/1000000, # Chlorophyll has been converted to N from phytoplankton
                        SO_detritus = My_boundary_data$SO_Detritus,
                        D_nitrate = My_boundary_data$D_DIN * (1-filter(My_DIN_fix, Depth == "Deep")$Proportion), # Multiply DIN by the proportion of total DIN as nitrate
                        D_ammonia = My_boundary_data$D_DIN * filter(My_DIN_fix, Depth == "Deep")$Proportion, # Multiply DIN by the proportion of total DIN as ammonium
-                       D_phyt = My_boundary_data$D_Chlorophyll,
+                       D_phyt = My_boundary_data$D_Chlorophyll/1000000,   # convert moles to micromoles
                        D_detritus = My_boundary_data$D_Detritus,
                        SI_nitrate = My_boundary_data$SI_DIN * (1-filter(My_DIN_fix, Depth == "Shallow")$Proportion), # Multiply DIN by the proportion of total DIN as nitrate
                        SI_ammonia = My_boundary_data$SI_DIN * filter(My_DIN_fix, Depth == "Shallow")$Proportion, # Multiply DIN by the proportion of total DIN as ammonium
-                       SI_phyt = My_boundary_data$SI_Chlorophyll, 
+                       SI_phyt = My_boundary_data$SI_Chlorophyll/1000000, 
                        SI_detritus = My_boundary_data$SI_Detritus,
                        ## Rivers
                         #RIV_nitrate = ,     
