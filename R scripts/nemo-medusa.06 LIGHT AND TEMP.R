@@ -10,7 +10,8 @@ source("./R scripts/@_Region file.R")                                       # De
 plan(multiprocess)                                                          # Choose the method to parallelise by with furrr
 
 all_files <- list.files("./Data/Light and air temp", recursive = TRUE, full.names = TRUE, pattern = ".nc") %>%
-  as_tibble() %>%                                                           # Turn the vector into a dataframe/tibble
+  as.data.frame() %>%                                                           # Turn the vector into a dataframe/tibble
+  rename(value = 1) %>% 
   separate(value, into = c(NA, "Year", NA), 
            remove = FALSE, sep = "_y") %>%                                  # Extract the year from the file name
   mutate(Year = str_sub(Year, end = -4)) %>%                                # Drop file extension to get number
@@ -28,23 +29,24 @@ domains <- readRDS("./Objects/Domains.rds") %>%                             # Lo
 domains_mask <- expand.grid(Longitude = Space$Lons, Latitude = Space$Lats) %>% # Get the data grid
   st_as_sf(coords = c("Longitude", "Latitude"), crs = 4326, remove = F) %>%    # Convert to SF
   voronoi_grid(domains) %>%                                                    # Weight points within the model domain
-  select(-c(Elevation, area, geometry))
+  select(-c(Elevation, area, geometry)) %>% 
+  st_drop_geometry()
 
-ggplot() + geom_sf(data = domains_mask, aes(fill = Cell_area))
+#ggplot() + geom_sf(data = domains_mask, aes(fill = Cell_area))
 
 #### Extract Air temperature and light ####
 
 Light_months <- data.frame(Time_step = seq(1,360, 1), Month = rep(1:12, each = 30))     # Add month, 30 days in a model with a 360 day year
 Airtemp_months <- data.frame(Time_step = seq(1,1440, 1), Month = rep(1:12, each = 120)) # Add month, to 6 hour time steps for 30 days in a model with a 360 day year
 
-tic("dplyr")
+tic()
 Air <- future_pmap_dfr(all_files, get_air, .progress = TRUE) %>%                        # Data extraction with parameters stored rowise in dataframe, executed in par
   ungroup() %>%
   mutate(Date = as.Date(paste("15", Month, Year, sep = "/"), format = "%d/%m/%Y"),      # Get date column for plotting
          Measured = ifelse(Type == "T150", Measured - 273.15,                           # Convert Kelvin to celsius for Temp data
-                           Measured * 4.57),                                            # Convert Watts to Einsteins for Light data
+                           Measured * (4.57/1000000)),                                  # Convert Watts to Einsteins for Light data
          Type = factor(Type, levels = c("SWF", "T150"),                                 # Give units for variables when facetting
-                 labels = c(SWF = expression("Light ( "*mu*"Em"^{-2}*"d"^{-1}*" )"),
+                 labels = c(SWF = expression("Light (Em"^{-2}*"d"^{-1}*" )"),
                             T150 = expression("Air temperature ( "*degree*"C )"))),
          Shore = replace_na(Shore, "Combined"))                                         # Only temperature is grouped by shore, replace NA with combined label
 toc()
