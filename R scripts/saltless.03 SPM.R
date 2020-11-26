@@ -66,7 +66,8 @@ SPM <- data[coords,][,                                                      # Fo
               Month = as.numeric(Month.target))
   }) %>% 
   rbindlist() %>% 
-  mutate(Date = as.Date(paste("01", Month, Year, sep = "/"), format = "%d/%m/%Y")) #%>%  # Get date column for plotting
+  mutate(Date = as.Date(paste("01", Month, Year, sep = "/"), format = "%d/%m/%Y"),  # Get date column for plotting
+         SPM = SPM * 1000)                                                  # g to mg
 saveRDS(SPM, "./Objects/Suspended particulate matter.rds")
 
 #### Plot ####
@@ -74,7 +75,7 @@ saveRDS(SPM, "./Objects/Suspended particulate matter.rds")
 ggplot(data = SPM) + 
   geom_line(aes(x = Date, y = SPM, colour = Shore), size = 0.25) +
   theme_minimal() +
-  labs(y = expression("Suspended particulate matter g m"^{-3}*"Month"^{-1}), 
+  labs(y = expression("Suspended particulate matter mg.m"^{-3}*"Month"^{-1}), 
        caption = "GlobColour suspended particulate matter estimates from satellite") +
   theme(legend.position = "top") +
   NULL
