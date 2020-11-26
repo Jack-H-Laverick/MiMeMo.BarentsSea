@@ -66,9 +66,8 @@ get_air_deposition <- function(File, Year)          {
     drop_na() %>%         
     mutate(Year = Year,
            Oxidation_state = ifelse(grepl(pattern = "OXN", x = Variable, fixed = T), "O", "R"), 
-           Deposition_state = ifelse(grepl(pattern = "DDEP", x = Variable, fixed = T), "Dry", "Wet")) %>%                                                  # Attach Year
+           Deposition_state = ifelse(grepl(pattern = "DDEP", x = Variable, fixed = T), "Dry", "Wet")) %>% 
     group_by(Month, Year, Variable, Oxidation_state, Deposition_state, Shore) %>%        
-  #  summarise(Measured = mean(Measured)/14) %>%                             # Average by time step. and convert to millimols of N
     summarise(Measured = weighted.mean(Measured, weights)/14) %>%            # Average by time step weighted by area. Convert to millimols of N 
     ungroup()  
   
@@ -86,6 +85,7 @@ areas <- expand.grid(Longitude = Space$Lons, Latitude = Space$Lats) %>%     # Ge
   mutate(Dummy = 10) %>%                                                    # Add dummy data to convert to a stars grid
   st_as_stars()
 st_crs(areas) <- st_crs(4326)                                               # set lat-lon crs
+
 areas <- st_as_sf(areas, as_points = F, merge = F) %>%                      # Convert the stars grid into SF polygons 
   st_join(domains) %>%                                                      # Link to model domain 
   drop_na() %>%                                                             # Crop
