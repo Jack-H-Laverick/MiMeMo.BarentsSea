@@ -50,12 +50,16 @@ Intersections <- list(S = list(Zonal = st_intersects(Transects[["S"]][["Zonal"]]
                       D = list(Zonal = st_intersects(Transects[["D"]][["Zonal"]], cells),
                                Meridional = st_intersects(Transects[["D"]][["Meridional"]], cells)))
 
+Transects_DF <- map(Transects, ~{ map(.x, st_drop_geometry)})    # Drop SF formatting to play nicely
+cells <- st_drop_geometry(cells)
+
 #### Extract water exchanges between horizontal compartments ####
 
 tic()
-Flows <- list.files("./Objects/Months/", full.names = T) %>%                # Get the names of all data files
-   future_map(Sample, transects = Transects, intersections = Intersections, .progress = T) %>% # Sample the currents in each file and aggregate
-   rbindlist() %>%                                                          # Bind into a dataframe
-   saveRDS("./Objects/H-Flows.rds")                                         # Save
+Flows <- list.files("./Objects/Months/", full.names = T) %>%               # Get the names of all data files
+  future_map(Sample, transects = Transects_DF, intersections = Intersections, .progress = T) %>% # Sample the currents in each file and aggregate
+   rbindlist() %>%                                                         # Bind into a dataframe
+   saveRDS("./Objects/H-Flows.rds")                                        # Save
 toc()
+# 1401.244, 23.35 minutes
   
