@@ -103,6 +103,7 @@ My_H_Flows <- readRDS("./Objects/H-Flows.rds") %>%
   ungroup() %>% 
   left_join(My_scale) %>%                                                   # Attach compartment volumes
   mutate(Flow = Flow/Volume) %>%                                            # Scale flows by compartment volume
+  mutate(Flow = abs(Flow * 86400)) %>%                                      # Scale from per second to per day, and correct sign for "out" flows
   arrange(Month)                                                            # Order by month to match template
 
 My_V_Flows <- readRDS("./Objects/V-Flows.rds") %>% 
