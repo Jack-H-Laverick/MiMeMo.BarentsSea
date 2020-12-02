@@ -43,12 +43,13 @@ N_concentration <- read.csv("./Data/River_N/original/GNM_database/mouth/discharg
   pivot_longer(-basinid, names_to = "Year", values_to = "Discharge") %>%    # Get years into one column
   left_join(Nitrogen) %>%                                                   # Pair nitrogen load with river volume
   mutate(Year = as.numeric(str_sub(Year, start = 2)),                       # Clean year column
-         Discharge = Discharge*1000000000) %>%                              # Convert km^3 to m^3 (l)
+         Nitrogen = Nitrogen*1000000,                                       # Convert kg to milligrams
+         Discharge = Discharge*1000000000000) %>%                           # Convert km^3 to l
   mutate(Concentration = Nitrogen/Discharge) %>%                            # Calculate N concentration for each river/year
   group_by(Year) %>%                                                        # Per year
-  summarise(`DIN/l` = weighted.mean(Concentration, Discharge))              # Get the mean concentration of rivers, weighted towards bigger rivers
+  summarise(`DIN mg.l` = weighted.mean(Concentration, Discharge))           # Get the mean concentration of rivers, weighted towards bigger rivers
 
 saveRDS(N_concentration, "./Objects/River DIN.rds")
 
 ggplot(N_concentration) +
-  geom_line(aes(x = Year, y = `DIN/l`))
+  geom_line(aes(x = Year, y = `DIN mg.l`))
