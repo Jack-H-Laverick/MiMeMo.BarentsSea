@@ -10,7 +10,7 @@ library(tidyverse)
 
 e2e_copy(model.name = "North_Sea", model.variant =  "1970-1999" , dest.path = "./StrathE2E") # Copy example model
 
-file.rename("./StrathE2E/Models/North_Sea", "./StrathE2E/Models/Barents Sea")                  # Rename model
+file.rename("./StrathE2E/Models/North_Sea", "./StrathE2E/Models/Barents Sea")                # Rename model
 file.rename("./StrathE2E/Models/Barents Sea/1970-1999", "./StrathE2E/Models/Barents Sea/2011-2019") # Rename variant
 
 e2e_copy(model.name = "North_Sea", model.variant =  "1970-1999" , dest.path = "./StrathE2E") # Keep example model
@@ -33,6 +33,10 @@ My_boundary_data<- readRDS("./Objects/Boundary measurements.rds") %>%           
 
 My_DIN_fix <- readRDS("./Objects/Ammonia to DIN.rds")
 
+My_river_N <- readRDS("./Objects/River nitrate and ammonia.rds") %>% 
+  mutate(Ammonia = (Ammonia/1000)/(1/14.006720),                                             # Convert mg/l to mmol/m^3
+         Nitrate = (Nitrate/1000)/(1/14.006720)) 
+
 My_atmosphere <- readRDS("./Objects/Atmospheric N deposition.rds") %>% 
   filter(between(Year, 2011, 2019)) %>%       #** max date 2017                              # Limit to reference period
   group_by(Month, Oxidation_state, Shore,  Year) %>%
@@ -45,19 +49,19 @@ My_atmosphere <- readRDS("./Objects/Atmospheric N deposition.rds") %>%
 Boundary_new <- mutate(Boundary_template, 
                        SO_nitrate = My_boundary_data$SO_DIN * (1-filter(My_DIN_fix, Depth == "Shallow")$Proportion), # Multiply DIN by the proportion of total DIN as nitrate
                        SO_ammonia = My_boundary_data$SO_DIN * filter(My_DIN_fix, Depth == "Shallow")$Proportion, # Multiply DIN by the proportion of total DIN as ammonium
-                       SO_phyt = My_boundary_data$SO_Chlorophyll/1000000, # Chlorophyll has been converted to N from phytoplankton
+                       SO_phyt = My_boundary_data$SO_Chlorophyll/1000, # Chlorophyll has been converted to N from phytoplankton
                        SO_detritus = My_boundary_data$SO_Detritus,
                        D_nitrate = My_boundary_data$D_DIN * (1-filter(My_DIN_fix, Depth == "Deep")$Proportion), # Multiply DIN by the proportion of total DIN as nitrate
                        D_ammonia = My_boundary_data$D_DIN * filter(My_DIN_fix, Depth == "Deep")$Proportion, # Multiply DIN by the proportion of total DIN as ammonium
-                       D_phyt = My_boundary_data$D_Chlorophyll/1000000,   # convert moles to micromoles
+                       D_phyt = My_boundary_data$D_Chlorophyll/1000,   # convert moles to millimoles
                        D_detritus = My_boundary_data$D_Detritus,
                        SI_nitrate = My_boundary_data$SI_DIN * (1-filter(My_DIN_fix, Depth == "Shallow")$Proportion), # Multiply DIN by the proportion of total DIN as nitrate
                        SI_ammonia = My_boundary_data$SI_DIN * filter(My_DIN_fix, Depth == "Shallow")$Proportion, # Multiply DIN by the proportion of total DIN as ammonium
-                       SI_phyt = My_boundary_data$SI_Chlorophyll/1000000, 
+                       SI_phyt = My_boundary_data$SI_Chlorophyll/1000, 
                        SI_detritus = My_boundary_data$SI_Detritus,
                        ## Rivers
-                        #RIV_nitrate = ,     
-                        #RIV_ammonia = ,          
+                       RIV_nitrate = My_river_N$Nitrate,     
+                       RIV_ammonia = My_river_N$Ammonia,          
                        RIV_detritus = 0,
                        ## Atmosphere, daily deposition as monthly averages
                        SO_ATM_nitrate_flux = My_atmosphere$Offshore_O,
