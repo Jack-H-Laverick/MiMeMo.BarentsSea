@@ -3,7 +3,7 @@
 
 rm(list=ls())                                                               # Wipe the brain
 
-library(tidyverse)
+library(MiMeMo.tools)
 library(zoo)
 
 #### Import time series of river DIN and Ammonia from the river Ob ####
@@ -12,7 +12,7 @@ Data <- readxl::read_excel("./Data/River_N/ArcticGRO Water Quality Data.xlsx",
                    sheet = "Ob", skip = 9) %>%                              # Read in data for Ob' river  
   select(3, 21, 23) %>%                                                     # Select date, total DIN, Ammonia
   setNames(c("Date", "TDN", "NH4")) %>% 
-  mutate(NH4 = NH4 / 1000) %>%                                              # Get both quantities into milligrams
+  mutate(NH4 = micro_to_milli(NH4)) %>%                                               # Get both quantities into milligrams
   mutate(Proportion = NH4/TDN,                                              # Get the proportion of DIN as ammonia
          Month = month.name[lubridate::month(Date)],            
          Year = lubridate::year(Date)) %>%         
