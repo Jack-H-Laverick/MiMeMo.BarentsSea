@@ -6,7 +6,7 @@
 rm(list=ls())                                                               # Wipe the brain
 
 library(StrathE2E2)
-library(tidyverse)
+library(MiMeMo.tools)
 
 e2e_copy(model.name = "North_Sea", model.variant =  "1970-1999" , dest.path = "./StrathE2E") # Copy example model
 
@@ -34,8 +34,8 @@ My_boundary_data<- readRDS("./Objects/Boundary measurements.rds") %>%           
 My_DIN_fix <- readRDS("./Objects/Ammonia to DIN.rds")
 
 My_river_N <- readRDS("./Objects/River nitrate and ammonia.rds") %>% 
-  mutate(Ammonia = (Ammonia/1000)/(1/14.006720),                                             # Convert mg/l to mmol/m^3
-         Nitrate = (Nitrate/1000)/(1/14.006720)) 
+  mutate(Ammonia = l_to_m3(Ammonia)/(1/14.006720),                                           # Convert mg/l to mmol/m^3
+         Nitrate = l_to_m3(Nitrate)/(1/14.006720)) 
 
 My_atmosphere <- readRDS("./Objects/Atmospheric N deposition.rds") %>% 
   filter(between(Year, 2011, 2019)) %>%       #** max date 2017                              # Limit to reference period
@@ -49,15 +49,15 @@ My_atmosphere <- readRDS("./Objects/Atmospheric N deposition.rds") %>%
 Boundary_new <- mutate(Boundary_template, 
                        SO_nitrate = My_boundary_data$SO_DIN * (1-filter(My_DIN_fix, Depth == "Shallow")$Proportion), # Multiply DIN by the proportion of total DIN as nitrate
                        SO_ammonia = My_boundary_data$SO_DIN * filter(My_DIN_fix, Depth == "Shallow")$Proportion, # Multiply DIN by the proportion of total DIN as ammonium
-                       SO_phyt = My_boundary_data$SO_Chlorophyll/1000, # Chlorophyll has been converted to N from phytoplankton
+                       SO_phyt = full_to_milli(My_boundary_data$SO_Chlorophyll), # Chlorophyll has been converted to N from phytoplankton
                        SO_detritus = My_boundary_data$SO_Detritus,
                        D_nitrate = My_boundary_data$D_DIN * (1-filter(My_DIN_fix, Depth == "Deep")$Proportion), # Multiply DIN by the proportion of total DIN as nitrate
                        D_ammonia = My_boundary_data$D_DIN * filter(My_DIN_fix, Depth == "Deep")$Proportion, # Multiply DIN by the proportion of total DIN as ammonium
-                       D_phyt = My_boundary_data$D_Chlorophyll/1000,   # convert moles to millimoles
+                       D_phyt = full_to_milli(My_boundary_data$D_Chlorophyll),   # convert moles to millimoles
                        D_detritus = My_boundary_data$D_Detritus,
                        SI_nitrate = My_boundary_data$SI_DIN * (1-filter(My_DIN_fix, Depth == "Shallow")$Proportion), # Multiply DIN by the proportion of total DIN as nitrate
                        SI_ammonia = My_boundary_data$SI_DIN * filter(My_DIN_fix, Depth == "Shallow")$Proportion, # Multiply DIN by the proportion of total DIN as ammonium
-                       SI_phyt = My_boundary_data$SI_Chlorophyll/1000, 
+                       SI_phyt = full_to_milli(My_boundary_data$SI_Chlorophyll), 
                        SI_detritus = My_boundary_data$SI_Detritus,
                        ## Rivers
                        RIV_nitrate = My_river_N$Nitrate,     
@@ -107,7 +107,7 @@ My_H_Flows <- readRDS("./Objects/H-Flows.rds") %>%
   ungroup() %>% 
   left_join(My_scale) %>%                                                   # Attach compartment volumes
   mutate(Flow = Flow/Volume) %>%                                            # Scale flows by compartment volume
-  mutate(Flow = abs(Flow * 86400)) %>%                                      # Scale from per second to per day, and correct sign for "out" flows
+  mutate(Flow = abs(Flow * 86400)) %>%                                     # Multiply for total daily from per second, and correct sign for "out" flows
   arrange(Month)                                                            # Order by month to match template
 
 My_V_Flows <- readRDS("./Objects/V-Flows.rds") %>% 
