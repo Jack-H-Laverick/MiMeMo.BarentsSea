@@ -67,7 +67,7 @@ SPM <- data[coords,][,                                                      # Fo
   }) %>% 
   rbindlist() %>% 
   mutate(Date = as.Date(paste("01", Month, Year, sep = "/"), format = "%d/%m/%Y"),  # Get date column for plotting
-         SPM = SPM * 1000)                                                  # g to mg
+         SPM = SPM * 1e3)                                                  # g to mg
 saveRDS(SPM, "./Objects/Suspended particulate matter.rds")
 
 #### Plot ####
