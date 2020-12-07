@@ -27,8 +27,10 @@ My_boundary_data<- readRDS("./Objects/Boundary measurements.rds") %>%           
   ungroup() %>% 
   arrange(Month) %>%                                                                         # Order months ascending
   mutate(Compartment = factor(Compartment, levels = c("Inshore S", "Offshore S", "Offshore D"),
-                                            labels = c("Inshore S" = "SI", "Offshore S" = "SO", "Offshore D" = "D")),
-         Measured = ifelse(Variable == "Chlorophyll", Measured * 40 / 12 * (106/16), Measured)) %>%  # g C : g Chla, convert to moles of C, Redfield ratio C to N 
+                              labels = c("Inshore S" = "SI", "Offshore S" = "SO", "Offshore D" = "D")),
+         Measured = ifelse(Variable == "Chlorophyll", 
+                           Measured * 40 / 12 * (16/106), # weight C : weight Chla, convert to moles of C 
+                           Measured)) %>%  # weight C : weight Chla, convert to moles of C, Redfield ratio atomic N to C 
   pivot_wider(names_from = c(Compartment, Variable), names_sep = "_", values_from = Measured) # Spread columns to match template
 
 My_DIN_fix <- readRDS("./Objects/Ammonia to DIN.rds")
