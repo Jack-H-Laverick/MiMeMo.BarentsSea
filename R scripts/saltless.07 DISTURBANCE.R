@@ -5,14 +5,14 @@
 
 rm(list=ls())
 
-Packages <- c("MiMeMo.tools", "tidyverse", "sf", "exactextractr", "raster")# List packages
+Packages <- c("MiMeMo.tools", "sf", "exactextractr", "raster")             # List packages
 lapply(Packages, library, character.only = TRUE)                           # Load packages
 source("./R scripts/@_Region file.R")
 
 habitats <- readRDS("./Objects/Habitats.rds") %>%                          # Import maps of sea bed habitats
   filter(Habitat != "Rock")
 
-disturbance <- raster::brick("../Sediment/Output/Greenland_and_barents_sea_seasonal_stress.nc") # Import seasonal disturbance
+disturbance <- brick("../Sediment/Output/Greenland_and_barents_sea_seasonal_disturbance.nc") # Import seasonal disturbance
 
 #### Calculate mean disturbance per habitat area, weighting by cell coverage ####
 
