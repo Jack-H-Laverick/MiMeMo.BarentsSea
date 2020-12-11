@@ -41,7 +41,8 @@ Space <- get_spatial(paste0(examples[1,"Path"], examples[1,"File"]))        # Pu
 W <- nc_open(paste0(examples[4,"Path"], examples[4,"File"]))                # Get the different depth vector for W files
 DepthsW <- W$dim$depthw$vals ; nc_close(W) ; rm(W) 
 
-test <- Space$nc_lat > 65 & Space$nc_lat < 84 & Space$nc_lon > 6 & Space$nc_lon < 68 # Rough crop
+# Speed things up with a tighter crop
+test <- Space$nc_lat > 65 & Space$nc_lat < 84 & Space$nc_lon > 6 & Space$nc_lon < 68
 E <- min(which(test == TRUE, arr.ind = TRUE)[,"row"])
 W <- max(which(test == TRUE, arr.ind = TRUE)[,"row"])
 S <- min(which(test == TRUE, arr.ind = TRUE)[,"col"])
@@ -53,25 +54,23 @@ Space$deep <- Space$nc_depth[1:38] > 60                                     # Fi
 Space$shallow_W <- between(DepthsW[1:39], 0, 60)                            # And for W files
 Space$deep_W <- DepthsW[1:39] > 60                            
 
-output <- readRDS("./Objects/Fixed_grid.rds")                               # Load in Bathymetry pulled from GEBCO
-bathymetry <- matrix(abs(output$Bathymetry), Limits$x_count, Limits$y_count)# Create a bathymetry matrix
+output <- readRDS("./Objects/Fixed_grid2.rds")                              # Load in Bathymetry
+bathymetry <- matrix(abs(output$Bathymetry), Limits$x_count, Limits$y_count)
 
-Space$s.weights <- get_weights(0, 60, bathymetry)                           # Work out water column proportions for weighted means                                                      
+Space$start3D <- c(Limits$x_start,Limits$y_start,1,1) ; Space$count3D <- c(Limits$x_count, Limits$y_count,38,-1)                           # Spatial cropping at import for variables with depths shallower than 400 m
+Space$start3DW <- c(Limits$x_start,Limits$y_start,1,1) ; Space$count3DW <- c(Limits$x_count, Limits$y_count,39,-1)                         # Spatial cropping at import for variables with depths shallower than 400 m (W files)
+
+Space$s.weights <- get_weights(0, 60, bathymetry) #Add depths as function argument    # Work out water column proportions for weighted means                                                      
 Space$d.weights <- get_weights(60, 400, bathymetry)
 Space$s.weights_W <- get_weights.W(0, 60, bathymetry)                       # And for W files                                                      
 Space$d.weights_W <- get_weights.W(60, 400, bathymetry)
 
-# Space$start3D <- c(1,1,1,1) ; Space$count3D <- c(-1,-1,38,-1)             # Spatial cropping at import for variables with depths shallower than 400 m
-# Space$start3DW <- c(1,1,1,1) ; Space$count3DW <- c(-1,-1,39,-1)           # Spatial cropping at import for variables with depths shallower than 400 m (W files)
-Space$start3D <- c(Limits$x_start,Limits$y_start,1,1) ; Space$count3D <- c(Limits$x_count, Limits$y_count,38,-1)                           # Spatial cropping at import for variables with depths shallower than 400 m
-Space$start3DW <- c(Limits$x_start,Limits$y_start,1,1) ; Space$count3DW <- c(Limits$x_count, Limits$y_count,39,-1)                         # Spatial cropping at import for variables with depths shallower than 400 m (W files)
-
 Window <- st_join(output, domains) %>% 
-  sfc_as_cols() %>% 
+  sfc_as_cols(names = c("x_crs", "y_crs")) %>% 
   st_drop_geometry() %>% 
-  filter(between(x = x, lims[["xmin"]], lims[["xmax"]]) &                   # Clip to plotting window
-         between(x = y, lims[["ymin"]], lims[["ymax"]])) %>%                
-  select(-c(x,y)) %>%                                                       # Drop columns for cropping to plot window
+  filter(between(x_crs, lims[["xmin"]], lims[["xmax"]]) &                   # Clip to plotting window
+         between(y_crs, lims[["ymin"]], lims[["ymax"]])) %>%                
+  select(-c(x_crs, y_crs)) %>%                                              # Drop columns for cropping to plot window
   mutate(Depth = "S") %>%                                                   # Add a depth column
   bind_rows(., mutate(., Depth = "D")) %>%                                  # Duplicate entries for second depth layer
   anti_join(filter(., Depth == "D" & Shore == "Inshore")) %>%               # Remove Inshore deep which doesn't exist                 
@@ -85,12 +84,13 @@ output <- st_drop_geometry(output) %>%
 
 #### Build the monthly sumaries ####
 
- tic("Creating monthly data objects from netcdf files")                     # Time the data extraction
+tic("Creating monthly data objects from netcdf files")                     # Time the data extraction
  
  overnight <- all_files %>%
    split(., f = list(.$Month, .$Year)) %>%                                  # Get a DF of file names for each time step to summarise to
    .[sapply(., function(x) dim(x)[1]) > 0] %>%                              # Drop empty dataframes (Months which weren't observed but split introduces)
-   future_map(whole_month, crop = Window,
-              grid = output, space = Space, .progress = T)                  # Perform the extraction and save an object for each month (in parallel)
-   toc()                                                                    # Stop timing
- 
+   future_map(whole_month, crop = Window, analysis = "StrathE2E",
+              grid = output, space = Space, out_dir = "./Objects/Months",
+              .progress = T)                                                # Perform the extraction and save an object for each month (in parallel)
+ toc()                                                                      # Stop timing
+# 2.15 hours
