@@ -144,7 +144,7 @@ get_all_3D <- function(path, file, vars, start3D, count3D) {
   
   data <- map(vars, ~{                                                         # For each variable targetted in this file
     nc_var <- ncdf4::ncvar_get(nc_raw, varid = .x, start3D, count3D) %>% # Pull the variable
-      as.data.table(value.name = .x, key = c("V1", "V2", "V3"))}) %>%          # Conver the array to a data.table
+      as.data.table(value.name = .x, key = c("V1", "V2", "V3"))}) %>%          # Convert the array to a data.table
       Reduce(function(...) merge(..., all.x = T), .)                             # Combine the variables
   
  ncdf4::nc_close(nc_raw)                                                      # You must close an open netcdf file when finished to avoid data loss
