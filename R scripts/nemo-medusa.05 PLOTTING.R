@@ -6,7 +6,7 @@
 
 rm(list=ls(all.names = TRUE))                                               # Wipe the brain
 
-packages <- c("MiMeMo.tools", "tidyverse", "furrr", "tictoc", "rnaturalearth")
+packages <- c("MiMeMo.tools", "furrr", "tictoc", "rnaturalearth")
 lapply(packages, library, character.only = TRUE)                            # Load packages
 source("./R scripts/@_Region file.R")                                       # Define project region 
 
@@ -24,10 +24,10 @@ world <- ne_countries(scale = "medium", returnclass = "sf") %>%             # Ge
 #### Plotting ####
     
 vars_ts <- c("Ice_pres", "Ice_conc_avg", "Ice_Thickness_avg", "Snow_Thickness_avg", 
-          "Vertical_diffusivity_avg", "Vertical_velocity_avg", "Salinity_avg",
-          "Temperature_avg", "DIN_avg", "Detritus_avg", "Chlorophyll_avg")  # List of variables to plot   
-vars_sp <- c("Ice_conc", "Ice_Thickness", "Snow_Thickness", "Salinity", 
-             "Temperature", "DIN", "Detritus", "Chlorophyll")               # Tweak the variable names for spatial plots
+             "Vertical_diffusivity_avg", "Salinity_avg",
+             "Temperature_avg", "DIN_avg", "Detritus_avg", "Phytoplankton_avg")  # List of variables to plot   
+  
+vars_sp <- str_remove(vars_ts, "_avg")                                      # Tweak the variable names for spatial plots
 
 sapply(vars_ts, ts_plot)                                                    # Save a time series figure for each variable.
 
@@ -46,16 +46,3 @@ toc()
 tic ("Plotting current figures")
  future_map(SP, stick_plot, zoom = zoom, pre = pre, .progress = TRUE)       # Plot currents in parallel
 toc()
-
-
-#### speed voronoi? ####
-
-# library(profvis)
-# 
-# tic("Plotting spatial figures")                                             
-# profvis({
-# future_map2(rep(SP[1], each = 4), 
-#             vars_sp[4:7], point_plot_voronoi,
-#             zoom = zoom, .progress = TRUE)                                 # Plot spatial maps in parallel
-# })
-# toc()
