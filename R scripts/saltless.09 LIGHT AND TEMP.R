@@ -44,7 +44,7 @@ Air <- future_pmap_dfr(all_files, get_air, .progress = TRUE) %>%                
   ungroup() %>%
   mutate(Date = as.Date(paste("15", Month, Year, sep = "/"), format = "%d/%m/%Y"),      # Get date column for plotting
          Measured = ifelse(Type == "T150", Measured - 273.15,                           # Convert Kelvin to celsius for Temp data
-                           micro_to_full(Measured *4.57)),                              # Convert Watts to Einsteins for Light data. 4.57 microEinsteins per watt
+                           shortwave_to_einstein(Measured)),                            # Convert Watts to Einsteins for Light data.
          Type = factor(Type, levels = c("SWF", "T150"),                                 # Give units for variables when facetting
                  labels = c(SWF = expression("Light (Em"^{-2}*"d"^{-1}*" )"),
                             T150 = expression("Air temperature ( "*degree*"C )"))),
