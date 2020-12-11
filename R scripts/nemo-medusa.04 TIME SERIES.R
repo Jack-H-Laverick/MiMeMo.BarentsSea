@@ -6,7 +6,7 @@
 
 rm(list=ls())                                                                 # Wipe the brain
 
-packages <- c("MiMeMo.tools", "tidyverse", "furrr", "tictoc")                 # List packages
+packages <- c("MiMeMo.tools", "furrr", "tictoc")                              # List packages
 lapply(packages, library, character.only = TRUE)                              # Load packages
 source("./R scripts/@_Region file.R")                                         # Define project region 
 
