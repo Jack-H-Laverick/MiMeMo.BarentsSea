@@ -73,7 +73,9 @@ G_NEWs <- readRDS("./Objects/River DIN.rds")
 
 ggplot() +
   geom_line(data = G_NEWs, aes(x = Year, y = `DIN mg.l`)) +
-  geom_smooth(data = Data, aes(x = Year, y = TDN), colour = "red", method = "lm") 
+  geom_smooth(data = Data, aes(x = Year, y = TDN), colour = "red", method = "lm") +
+  geom_point(data = Data, aes(x = Year, y = TDN), colour = "red") +
+  ylim(0, 0.7)
 
 #### Impose seasonalitiy on last century ####
 
