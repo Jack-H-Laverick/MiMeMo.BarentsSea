@@ -58,7 +58,7 @@ EU_Arctic <- st_contains(Region_mask, EU_landings, sparse = F) %>%            # 
 
 tictoc::tic()
 weights <- dplyr::select(EU_Arctic, EU_polygon, Gear_type) %>%                # Limit to information needed to calculate the proportion of fishing effort in the model domain
-  split(f = as.factor(as.numeric(.$EU_polygon))) %>%                                                     # Isolate each shape for fast paralel processing
+  split(f = as.factor(as.numeric(.$EU_polygon))) %>%                          # Isolate each shape for fast parallel processing
   future_map( ~{                                                              # In parallel
     mutate(.x, total = if_else(Gear_type == "Mobile",                         # If this is a mobile gear
                                exact_extract(GFW_mobile, .x, fun = "sum"),    # Get all mobile fishing effort from GFW, else static effort
