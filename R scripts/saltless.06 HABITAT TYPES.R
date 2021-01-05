@@ -5,7 +5,7 @@
 
 rm(list=ls())
 
-Packages <- c("MiMeMo.tools", "tidyverse", "sf", "stars")        # List packages
+Packages <- c("MiMeMo.tools", "sf", "stars")                     # List packages
 lapply(Packages, library, character.only = TRUE)                 # Load packages
 source("./R scripts/@_Region file.R")
 
@@ -49,7 +49,6 @@ saveRDS(polygons, "./Objects/Habitats.rds")
 proportions <- polygons %>% 
   mutate(Cover = as.numeric(st_area(.))) %>%                     # Measure the area of each habitat type
   st_drop_geometry() %>%                                         # Drop SF formatting
-  group_by(Shore) %>%                                     
   mutate(Cover = Cover/sum(Cover)) %>%                           # Calculate the proportion of the model zone in each sediment polygon 
   rename(Bottom = Habitat)
 
