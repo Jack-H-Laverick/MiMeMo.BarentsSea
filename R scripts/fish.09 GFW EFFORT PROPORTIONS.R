@@ -20,7 +20,7 @@ Proportion_effort <- c("NOR_mobile_gear", "NOR_static_gear",                  # 
   future_map(~{ brick("./Objects/GFW.nc", varname = .x) %>%                   # Import a brick of all years
          exact_extract(habitats, fun = "sum") %>%                             # Sum fishing hours within habitat types 
          mutate(Variable = .x) %>%                                            # Attach the variable name to keep track
-         cbind(st_drop_geometry(habitats))}) %>%                              # Attach habitat metadata
+         cbind(sf::st_drop_geometry(habitats))}) %>%                          # Attach habitat metadata
   data.table::rbindlist() %>% 
   pivot_longer(starts_with("sum"), names_to = "Year", values_to = "Hours") %>%# Reshape so all years are in a column
   separate(Variable, into = c("Flag", "Gear"), sep = "_") %>%                 # Split variable name into flag and gear type
