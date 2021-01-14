@@ -6,7 +6,7 @@
 
 rm(list=ls())                                                               # Wipe the brain
 
-packages <- c("MiMeMo.tools", "data.table", "furrr", "ncdf4")               # List packages
+packages <- c("nemomedusR", "data.table", "furrr", "ncdf4")               # List packages
 lapply(packages, library, character.only = TRUE)                            # Load packages
 source("./R scripts/@_Region file.R")                                       # Define project region 
 
@@ -89,8 +89,9 @@ tic("Creating monthly data objects from netcdf files")                     # Tim
  overnight <- all_files %>%
    split(., f = list(.$Month, .$Year)) %>%                                  # Get a DF of file names for each time step to summarise to
    .[sapply(., function(x) dim(x)[1]) > 0] %>%                              # Drop empty dataframes (Months which weren't observed but split introduces)
-   future_map(whole_month, crop = Window, analysis = "StrathE2E",
-              grid = output, space = Space, out_dir = "./Objects/Months",
+  # .[1] %>% 
+   future_map(NEMO_MEDUSA, crop = Window, analysis = "StrathE2E",
+              summary = output, space = Space, out_dir = "./Objects/Months",
               .progress = T)                                                # Perform the extraction and save an object for each month (in parallel)
  toc()                                                                      # Stop timing
 # 2.15 hours
