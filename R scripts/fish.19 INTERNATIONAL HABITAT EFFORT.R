@@ -17,8 +17,15 @@ habitats <- readRDS("./Objects/Habitats.rds")                               # Lo
 target <- expand.grid(Habitat = paste0(habitats$Shore, " ", habitats$Habitat), 
                       Aggregated_gear = unique(gear$Aggregated_gear))       # Get combinations of gear and guild
 
-Non_Russian <- readRDS("./Objects/IMR absolute fishing effort") +           # Add Norwegian fishing effort        
-  readRDS("./Objects/EU absolute fishing effort")                           # to EU fishing effort
+
+domain_size <- readRDS("./Objects/Domains.rds") %>%                         # We need effort scaled per m^2
+  sf::st_union() %>%                                                        # To match the final units for international effort
+  sf::st_area() %>% 
+  as.numeric()
+
+Non_Russian <- (readRDS("./Objects/IMR absolute fishing effort") +          # Add Norwegian fishing effort        
+  readRDS("./Objects/EU absolute fishing effort")) /                        # to EU fishing effort
+  365 * 60 / domain_size                                                    # Convert to same units as international landings
 
 #### Get Russian effort only ####
 
