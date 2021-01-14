@@ -76,9 +76,6 @@ tictoc::toc()
 
 #### Convert EU landings to a matrix by guild and gear ####
 
-landings_target <- expand.grid(Guild = unique(guild$Guild), 
-                               Aggregated_gear = unique(gear$Aggregated_gear) ) # Get combinations of gear and guild
-
 corrected_landings <- st_drop_geometry(EU_Arctic) %>%
   left_join(weights) %>% 
   mutate(corrected_weight = ttwghtl * GFW_Scale) %>%                        # Scale features effort per gear by the proportion of GFW activity by gear type in the model domain 
