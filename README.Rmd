@@ -1,24 +1,34 @@
 ---
 output: html_document
+pagetitle: "Overview"
 ---
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
+```{css, echo = FALSE}
 
-```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  fig.path = "man/figures/README-",
-  out.width = "100%"
-)
+.nav {
+  border-width: 0 0px 0px 0px;
+  font-weight: normal;
+  test-transform: ;
+}
+
+.nav-pills>li>a {
+  color: #000000;
+  background-color: #fffff ;
+  border-color: #faeb00;
+}
+
+.nav-pills>li.active>a {
+  color: #000000;
+  background-color: #faeb00 ;
+  border-color: #000000;
+}
+
+.nav-pills>li.active>a:focus {
+  color: #000000;
+  background-color: #faeb00 ;
+  border-color: #000000;
+}
 ```
-
-<img src='Figures/bathymetry/Rayshade.png' align="centre" width="100%" />
-
-# MiMeMo.EastGreenlandShelf
-
-Code to process raw data from the East Greenland Shelf for StrathE2E Polar
-
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
@@ -30,11 +40,18 @@ library(visNetwork)
 
 ```
 
-This page details at a broad level the code written to extract data and parameterise StrathE2E*Polar* as part of MiMeMo. You can find information on the depedencies, runtimes, and tasks performed by each of the scripts. Scripts are loosely classified into families - *bathymetry* - *fish* - *flows* - *NM* - *Sediment* - *StrathE2E*. These can all be run from a master script, with a region file allowing the user to define the model domain for data extraction.
+<img src='./Figures/rayshade-hi.png' align="center" width="100%" />
+
+
+# MiMeMo.BarentsSea
+
+This page details at a broad level the code written to extract data and parameterise StrathE2E*Polar* as part of MiMeMo. You can find information on the depedencies, runtimes, and tasks performed by each of the scripts. Scripts are loosely classified into families - *bathymetry* - *fish* - *flows* - *nemo-medusa* - *saltless* - *StrathE2E*. These can all be run from a master script, with a region file allowing the user to define the model domain for data extraction.
 
 ## Script dependencies
 
-The widget below illustrates the hierarchy for MiMeMo scripts. It's interactive, so feel free to zoom in, drag the view, and highlight a script by clicking on a node. You can also move the nodes. When a script is highlighted, so are others within 1 degree of separation (scripts immediately upstream and downstream in the pipeline). You can also highlight a specific script from the drop down menu. Nodes are colour coded by family, and layers in the hierarchy indicate how many scripts must be run in advance. The network is created programmaticaly by looking for objects across all scripts present in both a `saveRDS` and `readRDS` call. 
+The widget below illustrates the hierarchy for MiMeMo scripts. It's interactive, so feel free to zoom in, drag the view, and highlight a script by clicking on a node. You can also move the nodes. When a script is highlighted, so are others within 1 degree of separation (scripts immediately upstream and downstream in the pipeline). You can also highlight a specific script from the drop down menu. Nodes are colour coded by family, and layers in the hierarchy indicate how many scripts must be run in advance. 
+
+The network is created programmaticaly by looking for shared objects across all scripts. This is evaluated by searching the code for calls to functions such as `saveRDS` and `readRDS`. 
 
 ```{r code relations, echo = FALSE, eval = TRUE, warning= FALSE}
 
@@ -42,44 +59,95 @@ network <- readRDS("./Objects/network.rds")
 
 #### Build network widget ####
 
-#v <-viridis::viridis(length(unique(network[[2]]$group)))                                # get viridis colours for each group
-#v <-RColorBrewer::brewer.pal(length(unique(network[[2]]$group)), "Dark2")     # get viridis colours for each group
-v <-palettetown::ichooseyou("charizard", length(unique(network[[2]]$group)))                             # get viridis colours for each group
+v <-palettetown::ichooseyou("charizard", length(unique(network[[2]]$group))) # get colours for each group
 
-visNetwork(network[[2]], network[[1]], width = "100%", height = "800") %>% # Build the network
-  visHierarchicalLayout(direction = "UD") %>%                               # Use hierarchical layout from top to bottom
+visNetwork(network[[2]], network[[1]], width = "100%", height = "800") %>%   # Build the network
+  visHierarchicalLayout(direction = "UD") %>%                                # Use hierarchical layout from top to bottom
   visLegend(width = 0.15, ncol = 1, zoom = FALSE) %>%                        # Add a legend
-  visOptions(highlightNearest = list(enabled = TRUE, labelOnly = FALSE),    # Control highlighting when selecting script
+  visOptions(highlightNearest = list(enabled = TRUE, labelOnly = FALSE),     # Control highlighting when selecting script
              nodesIdSelection = TRUE, clickToUse = TRUE, selectedBy = "group") %>% # Add drop down menu to highlight scripts
   
   ## Control colouring and highlighting per group
   
-  visGroups(groupname = "atmosphere", shape = "dot", color = list(background = v[1], border = v[1],
-                                              highlight = list(background = "white", border = v[1]))) %>% 
-  visGroups(groupname = "bathymetry", shape = "dot", color = list(background = v[2], border = v[2], 
-                                              highlight = list(background = "white", border = v[2]))) %>%
-  visGroups(groupname = "detritus", shape = "dot",color = list(background = v[3], border = v[3],
+
+  visGroups(groupname = "bathymetry", shape = "dot", color = list(background = v[1], border = v[1], 
+                                              highlight = list(background = "white", border = v[1]))) %>%
+  visGroups(groupname = "fish", shape = "dot",color = list(background = v[2], border = v[2],
+                                              highlight = list(background = "white", border = v[2]))) %>% 
+  visGroups(groupname = "flows", shape = "dot", color = list(background = v[3], border = v[3],
                                               highlight = list(background = "white", border = v[3]))) %>% 
-  visGroups(groupname = "fish", shape = "dot",color = list(background = v[4], border = v[4],
+  visGroups(groupname = "nemo-medusa", shape = "dot", color = list(background = v[4], border = v[4],
                                               highlight = list(background = "white", border = v[4]))) %>% 
-  visGroups(groupname = "flows", shape = "dot", color = list(background = v[5], border = v[5],
+  visGroups(groupname = "saltless", shape = "dot", color = list(background = v[5], border = v[5],
                                               highlight = list(background = "white", border = v[5]))) %>% 
-  visGroups(groupname = "NM", shape = "dot", color = list(background = v[6], border = v[6],
-                                              highlight = list(background = "white", border = v[6]))) %>% 
-  visGroups(groupname = "sediment", shape = "dot", color = list(background = v[7], border = v[7],
-                                              highlight = list(background = "white", border = v[7]))) %>% 
-  visGroups(groupname = "spm", shape = "dot", color = list(background = v[8], border = v[8],
-                                              highlight = list(background = "white", border = v[8]))) %>% 
-  visGroups(groupname = "strathE2E", shape = "dot", color = list(background = v[9], border = v[9],
-                                              highlight = list(background = "white", border = v[9]))) %>% 
-  visGroups(groupname = "targets", shape = "dot", color = list(background = v[10], border = v[10],
-                                              highlight = list(background = "white", border = v[10])))
+  visGroups(groupname = "strathE2E", shape = "dot", color = list(background = v[6], border = v[6],
+                                              highlight = list(background = "white", border = v[6])))
 
 ```  
 
+## Script Objectives {.tabset .tabset-fade .tabset-pills}
+
+In the future I plan to detail blow by blow what exactly each script does. This will likely take the form of a dropdown list of vignettes on this website. As there are about 40 scripts at the moment this isn't going to happen immediately. For now this section is here to briefly mention the purpose of each script.
+ 
+### bathymetry
+
+| Script | Purpose                                        |
+|-----------------|---------------------------------------|
+| 1 DATA WRANGLING|   |
+| 2 PLOTTING      |   |
+| 3 RAYSHADER     |   |
+| 4 DOMAIN CHOICES|   |
+| 5 DEFINE DOMAIN |   |
+
+### fish
+
+| Script | Purpose                                        |
+|-----------------|---------------------------------------|
+|1 FAO REGIONS||
+|2 SUMMARIES AND PLOTTING||
+|3 DATA WRANGLING||
+|4 PLOTTING||
+
+### flows
+
+| Script | Purpose                                        |
+|-----------------|---------------------------------------|
+|1 VC-EXTRACTION||
+|2 MAKE TRANSECTS||
+|3 LABEL TRANSECTS||
+|4 SAMPLE PERIMETER||
+|5 SAMPLE FLUXES||
+|6 VOLUME CHECK||
+|7 PLOT EXCHANGES||
+
+### nemo-medusa
+
+| Script | Purpose                                        |
+|-----------------|---------------------------------------|
+|1 GRID||
+|2 EXTRACTION||
+|3 SPATIAL||
+|4 TIME SERIES||
+|5 PLOTTING|||
+|6 LIGHT AND TEMP||
+
+### saltless
+
+| Script | Purpose                                        |
+|-----------------|---------------------------------------|
+|2 COMPILE DRIVING DATA||
+|3 COMPILE PHYSICAL PARAMETERS||
+
+### StrathE2E
+
+| Script | Purpose                                        |
+|-----------------|---------------------------------------|
+|2 COMPILE DRIVING DATA||
+|3 COMPILE PHYSICAL PARAMETERS||
+
 ## Run Times
 
-```{r code runtimes, echo = FALSE, eval = TRUE, warning= FALSE, out.width ="100%", gif.asp = 1, dpi = 800}
+```{r code runtimes, echo = FALSE, eval = TRUE, message = FALSE, warning= FALSE, out.width ="100%", gif.asp = 1, dpi = 800}
 
 timings <- readRDS("./Objects/Run time.rds")
 
@@ -151,50 +219,3 @@ ggplot(data, aes(x=as.factor(id), y=value, fill=group)) +       # Note that id i
 
 ```
 
-## Script Objectives {.tabset}
-
-In the future I plan to detail blow by blow what exactly each script does. This will likely take the form of a dropdown list of vignettes on this website. As there are about 40 scripts at the moment this isn't going to happen immediately. For now this section is here to briefly mention the purpose of each script.
- 
-### bathymetry
-
-* bathymetry.1 DATA WRANGLING
-* bathymetry.2 PLOTTING
-* bathymetry.3 RAYSHADER
-* bathymetry.4 DOMAIN CHOICES
-* bathymetry.5 DEFINE DOMAIN
-
-### fish
-
-* fish.1 FAO REGIONS
-* ices SUMMARIES AND PLOTTING
-* gfw.1 DATA WRANGLING
-* gfw.2 PLOTTING
-
-### flows
-
-* flows.1 VC-EXTRACTION
-* flows.2 MAKE TRANSECTS
-* flows.3 LABEL TRANSECTS
-* flows.4 SAMPLE PERIMETER
-* flows.5 SAMPLE FLUXES
-* flows.6 VOLUME CHECK
-* flows.7 PLOT EXCHANGES
-
-### NM
-
-* NM.1 GRID
-* NM.2 EXTRACTION
-* NM.3 SPATIAL
-* NM.4 TIME SERIES
-* NM.5 PLOTTING
-* NM.6 LIGHT AND TEMP
-
-### Sediment
-
-* sediment.1 GRID
-* sediment.2 RANDOM FOREST
-
-### StrathE2E
-
-* strathE2E.2 COMPILE DRIVING DATA
-* strathE2E.3 COMPILE PHYSICAL PARAMETERS
