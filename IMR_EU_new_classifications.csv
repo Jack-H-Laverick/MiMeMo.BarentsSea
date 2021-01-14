@@ -1,0 +1,31 @@
+"","X","Norsk.navn","Engelsk.navn","FAO","Scientific.name","Category","Subcategory"
+"1",1,"Annen skate og rokke","Skates and rays- mantas nei","SRX","Rajiformes","Demersal","Non-quota"
+"2",3,"Vågehval","Minke whale","MIW","Balaenoptera acutorostrata","Cetacean",NA
+"3",4,"Isfisk uspes.","Crocodile icefishes nei","ICX","Channichthyidae","Demersal","Non-quota"
+"4",5,"Torskefamilien","","","Gadidae","Demersal","Quota-limited"
+"5",7,"Istorsk","Arctic Cod","ATG","Arctogadus glacialis","Planktivore",NA
+"6",8,"Vanlig ulke","Shorthorn sculpin","MXV","Myoxocephalus scorpius","Demersal","Non-quota"
+"7",9,"","Antarctic rockcods- noties nei","","Nototheniidae","Demersal","Non-quota"
+"8",10,"Flyndrefamilien","","","Pleuronectidae","Demersal","Quota-limited"
+"9",11,"Spekkhogger","Killer whale","KIW","Orcinus orca","Cetacean",NA
+"10",12,"Blåhval","Blue whale","BLW","Balaenoptera musculus","Cetacean",NA
+"11",13,"Fårehodetannkarpe","Sheepshead minnow","YCK","Cyprinodon variegatus","Planktivore",NA
+"12",14,"Småsil","Small sandeel","ABZ","Ammodytes tobianus","Planktivore",NA
+"13",15,"Butare","Babberlocks","AJC","Alaria esculenta","Macrophyte",NA
+"14",16,"Koralldyr","Corals","AJH","Anthozoa","Benthos suspension deposit feeder",NA
+"15",17,"Brungylt","Scale-rayed wrasse","AKL","Acantholabrus palloni","Demersal","Non-quota"
+"16",18,"","","","Oreosomatidae (oreos)","Planktivore",NA
+"17",19,"Antarctic silverfish *","Antarctic silverfish","ANS","Pleuragramma antarcticum","Planktivore",NA
+"18",20,"Antarctic stone crab *","Antarctic stone crab","KCV","Paralomis spinosissima","Benthos carnivore",NA
+"19",21,"Antarktisk krill","Antarctic krill","KRI","Euphausia superba","Omnivorous zooplankton",NA
+"20",22,"Krinakrabbe","Galathea strigosa **","LOQ","Galathea strigosa","Carnivorous benthic",NA
+"21",23,"","","","Ophidiidae","Demersal","Non-quota"
+"22",24,"Sandkutling","Sand goby","OBZ","Pomatoschistus minutus","Demersal","Non-quota"
+"23",25,"","","","Uranoscopidae","Demersal","Non-quota"
+"24",26,"Antarctic starry skate *","Antarctic starry skate","SRR","Raja georgiana","Demersal","Non-quota"
+"25",27,"Høyfinnet havbrasme","Rough pomfret","TAS","Taractes asper","Planktivore",NA
+"26",28,"Antarktisk tannfisk","Antartic toothfish","TOA","Dissostichus mawsoni","Demersal","Non-quota"
+"27",29,"Antarktisk tannfisk-uspes.","Antartic toothfish- nei","TOT","Dissostichus spp","Demersal","Non-quota"
+"28",30,"Rødpølse","Red sea cucumber","TVK","Parastichopus tremulus","Benthos suspension deposit feeder",NA
+"29",31,"Sørlig skolest","Whitson's grenadier","WGR","Macrourus whitsoni","Demersal","Non-quota"
+"30",32,"Butt sandskjell","Blunt gaper","YTK","Mya truncata","Benthos suspension deposit feeder",NA
