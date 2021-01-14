@@ -1,0 +1,53 @@
+---
+output: 
+  html_document:
+pagetitle: "Workflow"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+library(tidyverse) 
+library(visNetwork)
+
+```
+
+# Script dependencies
+
+The widget below illustrates the hierarchy for MiMeMo scripts. It's interactive, so feel free to zoom in, drag the view, and highlight a script by clicking on a node. You can also move the nodes. When a script is highlighted, so are others within 1 degree of separation (scripts immediately upstream and downstream in the pipeline). You can also highlight a specific script from the drop down menu. Nodes are colour coded by family, and layers in the hierarchy indicate how many scripts must be run in advance. 
+
+The network is created programmaticaly by looking for shared objects across all scripts. This is evaluated by searching the code for calls to functions such as `saveRDS` and `readRDS`. 
+
+```{r code relations, echo = FALSE, eval = TRUE, warning= FALSE}
+
+network <- readRDS("./Objects/network.rds")
+
+#### Build network widget ####
+
+v <-palettetown::ichooseyou("charizard", length(unique(network[[2]]$group))) # get colours for each group
+
+visNetwork(network[[2]], network[[1]], width = "100%", height = "800") %>%   # Build the network
+  visHierarchicalLayout(direction = "UD") %>%                                # Use hierarchical layout from top to bottom
+  visLegend(width = 0.15, ncol = 1, zoom = FALSE) %>%                        # Add a legend
+  visOptions(highlightNearest = list(enabled = TRUE, labelOnly = FALSE),     # Control highlighting when selecting script
+             nodesIdSelection = TRUE, clickToUse = TRUE, selectedBy = "group") %>% # Add drop down menu to highlight scripts
+  
+  ## Control colouring and highlighting per group
+  
+
+  visGroups(groupname = "bathymetry", shape = "dot", color = list(background = v[1], border = v[1], 
+                                              highlight = list(background = "white", border = v[1]))) %>%
+  visGroups(groupname = "fish", shape = "dot",color = list(background = v[2], border = v[2],
+                                              highlight = list(background = "white", border = v[2]))) %>% 
+  visGroups(groupname = "flows", shape = "dot", color = list(background = v[3], border = v[3],
+                                              highlight = list(background = "white", border = v[3]))) %>% 
+  visGroups(groupname = "nemo-medusa", shape = "dot", color = list(background = v[4], border = v[4],
+                                              highlight = list(background = "white", border = v[4]))) %>% 
+  visGroups(groupname = "saltless", shape = "dot", color = list(background = v[5], border = v[5],
+                                              highlight = list(background = "white", border = v[5]))) %>% 
+  visGroups(groupname = "strathE2E", shape = "dot", color = list(background = v[6], border = v[6],
+                                              highlight = list(background = "white", border = v[6])))
+
+```  
