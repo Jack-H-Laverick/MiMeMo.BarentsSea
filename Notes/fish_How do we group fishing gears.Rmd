@@ -1,0 +1,218 @@
+---
+title: "How do we group fishing gears?"
+author: "Jack H Laverick, University of Strathclyde"
+date: "07/01/2021"
+output: html_document
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+packages <- c("tidyverse", "exactextractr", "raster", "sf", "furrr", "patchwork") # List handy packages
+lapply(c(packages), library, character.only = TRUE)                           # Load packages
+
+source("./R scripts/@_Region file.R")                                         # Get region mask
+
+plan(multiprocess)                                                            # Set up parallel processing
+
+Region_mask <- st_transform(Region_mask, crs = 4326)                          # reproject to match EU data
+
+domain <- st_transform(readRDS("./Objects/Domains.rds"), crs = 4326) %>%      # reproject to match EU data
+  st_union() %>%                                                              # Create whole domain shape 
+  st_as_sf() %>% 
+  mutate(Keep = T)
+
+#gear <- read.csv("./Data/MiMeMo gears.csv")                                   # Load fishing gear classifications
+
+# Check the original gears for similarities
+gear <- read.csv("./Data/MiMeMo gears.csv") %>%                               # Load fishing gear classifications
+  dplyr::select(-Aggregated_gear) %>% 
+  rename(Aggregated_gear = Gear_name)
+
+guild <- read.csv("./Data/MiMeMo fish guilds.csv") %>%                        # Get guilds for FAO codes
+  dplyr::select(FAO, Guild) %>% 
+  rename(species = FAO) %>% 
+  drop_na() %>% 
+  distinct() %>%                                                              # Drop duplicated rows which hang around after ditching other systems
+  group_by(species) %>%                                                       # 1 duplicated code to remove ()
+  slice_head() %>%                                                            # So only take the first instance of each code
+  ungroup()
+
+GFW_mobile <- brick("./Objects/GFW.nc", varname = "NOR_mobile_gear") %>%      # Get mean fishing effort across years from Global fishing watch
+  calc(mean, na.rm = T)  
+
+GFW_static <- brick("./Objects/GFW.nc", varname = "NOR_static_gear") %>%      # For each class of gear
+  calc(mean, na.rm = T)
+
+ landings_target <- expand.grid(Guild = unique(guild$Guild), 
+                                Aggregated_gear = unique(gear$Aggregated_gear))# Get combinations of gear and guild
+
+EU_landings <- str_glue("./Data/EU fish/spatial_landings_{2015:2018}/") %>%   # Programmatically build folder names
+  future_map(~{ rgdal::readOGR(.x) %>%                                        # Import each EU effort shapefile
+                st_as_sf() %>%                                                # Convert to SF
+                dplyr::select(year, ger_typ, rctngl_, species, ttwghtl, ttvllnd)}) %>% # Drop some columns, ttwghtl is "total weight landed",
+  bind_rows() %>%                                                             # ttvllnd is "total value landed"
+  rename(Gear_code = ger_typ)
+
+EU_Arctic <- st_contains(Region_mask, EU_landings, sparse = F) %>%            # Which EU polygons are in the model mask?
+  t() %>%                                                                     # Transpose to indicate row not columns
+  EU_landings[.,] %>%                                                         # Subset the Eu data spatially
+  rownames_to_column(var = "EU_polygon") %>% 
+  left_join(gear) %>%                                                         # Attach gear classifications
+  left_join(guild)                                                            # Attach guild classifications
+  
+```
+
+## Outline
+
+ We tried performing cluster analyses on landings by gear and guild from IMR, but saw no obvious patterns.
+ We therefore need to make an informed choice when aggregating gears together as StrathE2E can only represent so many.
+ Gears of specific management interest are easy to single out for inclusion, harpoons, rifles for seals etc.
+ But there are some gears which we need to decide whether to combine.
+ 
+ How different are different types of trawlers in terms of their landings by guild?
+ This includes the distinction between mid-water and bottom trawling.
+ 
+## EU landings in the Barents Sea
+
+Do midwater trawls look different to bottom trawls in terms of the guilds they land?
+
+```{r EU, echo=FALSE, warning=FALSE, message = FALSE, fig.align = 'center'}
+#### Scale EU landings by the proportion of fishing effort according to GFW in the model domain ####
+
+weights <- dplyr::select(EU_Arctic, EU_polygon, Gear_type) %>%                # Limit to information needed to calculate the proportion of fishing effort in the model domain
+  split(f = as.factor(as.numeric(.$EU_polygon))) %>%                          # Isolate each shape for fast parallel processing
+  future_map( ~{                                                              # In parallel
+    mutate(.x, total = if_else(Gear_type == "Mobile",                         # If this is a mobile gear
+                               exact_extract(GFW_mobile, .x, fun = "sum"),    # Get all mobile fishing effort from GFW, else static effort
+                               exact_extract(GFW_static, .x, fun = "sum"))) %>% # This is the total effort to scale features to within a polygon
+    st_intersection(domain) %>%                                               # Crop the polygons to the model domain
+    mutate(feature = if_else(Gear_type == "Mobile",                           # Now count fishing effort again
+                             as.numeric(exact_extract(GFW_mobile, ., fun = "sum")),       
+                             as.numeric(exact_extract(GFW_static, ., fun = "sum")))) %>%  
+    st_drop_geometry()}) %>%                                   # Drop geometry for a non-spatial join
+  data.table::rbindlist() %>%                                                 # Bind into a dataframe
+  mutate(GFW_Scale = feature/total) %>%                                       # Get the proportion of effort per polygon in the domain
+  replace_na(list(GFW_Scale = 1)) %>%                                         # If there was no GFW activity in the polygon replace NA with 1 to not use this for scaling
+  dplyr::select(GFW_Scale, EU_polygon)
+
+#### Summarise landings by guild and gear and scale to domain area ####
+
+EU_fingerprint <- st_drop_geometry(EU_Arctic) %>%
+  left_join(weights) %>% 
+  mutate(corrected_weight = ttwghtl * GFW_Scale) %>%                        # Scale features effort per gear by the proportion of GFW activity by gear type in the model domain 
+  group_by(Aggregated_gear, Guild, year) %>% 
+  summarise(corrected_weight = sum(corrected_weight, na.rm = TRUE)) %>% 
+  summarise(corrected_weight = mean(corrected_weight, na.rm = TRUE)) %>% 
+  ungroup() %>% 
+  right_join(landings_target)
+
+flag <- magick::image_transparent(magick::image_read("./Notes/EU flag.png"), color = "white")
+
+plot <- ggplot(drop_na(EU_fingerprint)) + 
+  geom_raster(aes(x=as.factor(Guild), y=Aggregated_gear, fill = log10(corrected_weight+1))) + 
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  labs(x = "Guild", y = "Gear", fill = "Landings (log tonnes)", subtitle = "Gear/Guild fingerprint from EU fishing data") 
+
+cowplot::ggdraw() +
+  cowplot::draw_plot(plot) +
+  cowplot::draw_image(flag, x =0.32 , y = 0.42, scale = 0.15)
+
+```
+
+## Norway landings in the Barents Sea
+
+Do midwater trawls look different to bottom trawls in terms of the guilds they land?
+
+```{r Norway, echo=FALSE, warning=FALSE, message = FALSE, fig.align = "center"}
+#### IMR fishing data ####
+
+species <- data.table::fread("./Data/IMR/IMR species list.csv", sep = ',') %>%# Get species look up table
+  rename(Species = Tall)
+
+gear <- data.table::fread("./Data/IMR/codelist_gear.csv", sep = ';') %>%      # Get gear look up table
+  rename(Gear = CODE)
+
+guild <- read.csv("./Data/MiMeMo fish guilds.csv") %>%                        # Get guilds for FAO codes
+  dplyr::select(IMR.code, Guild) %>% 
+  rename(Species = IMR.code) %>% 
+  drop_na() %>% 
+  distinct() %>%                                                              # Drop duplicated rows which hang around after ditching other systems
+  group_by(Species) %>%                                                       # 1 duplicated code to remove ()
+  slice_head() %>%                                                            # So only take the first instance of each code
+  ungroup()
+
+IMR <- data.table::fread("./Data/IMR/logbookNOR_00to20_b.lst", sep = ';') %>% # Import IMR fishing data
+  `colnames<-`(c("Year", "Month", "Day", "Gear", "Fishing_time", "Area_code", "Economic_zone", 
+                 "Area_Norway", "Location_Norway", "Vessel_length", "Species", "Weight")) %>% # Set column names
+  filter(Area_Norway %in% c(1:4, 10:18, 20:25)) %>%                           # Limit to areas of interest
+  left_join(gear) %>%                                                         # Attach labels
+  left_join(species) %>%                                                      # Attach labels
+  mutate(Weight = Weight/1000)                                                # Convert Kg to tonnes
+
+## Heatmap ##
+
+IMR_fingerprint <- rename(IMR, Geartype = ENGLISH) %>%                           # Rename columns
+  left_join(guild) %>% 
+  group_by(Guild, Geartype) %>%                                           # Summarise landings over all time
+  summarise(Landings_tonnes = sum(as.numeric(Weight))) %>% 
+  ungroup %>% 
+  drop_na()
+
+flag <- magick::image_transparent(magick::image_read("./Notes/Norway flag.png"), color = "white")
+
+plot <- ggplot(IMR_fingerprint) + 
+  geom_raster(aes(x=as.factor(Guild), y=Geartype, fill = log10(Landings_tonnes+1))) + 
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  labs(x = "Guild", y = "Gear", fill = "Landings (log tonnes)", subtitle = "Gear/Guild fingerprint from IMR fishing data")
+
+cowplot::ggdraw() +
+  cowplot::draw_plot(plot) +
+  cowplot::draw_image(flag, x =0.32 , y = 0.42, scale = 0.15)
+
+```
+
+## Decision
+
+After looking at the above we came up with a system for aggregating gears based on the similarity of catch composition by guild, but also which gears we would like to be able to independently manipulate in the model. The scheme is shown below, and is also contained in a csv file to control aggregating the data across R scripts consistently. 
+
+Gear_type is used with global fishing watch data as they onl provide a crude disaggregation of gears. Gear_code works with the data from IMR for Norway and STECF for the EU. Conveniently the systems don't conflict, as IMR uses a numeric code and STECF uses characters. 
+
+** Note** Mid-water pair trawls ended up aggregated with *Trawls* as they only landed demersal species. Mid-water otter trawls were added to *Pelagic* as they also caught planktivores and migratory fish.
+
+| Aggregated_gear | Gear_name                             | Gear_type | Gear_code |
+|-----------------|---------------------------------------|----------:|----------:|
+| Trawls          | Undefined trawl                       | Mobile    | 50        |
+| Trawls          | Double trawl                          | Mobile    | 58        |
+| Trawls          | Triple trawl                          | Mobile    | 59        |
+| Trawls          | Beam trawl                            | Mobile    | 56        |
+| Trawls          | Bottom trawl                          | Mobile    | 51        |
+| Trawls          | Bottom otter trawl                    | Mobile    | OTB       |
+| Trawls          | Bottom pair trawl                     | Mobile    | PTB       |
+| Trawls          | Mid-water pair trawl                  | Mobile    | PTM       |
+| Trawls          | Otter twin trawls                     | Mobile    | OTT       |
+| Pelagic         | Mid-water otter trawl                 | Mobile    | OTM       |
+| Pelagic         | Pelagic trawl                         | Mobile    | 53        |
+| Pelagic         | Purse seine                           | Mobile    | 11        |
+| Pelagic         | Pelagic trawl (pair)                  | Mobile    | 54        |
+| Hooks           | Undefined hook gear                   | Static    | 30        |
+| Hooks           | Other hook and line                   | Static    | 32        |
+| Hooks           | Floating hooks                        | Static    | 31        |
+| Gillnets        | Undefined net                         | Static    | 20        |
+| Gillnets        | Gillnet (static)                      | Static    | 22        |
+| Gillnets        | Gillnet (drifting)                    | Static    | 21        |
+| Seines          | Undefined seine net                   | Mobile    | 10        |
+| Seines          | Danish seine                          | Mobile    | 61        |
+| Pots            | Pot                                   | Static    | 42        |
+| Pots            | Pots                                  | Static    | FPO       |
+| Dropped         | Other                                 | NA        | 80        |
+| Dropped         | Unkown                                | NA        | NK        |
+| Harpoons        | Harpoon and similar unspecified types | Mobile    | 70        |
+| Rifles          | Rifle                                 | Mobile    | 73        |
+| Kelp harvesting | Kelp harvesting                       | Mobile    | Seaweed   |
+| Dredging        | Dredge                                | Mobile    | DRB       |
+| Jigging         | Jigging                               | Mobile    | 33        |
+| Shrimp trawl    | Shrimp trawl                          | Mobile    | 55        |

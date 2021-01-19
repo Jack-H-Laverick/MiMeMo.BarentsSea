@@ -1,0 +1,113 @@
+---
+title: "Is most fishing really inshore?"
+author: "Jack H Laverick, University of Strathclyde"
+date: "07/01/2021"
+output: html_document
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(raster)
+library(magick)
+```
+
+## Outline
+
+When creating our estimates of international fishing effort for the Barents Sea about 40% of activity was over the inshore silt habitat. This seemed surprising given that this zone represents only ~6% of our total model domain. It's worth checking whether most of the activity is inshore.
+
+## Norwegian effort in the Barents Sea
+
+Looks largely inshore to me.
+
+```{r Norway, echo=FALSE, warning=FALSE, message = FALSE, fig.align = "center"}
+
+NOR <- brick("./Objects/GFW.nc", varname = "NOR_mobile_gear") %>% 
+  as.data.frame(xy = T, na.rm = T) %>% 
+  pivot_longer(X1:X5, names_to ="Year", values_to = "Effort") %>% 
+  mutate(Year = as.numeric(str_remove(Year, "X"))+2011) %>% 
+  filter(Effort != 0)
+
+plot <- ggplot(NOR) +
+  geom_raster(aes(x=x, y=y, fill = Effort)) +
+  viridis::scale_fill_viridis(trans = "log") +
+  theme_void() +
+  theme(panel.background = element_rect(fill = "Black"),
+        legend.position = c(0.8, 0.3)) +
+  facet_wrap(vars(Year)) +
+  labs(title = "Mobile Norwegian Gear") +
+  NULL
+
+flag <- image_read("./Notes/Flag norway.png")
+
+cowplot::ggdraw() +
+  cowplot::draw_plot(plot) +
+  cowplot::draw_image(flag, x =0.42 , y = -0.02, scale = 0.15)
+
+```
+
+## Russian effort in the Barents Sea
+
+Still looks inshore, but with more activity around Svalbard when compared to the Norwegian vessels. 
+
+```{r Russia, echo=FALSE, warning=FALSE, message = FALSE, fig.align = 'center'}
+
+RUS <- brick("./Objects/GFW.nc", varname = "RUS_mobile_gear") %>% 
+  as.data.frame(xy = T, na.rm = T) %>% 
+  pivot_longer(X1:X5, names_to ="Year", values_to = "Effort") %>% 
+  mutate(Year = as.numeric(str_remove(Year, "X"))+2011) %>% 
+  filter(Effort != 0)
+
+plot <- ggplot(RUS) +
+  geom_raster(aes(x=x, y=y, fill = Effort)) +
+  viridis::scale_fill_viridis(trans = "log") +
+  theme_void() +
+  theme(panel.background = element_rect(fill = "Black"),
+        legend.position = c(0.8, 0.3)) +
+  facet_wrap(vars(Year)) +
+  labs(title = "Mobile Russian Gear") +
+  NULL
+
+flag <- image_read("./Notes/Flag russia.png")                         # Get a flag
+
+cowplot::ggdraw() +                                                     # Drop flag onto plot
+  cowplot::draw_plot(plot) +
+  cowplot::draw_image(flag, x =0.42 , y = -0.02, scale = 0.15)
+
+```
+
+## EU effort in the Barents Sea
+
+Not very much activity at all when it comes to thinking about international effort.
+
+```{r EU, echo=FALSE, warning=FALSE, message = FALSE, fig.align = 'center'}
+
+REST <- brick("./Objects/GFW.nc", varname = "REST_mobile_gear") %>%     # Import EU mobile fishing effort from GFW
+  as.data.frame(xy = T, na.rm = T) %>%                                  # Convert rasters to dataframe
+  pivot_longer(X1:X5, names_to ="Year", values_to = "Effort") %>%       # Collect years into 2 columns
+  mutate(Year = as.numeric(str_remove(Year, "X"))+2011) %>%             # Create actual year
+  filter(Effort != 0)                                                   # Drop pixels with no effort
+
+plot <- ggplot(REST) +                                                  # Make background plot
+  geom_raster(aes(x=x, y=y, fill = Effort)) +
+  viridis::scale_fill_viridis(trans = "log") +
+  theme_void() +
+  theme(panel.background = element_rect(fill = "Black"),
+        legend.position = c(0.8, 0.3)) +
+  facet_wrap(vars(Year)) +
+  labs(title = "Mobile EU Gear") +
+  NULL
+
+flag <- image_read("./Notes/Flag EU.png")                             # Get a flag
+
+cowplot::ggdraw() +                                                     # Drop flag onto plot
+  cowplot::draw_plot(plot) +
+  cowplot::draw_image(flag, x = 0.42 , y = -0.02, scale = 0.15)
+
+```
+
+## Conclusion
+
+I don't think the large proportion of effort over inshore silt is a bug. Previous figures I showed made it look like there was notable fishing activity in the offshore zone. Those figures only showed the presence of any activity, while these take the hours per pixel into account, giving a more representative picture.

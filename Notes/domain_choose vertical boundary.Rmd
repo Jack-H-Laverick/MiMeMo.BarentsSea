@@ -1,0 +1,211 @@
+---
+title: "Choosing the shallow-deep boundary"
+author: "Jack H Laverick, University of Strathclyde"
+date: "11/01/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.align = 'center')
+
+Packages <- c("tidyverse", "sf", "data.table", "furrr", "raster")    # List packages
+lapply(Packages, library, character.only = TRUE)                     # Load packages
+
+plan(multiprocess)                                                   # Need to reduce the workers because markdown 
+
+domain <- readRDS("./Objects/Domains.rds")
+
+#### Get the subset of NEMO-MEDUSA pixels in the model domain ####
+
+file <- list.files("/mnt/idrive/Science/MS/Shared/CAO/mimemo/clipped_medusa/", 
+                   recursive = T, full.names = TRUE, pattern = "grid_W")[1]
+
+NM_space <- raster(file, varname = "nav_lat") %>% 
+  as.data.frame(xy = T) %>% 
+  cbind(Lon = as.data.frame(raster(file, varname = "nav_lon"))) %>% 
+  setNames(c("x", "y", "latitude", "longitude")) %>% 
+  st_as_sf(coords = c("longitude", "latitude"), crs = 4326) %>% 
+  st_join(st_transform(domain, 4326)) %>% 
+  drop_na() %>% 
+  st_drop_geometry() %>% 
+  dplyr::select(x,y)
+
+setDT(NM_space, key = c("x", "y"))
+```
+
+## Background 
+
+StrathE2E contains 3 ocean volumes. There's an inshore-offshore divide, and a shallow-deep divide. Only the offshore volume is split into shallow and deep. Choosing a shallow-deep boundary depth has knock-on consequences for the inshore-offshore divide, as the inshore zone will be defined as the sea surface to this depth. StrathE2E assumes that the volumes are well mixed, and any exchange between the deep and shallow compartments are controlled by vertical diffusivity at that depth. The boundary depth therefore needs to be deep enough to avoid excessive mixing between the volumes, while also considering how large the inshore zone will end up being. Look at the "Choose our horizontal boundaries" document for more details.
+
+
+We noticed the NEMO-MEDUSA model outputs contained a cluster of implausibly high values (~10). This was verified by comparing to the distribution of values from SINMOD model outputs also from the Barents Sea. Values this high aren't usable in StrathE2E so we need to come up with an approach to work around them. We could either "avoid" them by choosing an appropriate boundary depth, or we can accommodate it by choosing an overwrite value.
+
+```{r SINMOD comparison, include=FALSE}
+
+#### Get the values from SINMOD ####
+
+file <- list.files("/mnt/idrive/Science/MS/Shared/CAO/SINMOD/", 
+                     recursive = F, full.names = TRUE, pattern = "[.]nc")[2]
+  
+SINMOD_space <- raster(file, varname = "gridLats") %>% 
+  as.data.frame(xy = T) %>% 
+  cbind(Lon = as.data.frame(raster(file, varname = "gridLons"))) %>% 
+  setNames(c("x", "y", "latitude", "longitude")) %>% 
+  st_as_sf(coords = c("longitude", "latitude"), crs = 4326) %>% 
+  st_join(st_transform(domain, 4326)) %>% 
+  drop_na() %>% 
+  st_drop_geometry() %>% 
+  dplyr::select(x,y)
+
+ setDT(SINMOD_space, key = c("x", "y"))
+   
+ SINMOD <- list.files("/mnt/idrive/Science/MS/Shared/CAO/SINMOD/", 
+                         recursive = F, full.names = TRUE, pattern = "[.]nc") %>%
+   .[. %like% "2004"] %>% 
+   map(~{
+     year <- raster(.x, level = 1, varname = "vertical_diffusivity") %>%  # Depth is a level (4th dimension)
+      as.data.frame(na.rm = T, xy = T)
+    
+     setDT(year, key = c("x", "y"))
+     year <- year[SINMOD_space]
+     gc()
+     return(year)}) %>% 
+     rbindlist()
+ 
+ setDT(SINMOD, key = c("x", "y"))
+
+ #### NEMO-MEDUSA ####
+ 
+ NM <- list.files("/mnt/idrive/Science/MS/Shared/CAO/mimemo/clipped_medusa/", 
+                         recursive = T, full.names = TRUE, pattern = "grid_W") %>%
+   .[. %like% "2004"] %>% 
+   future_map(~{
+     file <- raster(.x, band = 9, varname = "votkeavt") %>%           # Depth is a band (3rd dimension)
+       as.data.frame(na.rm = T, xy = T)
+     
+     setDT(file, key = c("x", "y"))
+     file <- file[NM_space]
+     gc()
+     return(file)}) %>% 
+   rbindlist() %>% 
+   setNames(c("x", "y", "vertical_diffusivity"))
+ 
+ setDT(NM, key = c("x", "y"))
+ 
+ NM <- NM[vertical_diffusivity != 0]                               # Drop NAs (points beneath the seafloor get 0)
+ 
+```
+
+```{r plot comparison}
+ ggplot() +
+   geom_density(data = NM, aes(vertical_diffusivity), fill = "orange", size = 0.2) +
+   geom_density(data = SINMOD, aes(vertical_diffusivity), fill = "blue", size = 0.2) +
+   geom_density(data = NM, aes(vertical_diffusivity), fill = "orange", alpha = 0.6, size = 0.2) +
+   geom_density(data = SINMOD, aes(vertical_diffusivity), size = 0.2) +
+   ggtext::geom_richtext(aes(x = 2, y = 25), fill = NA, label.color = NA, label.padding = grid::unit(rep(0, 4), "pt"),
+                         hjust = 0, vjust = 1, size = 4, 
+                label = str_glue("<b style = 'color:orange'>NEMO-MEDUSA:</b> 
+               mean = {round(mean(NM$vertical_diffusivity, na.rm = T), 3)}<br>
+               <b style = 'color:blue'>SINMOD:</b> mean = {round(mean(SINMOD$vertical_diffusivity, na.rm = T), 3)}")) +
+  theme_minimal() +
+  theme(plot.caption = ggtext::element_markdown()) +
+  labs(caption = "Density distribution of vertical diffusivity values for
+       <b style = 'color:orange'>NEMO-MEDUSA</b> and <b style = 'color:blue'>SINMOD</i></b>
+       model outputs at 10m",
+       x= "Vertical diffusivity") +
+   NULL
+
+
+rm(NM, SINMOD)
+```
+
+## Deep convection
+
+```{r extract values, include=FALSE}
+Vert <- list.files("/mnt/idrive/Science/MS/Shared/CAO/mimemo/clipped_medusa/", 
+                   recursive = T, full.names = TRUE, pattern = "grid_W") %>% 
+  .[. %like% "1980"] %>% 
+  future_map2(str_sub(., start = -11, end = -6), 
+              ~{
+    brick(.x, varname = "votkeavt") %>% 
+    as.data.frame(xy = T) %>% 
+    pivot_longer(-c(x,y), names_to = "Depth", values_to = "Diffusivity") %>% 
+    mutate(Depth = as.numeric(str_remove(Depth, "X")),
+           timestep = .y)}) %>% 
+  rbindlist()
+
+setDT(Vert, key = c("x", "y"))
+
+Vert <- Vert[NM_space]
+```
+
+After asking at NOC it looks like these values are used to represent deep covection in the model. When temperatures get very cold the water column becomes unstable and just mixes right the way through from the surface to the seafloor. 0.14 was the maximum value present in SINMOD so for now we use 0.14 as the cutoff threshold to define values representing deep convection. This allows us to see how much of the model output is affected.
+
+
+Below I'm showing the depth profile for an example year (1980) and how deep convection changes through the year. The white line is our currently proposed depth boundary of 60 m. The horizontal area being assessed is shown in grey (this shrinks with depth as the seabed encroaches on the ocean volume. For small areas the proportions can become sensitive).
+
+
+```{r Deep convection}
+Convection_avg <- Vert[Diffusivity != 0, .(Deep = mean(Diffusivity > 0.14), Area = .N), by = .(Depth, timestep)] %>% 
+  mutate(month = as.numeric(str_sub(timestep, -2,-1))) %>% 
+  group_by(month, Depth) %>% 
+  summarise(Area = mean(Area),
+            Deep = mean(Deep)) %>% 
+  ungroup() %>% 
+  mutate(Q = case_when(between(month, 1,3) ~ "Q1",
+                       between(month, 4,6) ~ "Q2",
+                       between(month, 7,9) ~ "Q3",
+                       between(month, 10,12) ~ "Q4"))
+
+ggplot(Convection_avg) + 
+  geom_area(data = filter(Convection_avg, month== 1), aes(x = Depth, y = Area/max(Area)), fill = "grey")  +
+  geom_vline(aes(xintercept = 60), colour = "white", size = 2)  +
+  geom_line(aes(x = Depth, y = Deep, group = month, colour = Q))  +
+  geom_label(aes(label = "Horizontal area", x = 325, y = 0.8), fill = "grey", colour = "white", fontface = "bold") +
+  theme_minimal() +
+  theme(legend.position = "top") +
+  scale_colour_manual(values = c("cyan", "purple", "Red", "orange")) +
+  labs(y = "Proportion of area subject to deep convection",
+       x = "Depth (m)", colour = "Quarter") + 
+  coord_flip() +
+  xlim(400, 0) +
+NULL
+```
+
+As expected deep convection is most noticeable in the shallows and in January:March (Q1) as opposed to July:September (Q3). 60m is free of deep convection in Q3, but for other times of year it looks impossible to avoid the process.
+
+## Vertical diffusivity 
+
+Ignoring deep convection, it is still interesting to see if there are any patterns in vertical diffusivity with depth and time of year. A plot similar to the one above is shown below for mean vertical diffusivity (ignoring deep convection). Because deep convection has been removed you'll notice a different shape to the grey area in the background. We now have the largest amount of data at ~130 m as at depth the seabed encroaches, and in the shallows deep convection is common. 
+
+
+```{r Vertical diffusivity}
+
+Diffusivity_avg <- Vert[Diffusivity != 0 & Diffusivity < 0.14, .(Diffusivity = mean(Diffusivity), Area = .N), by = .(Depth, timestep)] %>% 
+  mutate(month = as.numeric(str_sub(timestep, -2,-1))) %>% 
+  group_by(month, Depth) %>% 
+  summarise(Area = mean(Area),
+            Diffusivity = mean(Diffusivity)) %>% 
+  ungroup() %>% 
+  mutate(Q = case_when(between(month, 1,3) ~ "Q1",
+                       between(month, 4,6) ~ "Q2",
+                       between(month, 7,9) ~ "Q3",
+                       between(month, 10,12) ~ "Q4"))
+
+ggplot(Diffusivity_avg) + 
+geom_area(data = filter(Diffusivity_avg, month== 1), aes(x = Depth, y = Area/max(Area)*max(Diffusivity)), fill = "grey")  +
+  geom_vline(aes(xintercept = 60), colour = "white", size = 2)  +
+  geom_line(aes(x = Depth, y = Diffusivity, group = month, colour = Q))  +
+  geom_label(aes(label = "Horizontal area", x = 325, y = 0.02), fill = "grey", colour = "white", fontface = "bold") +
+  theme_minimal() +
+  theme(legend.position = "top") +
+  scale_colour_manual(values = c("cyan", "purple", "Red", "orange")) +
+  labs(y = "Vertical diffusivity (ignoring deep convection)",
+       x = "Depth (m)", colour = "Quarter") + 
+  coord_flip() +
+  xlim(400, 0) +
+  NULL
+
+```
+
+Again water is more mixed in winter than in summer. 60m looks like a pretty good boundary as values level off afterwards for all times of year.

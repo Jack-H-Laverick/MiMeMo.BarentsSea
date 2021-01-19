@@ -2,7 +2,7 @@
 output: 
 #  html_document:
   md_document:
-    variant: markdown_github
+    variant: gfm
 pagetitle: "Overview"
 ---
 
@@ -46,7 +46,7 @@ library(tidyverse)
 
 # MiMeMo.BarentsSea
 
-This page details at a broad level the code written to extract data and parameterise StrathE2E*Polar* as part of MiMeMo. You can find information on the depedencies, runtimes, and tasks performed by each of the scripts. Scripts are loosely classified into families - *bathymetry* - *fish* - *flows* - *nemo-medusa* - *saltless* - *StrathE2E*. These can all be run from a master script, with a region file allowing the user to define the model domain for data extraction.
+This page details at a broad level the code written to extract data and parameterise StrathE2E*Polar* as part of MiMeMo. You can find information on the depedencies, runtimes, and tasks performed by each of the scripts. Scripts are loosely classified into families -*bathymetry*-*fish*-*flows*-*nemo-medusa*-*saltless*-*StrathE2E*. These can all be run from a master script, with a region file allowing the user to define the model domain for data extraction.
 
 ## Script Objectives {.tabset .tabset-fade .tabset-pills}
 
