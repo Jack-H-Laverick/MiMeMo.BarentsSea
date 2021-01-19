@@ -65,6 +65,9 @@ International <- Non_Russian + Russian                                      # Ge
 
 International_proportion <- t(t(International)/colSums(International))      # Scale as proportions within gears
 
+International_proportion[,"Kelp harvesting"] <- 0                           # We force all kelp harvesting to happen
+International_proportion["Inshore Rock", "Kelp harvesting"] <- 1            # over inshore rock.
+
 heatmap(International_proportion)                                           # Visualise
 
 saveRDS(International_proportion, "./Objects/International effort proportion by gear and habitat.rds")

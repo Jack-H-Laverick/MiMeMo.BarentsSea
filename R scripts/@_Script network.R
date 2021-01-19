@@ -6,7 +6,7 @@ library(tidyverse)                                                         # Ent
 library(visNetwork)
 library(viridis)
 
-Scripts <- list.files("./R scripts",  pattern = ".R", full.names = T) %>%  # Read in all the Rscripts 
+Scripts <- list.files("./R scripts",  pattern = ".R", recursive = T, full.names = T) %>%  # Read in all the Rscripts 
   as.data.frame() %>% 
   filter(!grepl('@|X_|Z_|rayshader|targets', .)) %>%                       # Ignore files labelled in these ways
   mutate(Script = as.character(.)) %>%                                    

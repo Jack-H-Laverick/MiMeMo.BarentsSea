@@ -3,10 +3,10 @@
 
 rm(list=ls())                                                               # Wipe the brain
 
-Packages <- c("nemomedusR", "tidyverse", "furrr")                           # List packages
+Packages <- c("nemomedusR", "tidyverse", "sf", "furrr")                     # List packages
 lapply(Packages, library, character.only = TRUE)                            # Load packages
 
-plan(multiprocess)
+plan(multisession)
 
 domain <- readRDS("./Objects/Domains.rds") %>%                              # Get the horizontal area to extract over 
   select(Shore) %>% 
@@ -23,7 +23,7 @@ Bathymetry <- readRDS("./Objects/Fixed_grid2.rds") %>%                      # Im
   st_drop_geometry() %>%                                                    # Drop sf geometry column 
   select(-c("x", "y"), latitude = Latitude, longitude = Longitude)          # Clean column so the bathymetry is joined by lat/lon
 
-scheme <- scheme_interp_slice(get_spatial(example), target_depth, domain)   # Get a scheme for linear interpolation between 2 depth layers
+scheme <- scheme_interp_slice(get_spatial(example, grid_W = T), target_depth, domain) # Get a scheme for linear interpolation between 2 depth layers
 
 start <- scheme_to_start()                                                  # Get netcdf vectors which define the minimum
 count <- scheme_to_count()                                                  # amount of data to import

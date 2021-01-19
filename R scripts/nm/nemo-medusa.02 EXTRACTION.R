@@ -6,11 +6,11 @@
 
 rm(list=ls())                                                               # Wipe the brain
 
-packages <- c("nemomedusR", "data.table", "furrr", "ncdf4")               # List packages
+packages <- c("nemomedusR", "tidyverse", "data.table", "sf", "tictoc", "furrr", "ncdf4") # List packages
 lapply(packages, library, character.only = TRUE)                            # Load packages
 source("./R scripts/@_Region file.R")                                       # Define project region 
 
-plan(multiprocess)                                                          # Choose the method to parallelise by with furrr
+plan(multisession)                                                          # Choose the method to parallelise by with furrr
 
 all_files <- list.files("/mnt/idrive/Science/MS/Shared/CAO/mimemo/clipped_medusa", recursive = TRUE, full.names = TRUE) %>%
   as.data.frame() %>%                                                       # Turn the vector into a dataframe
@@ -66,7 +66,7 @@ Space$s.weights_W <- get_weights.W(0, 60, bathymetry)                       # An
 Space$d.weights_W <- get_weights.W(60, 400, bathymetry)
 
 Window <- st_join(output, domains) %>% 
-  sfc_as_cols(names = c("x_crs", "y_crs")) %>% 
+  MiMeMo.tools::sfc_as_cols(names = c("x_crs", "y_crs")) %>% 
   st_drop_geometry() %>% 
   filter(between(x_crs, lims[["xmin"]], lims[["xmax"]]) &                   # Clip to plotting window
          between(y_crs, lims[["ymin"]], lims[["ymax"]])) %>%                
@@ -89,9 +89,26 @@ tic("Creating monthly data objects from netcdf files")                     # Tim
  overnight <- all_files %>%
    split(., f = list(.$Month, .$Year)) %>%                                  # Get a DF of file names for each time step to summarise to
    .[sapply(., function(x) dim(x)[1]) > 0] %>%                              # Drop empty dataframes (Months which weren't observed but split introduces)
-  # .[1] %>% 
-   future_map(NEMO_MEDUSA, crop = Window, analysis = "StrathE2E",
+#   .[1429:1440] %>% 
+   future_map(safely(NEMO_MEDUSA), crop = Window, analysis = "StrathE2E",
               summary = output, space = Space, out_dir = "./Objects/Months",
               .progress = T)                                                # Perform the extraction and save an object for each month (in parallel)
  toc()                                                                      # Stop timing
-# 2.15 hours
+
+# 21 hours
+ 
+# saveRDS(overnight, "./Objects/NM-SE2E errors.rds")
+#look <- readRDS("./Objects/NM-SE2E errors.rds") 
+# errors <- map(overnight, `[[`, "error") # select only the error message
+# 
+# errors <- errors[-which(sapply(errors, is.null))] # drop nukks
+# 
+# length(errors)/1440 #43% had errors
+# 
+# problem <- unlist(map(errors, `[[`, "message")) # select only the error message
+# 
+# problem <- unique(unlist(map(errors, `[[`, "message"))) # select only the error message
+
+
+
+
