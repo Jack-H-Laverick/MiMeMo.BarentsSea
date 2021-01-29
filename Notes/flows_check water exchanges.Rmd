@@ -1,21 +1,32 @@
+---
+title: "Checking Water Exchanges Between Model Compartments"
+author: "Jack H Laverick, University of Strathclyde"
+date: "`r format(Sys.time(), '%A %d %b')`"
+output: html_document
+---
 
-## Sense checking the extraction of water fluxes. Do flows in and out of compartments balance? 
-## How big are these fluxes compared to the volume of model compartments? 
-## Which compartments are gaining or losing water?
+```{r, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.align = 'center')
+library(tidyverse)
+library(sf)
 
-#### Set up ####
+```
 
-rm(list=ls())                                                               # Wipe the brain
+## Introduction
 
-Packages <- c("tidyverse", "viridis")                                       # List packages
-lapply(Packages, library, character.only = TRUE)                            # Load packages
+This is a sense check of the extraction of water fluxes. 
 
+- Do flows in and out of compartments balance? 
+- How big are these fluxes compared to the volume of model compartments? 
+- Which compartments are gaining or losing water?
+
+```{r}
 H_Flows <- readRDS("./Objects/H-Flows.rds") 
 
 domains <- readRDS("./Objects/Domains.rds") %>%                             # Calculate the volume of the three zones
   mutate(S = c(T, T),
          D = c(F, T)) %>% 
-  gather(key = "Depth", value = "Exists", S, D) %>% 
+  gather(key = "slab_layer", value = "Exists", S, D) %>% 
   filter(Exists == T) %>%
   mutate(Elevation = Elevation +c(0, 168.2, 60)) %>% 
   mutate(Volume = area * abs(Elevation))
@@ -30,7 +41,7 @@ by_zone <- select(long, -Shore) %>%                                         # Ca
   bind_rows(long) %>%                                                       # Now add in the focal compartments from before (each flow should now be represented twice with an opposite sign per compartment)
   select(-Neighbour) %>% 
   mutate(net = In + Out) %>% 
-  group_by(Depth, Shore, Month, Year) %>% 
+  group_by(slab_layer, Shore, Month, Year) %>% 
   summarise(Net = sum(net), In = sum(In), Out = sum(Out)) %>% 
   ungroup() 
 
@@ -44,7 +55,7 @@ Normalised <- by_zone %>%                                                   # Ho
   mutate(Net = Net/Volume * 100,                                            # Normalise water flux to the volume of the compartment
          In = In/Volume * 100,
          Out = Out/Volume * 100,
-         Compartment = paste(Depth, Shore)) %>% 
+         Compartment = paste(slab_layer, Shore)) %>% 
   mutate(Date = as.Date(paste("15", Month, Year, sep = "/"), format = "%d/%m/%Y"), # Create a single date column for plotting
          Compartment = factor(Compartment, levels = c("S Inshore", "S Offshore", "D Offshore"), # Reorder and rename factor for plotting
                               labels <- c("S Inshore" = "Inshore", "S Offshore" = "Offshore\nShallow", "D Offshore" = "Offshore\nDeep"))) 
@@ -60,16 +71,17 @@ ggplot(Normalised)+
   labs(y = "Volume change",
        caption = "Check the error in sampled water fluxes by compartment" ) +
 NULL
+```
 
-ggsave("./Figures/flows/Volume_diagnostic.png", plot = last_plot(), width = 16, height = 10, units = "cm", dpi = 500)
+```{r, include = FALSE}
 
 #### Checking direction with an example month ####
 
 example <- filter(by_zone, Month == 1 & Year == 1980) %>%   
-  mutate(Compartment = paste(Depth, Shore)) %>% 
+  mutate(Compartment = paste(slab_layer, Shore)) %>% 
   pivot_longer(c("In", "Out"), names_to = "Original", values_to = "Flow") %>% 
   mutate(Direction = ifelse(Flow > 0, "In", "Out")) %>% 
-  select(-c(Original, Shore, Depth)) %>% 
+  select(-c(Original, Shore, slab_layer)) %>% 
   pivot_longer(c(Net, Flow), names_to = "Type", values_to = "Flow") %>%     # Reshape the water exchanges to get net changes per compartment
   mutate(Direction = ifelse(Type == "Net", "Net", Direction)) %>% 
   distinct()
@@ -83,12 +95,15 @@ ggplot(example) +
   scale_fill_manual(values = cols) +
   theme_minimal() +
   NULL
+```
+
+```{r, include = FALSE}
 
 ## Compare Net water movement (error?) to total water flows
 example <- filter(by_zone, Month == 1 & Year == 1980) %>%   
-  mutate(Compartment = paste(Depth, Shore),
+  mutate(Compartment = paste(slab_layer, Shore),
          In = abs(In), Out = abs(Out)) %>% 
-  select(-c(Shore, Depth)) %>% 
+  select(-c(Shore, slab_layer)) %>% 
   mutate(Error = abs(Net), Fluxes = In + Out,
          Compartment = ifelse(Compartment %in% c("D Ocean", "S Ocean"), "Ocean", Compartment)) %>% 
   mutate(Compartment = factor(Compartment, levels = c("S Inshore", "S Offshore", "D Offshore", "Ocean"), # Reorder and rename factor for plotting
@@ -102,3 +117,4 @@ ggplot(example) +
   geom_col(aes(x = Compartment, y = Flow, fill = Metric), position = "Dodge") +
   theme_minimal() +
   NULL
+```
