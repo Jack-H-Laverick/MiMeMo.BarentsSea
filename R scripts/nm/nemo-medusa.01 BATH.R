@@ -12,7 +12,7 @@ source("./R scripts/@_Region file.R")                                       # De
 
 Space <- list.files("/mnt/idrive/Science/MS/Shared/CAO/mimemo/clipped_medusa", recursive = TRUE, full.names = TRUE) %>% 
   .[1] %>%                                                                  # Name an example NM file
-  get_spatial()                                                             # And pull the spatial variables
+  nemomedusR::get_spatial()                                                 # And pull the spatial variables
 
 original <- readRDS("./Objects/Fixed_grid.rds")
 
