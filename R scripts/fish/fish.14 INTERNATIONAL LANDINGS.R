@@ -15,10 +15,6 @@ domain_size <- readRDS("./Objects/Domains.rds") %>%                         # We
   
 Guilds <- unique(read.csv("./Data/MiMeMo fish guilds.csv")$Guild)           # Get vector of guilds
 
-Gears <- unique(read.csv("./Data/MiMeMo gears.csv")$Aggregated_gear)        # Get vector of gears
-
-target <- expand.grid(Guild = Guilds, Aggregated_gear = Gears)              # Get combinations of gear and guild
-
 Inflation <- readRDS("./Objects/ICES landings inflation.rds") %>%           # Rule to convert non-russian to international landings from ICES
   right_join(data.frame(Guild = Guilds)) %>%                                # Introduce missing guilds
   replace_na(replace = list(Inflation = 1)) %>%                             # Any unrepresented guild shouldn't be inflated
