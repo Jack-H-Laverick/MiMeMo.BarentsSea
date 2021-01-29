@@ -31,21 +31,21 @@ Physical_parameters[1,"Value"] <- filter(My_space, Shore == "Offshore", Depth ==
 Physical_parameters[2,"Value"] <- filter(My_space, Shore == "Offshore", Depth == "D")$Elevation * -1 # Offshore_Deep_layer_thickness_(m)
 Physical_parameters[3,"Value"] <- filter(My_space, Shore == "Inshore", Depth == "S")$Elevation * -1  # Inshore_Shallow_layer_thickness_(m)
 
-Physical_parameters[5,"Value"] <- filter(My_areas, Habitat == "Inshore Rock")$Cover    # Area_proportion_of_inshore_rock_habitat_s0_(sum_of_all_8_habitat_areas_must=1)
-Physical_parameters[6,"Value"] <- filter(My_areas, Habitat == "Inshore Silt")$Cover    # Area_proportion_of_inshore_sediment_habitat_s1_(muddy)_(sum_of_all_8_habitat_areas_must=1)
-Physical_parameters[7,"Value"] <- filter(My_areas, Habitat == "Inshore Sand")$Cover    # Area_proportion_of_inshore_sediment_habitat_s2_(sandy)_(sum_of_all_8_habitat_areas_must=1)
-Physical_parameters[8,"Value"] <- filter(My_areas, Habitat == "Inshore Gravel")$Cover  # Area_proportion_of_inshore_sediment_habitat_s3_(gravelly)_(sum_of_all_8_habitat_areas_must=1)
-Physical_parameters[9,"Value"] <- filter(My_areas, Habitat == "Offshore Rock")$Cover   # Area_proportion_of_offshore_rock_habitat_d0_(sum_of_all_8_habitat_areas_must=1)
-Physical_parameters[10,"Value"] <- filter(My_areas, Habitat == "Offshore Silt")$Cover  # Area_proportion_of_offshore_sediment_habitat_d1_(muddy)_(sum_of_all_8_habitat_areas_must=1)
-Physical_parameters[11,"Value"] <- filter(My_areas, Habitat == "Offshore Sand")$Cover  # Area_proportion_of_offshore_sediment_habitat_d2_(sandy)_(sum_of_all_8_habitat_areas_must=1)
-Physical_parameters[12,"Value"] <- filter(My_areas, Habitat == "Offshore Gravel")$Cover# Area_proportion_of_offshore_sediment_habitat_d3_(gravelly)_(sum_of_all_8_habitat_areas_must=1)
+Physical_parameters[5,"Value"] <- filter(My_areas, Habitat == "Inshore Rock")$Cover      # Area_proportion_of_inshore_rock_habitat_s0_(sum_of_all_8_habitat_areas_must=1)
+Physical_parameters[6,"Value"] <- filter(My_areas, Habitat == "Inshore Silt")$Cover      # Area_proportion_of_inshore_sediment_habitat_s1_(muddy)_(sum_of_all_8_habitat_areas_must=1)
+Physical_parameters[7,"Value"] <- filter(My_areas, Habitat == "Inshore Sand")$Cover      # Area_proportion_of_inshore_sediment_habitat_s2_(sandy)_(sum_of_all_8_habitat_areas_must=1)
+Physical_parameters[8,"Value"] <- filter(My_areas, Habitat == "Inshore Gravel")$Cover    # Area_proportion_of_inshore_sediment_habitat_s3_(gravelly)_(sum_of_all_8_habitat_areas_must=1)
+Physical_parameters[9,"Value"] <- filter(My_areas, Habitat == "Offshore Rock")$Cover     # Area_proportion_of_offshore_rock_habitat_d0_(sum_of_all_8_habitat_areas_must=1)
+Physical_parameters[10,"Value"] <- filter(My_areas, Habitat == "Offshore Silt")$Cover    # Area_proportion_of_offshore_sediment_habitat_d1_(muddy)_(sum_of_all_8_habitat_areas_must=1)
+Physical_parameters[11,"Value"] <- filter(My_areas, Habitat == "Offshore Sand")$Cover    # Area_proportion_of_offshore_sediment_habitat_d2_(sandy)_(sum_of_all_8_habitat_areas_must=1)
+Physical_parameters[12,"Value"] <- filter(My_areas, Habitat == "Offshore Gravel")$Cover  # Area_proportion_of_offshore_sediment_habitat_d3_(gravelly)_(sum_of_all_8_habitat_areas_must=1)
 
-Physical_parameters[13,"Value"] <- mean(c(0.0625, 0.00098)) # Inshore_sediment_s1_median_grain_size_(mm). If any of these are set to 0, = Rock
-Physical_parameters[14,"Value"] <- mean(c(2,0.0625))        # Inshore_sediment_s2_median_grain_size_(mm)
-Physical_parameters[15,"Value"] <- 2                        # Inshore_sediment_s3_median_grain_size_(mm)   
-Physical_parameters[16,"Value"] <- mean(c(0.0625, 0.00098)) # Offshore_sediment_d1_median_grain_size_(mm)
-Physical_parameters[17,"Value"] <- mean(c(2,0.0625))        # Offshore_sediment_d2_median_grain_size_(mm)
-Physical_parameters[18,"Value"] <- 2                        # Offshore_sediment_d3_median_grain_size_(mm)
+Physical_parameters[13,"Value"] <- filter(My_sediment, Habitat == "Inshore Silt")$D50    # Inshore_sediment_s1_median_grain_size_(mm). If any of these are set to 0, = Rock
+Physical_parameters[14,"Value"] <- filter(My_sediment, Habitat == "Inshore Sand")$D50    # Inshore_sediment_s2_median_grain_size_(mm)
+Physical_parameters[15,"Value"] <- filter(My_sediment, Habitat == "Inshore Gravel")$D50  # Inshore_sediment_s3_median_grain_size_(mm)   
+Physical_parameters[16,"Value"] <- filter(My_sediment, Habitat == "Offshore Silt")$D50   # Offshore_sediment_d1_median_grain_size_(mm)
+Physical_parameters[17,"Value"] <- filter(My_sediment, Habitat == "Offshore Sand")$D50   # Offshore_sediment_d2_median_grain_size_(mm)
+Physical_parameters[18,"Value"] <- filter(My_sediment, Habitat == "Offshore Gravel")$D50 # Offshore_sediment_d3_median_grain_size_(mm)
 
 Physical_parameters[20,"Value"] <- -0.435                   # Parameter_1_for_relationship_between_porosity_and_grainsize. Values from Matt Pace's thesis
 Physical_parameters[21,"Value"] <- 0.302                    # Parameter_2_for_relationship_between_porosity_and_grainsize. The values are also the defaults in the D50_to_porosity function
