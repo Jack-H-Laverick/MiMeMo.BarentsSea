@@ -1,11 +1,13 @@
-  
+
+# Interpolate the exchange at the vertical boundary from NEMO-MEDUSA model output: Remember to mount the idrive by typing midrive into the Konsole
+# saveRDS("./Objects/vertical boundary/.")  # Marker so network script can see where the data is being saved too, it's buried in a function
+
 #### Setup ####
 
 rm(list=ls())                                                               # Wipe the brain
 
-Packages <- c("nemomedusR", "tidyverse", "sf", "furrr")                     # List packages
-lapply(Packages, library, character.only = TRUE)                            # Load packages
-
+library(MiMeMo.tools)
+library(furrr)                                                              # List packages
 plan(multisession)
 
 domain <- readRDS("./Objects/Domains.rds") %>%                              # Get the horizontal area to extract over 
@@ -52,8 +54,8 @@ W_files <- list.files("/mnt/idrive/Science/MS/Shared/CAO/mimemo/clipped_medusa",
          Month = as.integer(Month)) %>% 
   split(., f = list(.$Month, .$Year))                                       # Get a DF of file names for each time step to summarise to
 
-tictoc::tic()
+tic()
 future_map(W_files, NEMO_MEDUSA, analysis = "slabR",                        # Interpolate grid_W files in paralell
            out_dir = "./Objects/vertical boundary", scheme_w = scheme,
            start_w = start, count_w = count, summary = summary, .progress = T)
-tictoc::toc()
+toc()
