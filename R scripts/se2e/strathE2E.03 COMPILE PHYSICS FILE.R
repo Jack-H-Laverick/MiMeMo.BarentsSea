@@ -15,11 +15,11 @@ My_scale <- readRDS("./Objects/Domains.rds") %>%                            # Ca
   sf::st_drop_geometry() %>% 
   mutate(S = c(T, T),
          D = c(F, T)) %>% 
-  gather(key = "Depth", value = "Exists", S, D) %>% 
+  gather(key = "slab_layer", value = "Exists", S, D) %>% 
   filter(Exists == T) %>%
   mutate(Elevation = c(Elevation[1], -60, Elevation[3] + 60)) %>% 
   mutate(Volume = area * abs(Elevation)) %>% 
-  select(Shore, Depth, Volume)
+  dplyr::select(Shore, slab_layer, Volume)
 
 My_light <- readRDS("./Objects/Air temp and light.rds") %>% 
   filter(between(Year, 2011, 2019), grepl("Light", Type)) %>%               # Limit to reference period and variable
@@ -45,10 +45,10 @@ My_H_Flows <- readRDS("./Objects/H-Flows.rds") %>%
   mutate(Flow = abs(Flow * 86400)) %>%                                      # Multiply for total daily from per second, and correct sign for "out" flows
   arrange(Month)                                                            # Order by month to match template
 
-My_V_Flows <- readRDS("./Objects/V-Flows.rds") %>% 
-  filter(between(Year, 2011, 2019), Flow == "Eddy Diffusivity") %>%         # Limit to reference period
+My_V_Flows <- readRDS("./Objects/vertical diffusivity.rds") %>%
+  filter(between(Year, 2011, 2019)) %>%                                     # Limit to reference period
   group_by(Month) %>% 
-  summarise(Value = mean(as.numeric(Value), na.rm = T)) %>%                 # Average by month across years
+  summarise(V_diff = mean(Vertical_diffusivity, na.rm = T)) %>% 
   ungroup() %>% 
   arrange(Month)                                                            # Order by month to match template
 
@@ -88,11 +88,11 @@ My_Waves <- readRDS("./Objects/Significant wave height.rds") %>%  #*2000 - 2010
 
 Physics_new <- mutate(Physics_template, SLight = My_light$Measured,
                      ## Flows, should be proportions of volume per day
-                     SO_OceanIN = filter(My_H_Flows, Depth == "S", Shore == "Offshore", Neighbour == "Ocean", Direction == "In")$Flow,
-                     D_OceanIN = filter(My_H_Flows, Depth == "D", Shore == "Offshore", Neighbour == "Ocean", Direction == "In")$Flow,
-                     SI_OceanIN = filter(My_H_Flows, Depth == "S", Shore == "Inshore", Neighbour == "Ocean", Direction == "In")$Flow,
-                     SI_OceanOUT = filter(My_H_Flows, Depth == "S", Shore == "Inshore", Neighbour == "Ocean", Direction == "Out")$Flow,
-                     SO_SI_flow = filter(My_H_Flows, Depth == "S", Shore == "Offshore", Neighbour == "Inshore", Direction == "Out")$Flow,
+                     SO_OceanIN = filter(My_H_Flows, slab_layer == "S", Shore == "Offshore", Neighbour == "Ocean", Direction == "In")$Flow,
+                     D_OceanIN = filter(My_H_Flows, slab_layer == "D", Shore == "Offshore", Neighbour == "Ocean", Direction == "In")$Flow,
+                     SI_OceanIN = filter(My_H_Flows, slab_layer == "S", Shore == "Inshore", Neighbour == "Ocean", Direction == "In")$Flow,
+                     SI_OceanOUT = filter(My_H_Flows, slab_layer == "S", Shore == "Inshore", Neighbour == "Ocean", Direction == "Out")$Flow,
+                     SO_SI_flow = filter(My_H_Flows, slab_layer == "S", Shore == "Offshore", Neighbour == "Inshore", Direction == "Out")$Flow,
                      Upwelling = 0, # Nominal value   
                      ## log e transformed suspended particulate matter concentration in zones
                      SO_LogeSPM = log(filter(My_SPM, Shore == "Offshore")$SPM),  
@@ -104,7 +104,7 @@ Physics_new <- mutate(Physics_template, SLight = My_light$Measured,
                      ## River inflow,
                      Rivervol_SI = My_Rivers$Runoff / filter(My_scale, Shore == "Inshore")$Volume, # Scale as proportion of inshore volume
                      ## Vertical diffusivity
-                     log10Kvert = log10(My_V_Flows$Value),
+                     log10Kvert = log10(My_V_Flows$V_diff),
                      mixLscale = mixLscale, # Length scale over which vertical diffusion acts, nominal
                      ## Daily proportion disturbed by natural bed shear stress
                      habS1_pdist = filter(My_Stress, Shore == "Inshore", Habitat == "Silt")$Disturbance, 
