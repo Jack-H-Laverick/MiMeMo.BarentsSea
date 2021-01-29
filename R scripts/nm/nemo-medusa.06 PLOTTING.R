@@ -1,48 +1,30 @@
 
-# readRDS("./Objects/TS.rds")       # Marker so network script can see where the data is coming from
-# readRDS("./Objects/SPATIAL.rds")  # Marker so network script can see where the data is coming from
+## Visualise summarised nemo-medusa model output
 
 #### Set up ####
 
 rm(list=ls(all.names = TRUE))                                               # Wipe the brain
 
-packages <- c("MiMeMo.tools", "furrr", "tictoc", "rnaturalearth")
-lapply(packages, library, character.only = TRUE)                            # Load packages
-source("./R scripts/@_Region file.R")                                       # Define project region 
+library(MiMeMo.tools)
+library(furrr)
+plan(multisession)                                                          # Instructions for parallel processing
 
-plan(multiprocess)                                                          # Set parallel processing
-  
-lines <- readRDS("./Objects/Bathymetry_lines_proj.rds") %>%                 # Read in all the contours
-  filter(level %in% c("-30", "-200", "-1000"))                              # Take contours of interest
+TS <- readRDS("./Objects/TS.rds")                                           # Read in time series
+vars_ts <- c("Ice_pres", "Ice_conc_avg", "Ice_Thickness_avg", "Snow_Thickness_avg", 
+             "Salinity_avg", "Temperature_avg", "DIN_avg", "Detritus_avg", "Phytoplankton_avg") # List of variables to plot   
 
 SP <- readRDS("./Objects/SPATIAL.rds")                                      # Read in spatial data
-TS <- readRDS("./Objects/TS.rds")                                           # Read in time series
-
-world <- ne_countries(scale = "medium", returnclass = "sf") %>%             # Get a world map
-  st_transform(crs = crs)                                                   # Assign polar projection
-
+vars_sp <- str_remove(vars_ts, "_avg") %>%                                  # Tweak the variable names for spatial plots
+  c("Speed")
+  
 #### Plotting ####
     
-vars_ts <- c("Ice_pres", "Ice_conc_avg", "Ice_Thickness_avg", "Snow_Thickness_avg", 
-             "Vertical_diffusivity_avg", "Salinity_avg",
-             "Temperature_avg", "DIN_avg", "Detritus_avg", "Phytoplankton_avg")  # List of variables to plot   
-  
-vars_sp <- str_remove(vars_ts, "_avg")                                      # Tweak the variable names for spatial plots
-
 sapply(vars_ts, ts_plot)                                                    # Save a time series figure for each variable.
 
-tic("Plotting spatial figures")                                             
- future_map2(rep(SP[1:12], each = length(vars_sp)), 
-             rep(vars_sp, times = length(SP)/2), point_plot,
-             zoom = zoom, .progress = TRUE)                                 # Plot spatial maps in parallel
-toc()
-  
-tic("Plotting spatial figures")                                             
-future_map2(rep(SP[13:24], each = length(vars_sp)),                         # I can't run all in one go because I run out of RAM
-            rep(vars_sp, times = length(SP)/2), point_plot, 
-            zoom = zoom, .progress = TRUE)                                  # Plot spatial maps in parallel
-toc()
+future_map2(rep(SP, each = length(vars_sp)),                                # For each decade
+            rep(vars_sp, times = length(SP)), point_plot,                   # And each variable
+            .progress = TRUE)                                               # Plot spatial maps in parallel
 
-tic ("Plotting current figures")
- future_map(SP, stick_plot, zoom = zoom, pre = pre, .progress = TRUE)       # Plot currents in parallel
-toc()
+# tic ("Plotting current figures")
+# furrr::future_map(SP, stick_plot, zoom = zoom, pre = pre, .progress = TRUE)       # Plot currents in parallel
+# toc()
