@@ -15,7 +15,8 @@ V_Flows <- readRDS("./Objects/V-Flows.rds")
 
 #### Combine vertical and horizontal flows ####
 
-Exchanges <- mutate(V_Flows, Value = as.numeric(Value)) %>%  
+#*# It doesn't actually make sense to just add Eddy diffusivity to the plot. They're different units.
+Exchanges <- mutate(V_Flows, Value = as.numeric(Value)) %>%   
   mutate(Direction = ifelse(Value > 0, "In", "Out"),    # Introduce missing columns
          Shore = "Offshore",
          Neighbour = "Offshore (D)",
@@ -25,18 +26,6 @@ Exchanges <- mutate(V_Flows, Value = as.numeric(Value)) %>%
   rename(Flow = Value) %>%                      
   filter(Year == 1980 & Month == 1) %>%                                     # Limit to example month
   bind_rows(H_Flows)                                                        # Combine to horizontal flows
-
-#### Plot vertical currents only ####
-
-# ggplot(TS, aes(x=Date, y= Value)) +
-#   geom_line(size = 0.2) +
-#   geom_smooth(span = 0.008, size = 0.2, se = FALSE) +
-#   facet_grid(Flow ~., scales = "free_y") +
-#   theme_minimal() +
-#   labs(title = "NM time series of vertical currents") +
-#   NULL
-# 
-#  ggsave("./Figures/flows/TS_Vertical currents.png", plot = last_plot(), width = 16, height = 10, units = "cm", dpi = 500)
 
 #### Create network ####
 
