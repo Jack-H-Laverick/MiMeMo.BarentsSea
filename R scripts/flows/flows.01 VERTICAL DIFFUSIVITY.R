@@ -1,24 +1,27 @@
 
+# Summarise the data extracted from NEMO-MEDUSA, dealing with deep convection issues
+# readRDS("./Objects/vertical boundary/.")  # Marker so network script can see where the data is being pulled from
+
 #### Setup ####
 
-rm(list=ls())                                                               # Wipe the brain
+rm(list=ls())                                                                   # Wipe the brain
 
-Packages <- c("tidyverse", "data.table")                                    # List packages
-lapply(Packages, library, character.only = TRUE)                            # Load packages
+Packages <- c("tidyverse", "data.table", "furrr")                               # List packages
+lapply(Packages, library, character.only = TRUE)                                # Load packages
 
-plan(multiprocess)
+plan(multisession)
 
-deep_convection_is <- 0.14                                                  # Threshold above which vertical diffusivity = deep convection
-deep_convection_threshold <- 0.7                                            # How much deep convection means we should trigger total mixing?
-deep_convection_overwrite <- 0.14                                           # What value do we want to represent total mixing in StrathE2E
+deep_convection_is <- 0.14                                                      # Threshold above which vertical diffusivity = deep convection
 
 #### Quantify the amount of deep convection ####
 
-total_mixing <- list.files("./Objects/vertical boundary/", full.names = T) %>% 
+## For more discussion see the appropriate entry in ./Notes
+
+total_mixing <- list.files("./Objects/vertical boundary/", full.names = T) %>%  # Import
   future_map(readRDS) %>% 
   rbindlist() %>% 
-  group_by(Month) %>% 
-  summarise(Deep_convection_proportion = mean(Vertical_diffusivity > deep_convection_is))
+  group_by(Month) %>%                                                                   
+  summarise(Deep_convection_proportion = mean(Vertical_diffusivity > deep_convection_is)) # What proportion of values are deep convection?
 
 ggplot(total_mixing) +
   geom_line(aes(x = Month, y = Deep_convection_proportion)) +
@@ -28,26 +31,13 @@ ggplot(total_mixing) +
 
 #### Mean vertical diffusivity ignoring deep convection ####
 
-normal_mixing <- list.files("./Objects/vertical boundary/", full.names = T) %>% 
+normal_mixing <- list.files("./Objects/vertical boundary/", full.names = T) %>% # Import data
   future_map(readRDS) %>% 
   rbindlist() %>% 
-  filter(Vertical_diffusivity < deep_convection_is) %>% 
-  group_by(Month) %>% 
-  summarise(Vertical_diffusivity = mean(Vertical_diffusivity))
+  select(Vertical_diffusivity, Year, Month) %>%                                 # Discard excess variables
+  filter(Vertical_diffusivity < deep_convection_is) %>%                         # Remove deep convection
+  group_by(Year, Month) %>%                                                     # Create a monthly time series
+  summarise(Vertical_diffusivity = mean(Vertical_diffusivity, na.rm = T)) %>% 
+  ungroup()
 
-ggplot(normal_mixing) +
-  geom_line(aes(x = Month, y = Vertical_diffusivity)) +
-  theme_minimal() +
-  labs(y = "Mean vertical diffusivity (ignoring deep convection)")
-
-#### Modified ####
-
-modified_mixing <- left_join(total_mixing, normal_mixing) %>% 
-  mutate(Vertical_diffusivity = if_else(Deep_convection_proportion > deep_convection_threshold, # Overwrite diffusivity if there's too much deep convection
-                                        deep_convection_overwrite, Vertical_diffusivity))
-
-ggplot(modified_mixing) +
-  geom_line(aes(x = Month, y = Vertical_diffusivity)) +
-  theme_minimal() +
-  labs(y = "Modified vertical diffusivity")
-
+saveRDS(normal_mixing, "./Objects/vertical diffusivity.rds")
