@@ -15,9 +15,9 @@ domain_size <- readRDS("./Objects/Domains.rds") %>%                         # We
   sf::st_area() %>% 
   as.numeric()
 
-IMR <- readRDS("./Objects/IMR absolute fishing effort")                     # Import Norwegian fishing effort        
+IMR <- readRDS("./Objects/IMR absolute fishing effort.rds")                 # Import Norwegian fishing effort        
 
-EU <- readRDS("./Objects/EU absolute fishing effort")                       # Import EU fishing effort
+EU <- readRDS("./Objects/EU absolute fishing effort.rds")                   # Import EU fishing effort
 
 target <- read.csv("./Data/MiMeMo gears.csv") %>%                           # Load fishing gear classifications
   dplyr::select(Aggregated_gear, Gear_type) %>%                             # Select gear names
