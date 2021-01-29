@@ -3,8 +3,8 @@
 
 rm(list=ls())                                                               # Wipe the brain
 
-packages <- c("tidyverse", "sf")                                            # List packages
-lapply(packages, library, character.only = TRUE)                            # Load packages
+library(tidyverse)
+library(sf)
 source("./R scripts/@_Region file.R")                                       # Define project region 
 
 domains <- readRDS("./Objects/Domains.rds") %>%                             # Import domain
