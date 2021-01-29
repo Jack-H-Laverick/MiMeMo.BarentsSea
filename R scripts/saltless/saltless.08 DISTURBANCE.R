@@ -5,7 +5,7 @@
 
 rm(list=ls())
 
-Packages <- c("MiMeMo.tools", "sf", "exactextractr", "raster")             # List packages
+Packages <- c("MiMeMo.tools", "exactextractr", "raster")                   # List packages
 lapply(Packages, library, character.only = TRUE)                           # Load packages
 source("./R scripts/@_Region file.R")
 
@@ -73,14 +73,14 @@ summary <- bind_rows(mobile, rock_summary) %>%                             # Add
   group_by(Month, Habitat, Shore) %>% 
   summarise(Disturbance = mean(Disturbance))                               # Average over months
 
-saveRDS(summary, "./Objects/Habitat disturbance.rds")
+#saveRDS(summary, "./Objects/Habitat disturbance.rds")
 
 ggplot(summary) +
-  geom_line(aes(x = as.numeric(as.factor(Month)), y = Disturbance, colour = Shore, linetype = Habitat)) +
+  geom_line(aes(x = as.numeric(as.factor(Month)), y = Disturbance*100, colour = Shore, linetype = Habitat)) +
   theme_minimal() +
   scale_linetype_manual(values = c("solid", "twodash", "dotted")) +
   scale_x_continuous(breaks = c(0, 3, 6, 9, 12)) +
-  labs(y = "Proportion of time disturbed", x = "Month") +
+  labs(y = "Time disturbed (%)", x = "Month") +
 NULL
 
-ggsave("./Figures/sediment/Habitat disturbance.png", width = 16, height = 8, units = "cm")
+ggsave("./Figures/saltless/Habitat disturbance.png", width = 16, height = 8, units = "cm")

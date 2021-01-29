@@ -62,5 +62,5 @@ ggplot(proportions) +
   viridis::scale_fill_viridis(discrete = T, name = "Sediment class:") +
   labs(y = "Cover (%)", x = NULL, caption = "Percentage of model domain in each habitat class")
 
-ggsave("./Figures/sediment/Habitat types.png", width = 16, height = 8, units = "cm")
+ggsave("./Figures/saltless/Habitat types.png", width = 16, height = 8, units = "cm")
 
