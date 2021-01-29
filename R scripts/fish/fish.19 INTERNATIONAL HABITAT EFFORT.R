@@ -23,8 +23,8 @@ domain_size <- readRDS("./Objects/Domains.rds") %>%                         # We
   sf::st_area() %>% 
   as.numeric()
 
-Non_Russian <- (readRDS("./Objects/IMR absolute fishing effort") +          # Add Norwegian fishing effort        
-  readRDS("./Objects/EU absolute fishing effort")) /                        # to EU fishing effort
+Non_Russian <- (readRDS("./Objects/IMR absolute fishing effort.rds") +      # Add Norwegian fishing effort        
+  readRDS("./Objects/EU absolute fishing effort.rds")) /                    # to EU fishing effort
   365 * 60 / domain_size                                                    # Convert to same units as international landings
 
 #### Get Russian effort only ####
