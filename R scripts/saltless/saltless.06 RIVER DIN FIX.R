@@ -2,7 +2,6 @@
 #### Set up ####
 
 rm(list=ls())                                                               # Wipe the brain
-
 library(MiMeMo.tools)
 library(zoo)
 
@@ -12,7 +11,7 @@ Data <- readxl::read_excel("./Data/River_N/ArcticGRO Water Quality Data.xlsx",
                    sheet = "Ob", skip = 9) %>%                              # Read in data for Ob' river  
   select(3, 21, 23) %>%                                                     # Select date, total DIN, Ammonia
   setNames(c("Date", "TDN", "NH4")) %>% 
-  mutate(NH4 = micro_to_milli(NH4)) %>%                                               # Get both quantities into milligrams
+  mutate(NH4 = micro_to_milli(NH4)) %>%                                     # Get both quantities into milligrams
   mutate(Proportion = NH4/TDN,                                              # Get the proportion of DIN as ammonia
          Month = month.name[lubridate::month(Date)],            
          Year = lubridate::year(Date)) %>%         
@@ -71,25 +70,41 @@ ggplot(Seasonal) +
 
 G_NEWs <- readRDS("./Objects/River DIN.rds")
 
-ggplot() +
+ggplot() +                                                                    #looks reasonable
   geom_line(data = G_NEWs, aes(x = Year, y = `DIN mg.l`)) +
   geom_smooth(data = Data, aes(x = Year, y = TDN), colour = "red", method = "lm") +
   geom_point(data = Data, aes(x = Year, y = TDN), colour = "red") +
   ylim(0, 0.7)
 
+
 #### Impose seasonalitiy on last century ####
 
-G_NEWs <- filter(G_NEWs, Year == 2000)$`DIN mg.l`                             # Get the average domain DIN concentration for a year (ie constant across months)
+# G_NEWs <- filter(G_NEWs, Year == 2000)$`DIN mg.l`                             # Get the average domain DIN concentration for a year (ie constant across months)
+# 
+# fixed <- Seasonal %>% 
+#   mutate(DIN = DIN/mean(DIN)*G_NEWs) %>%                                      # Scale the average DIN from G_NEWs by the seasonal change in DIN from Ob'   
+#   mutate(Ammonia = `NH4/DIN` * DIN,                                           # Get proportion of new DIN as ammonia
+#          Nitrate = (1-`NH4/DIN`) * DIN) %>%                                   # As Nitrate
+#   select(Month, Ammonia, Nitrate)
+# 
+# saveRDS(fixed, "./Objects/River nitrate and ammonia.rds")
+# 
+# ggplot() +
+#   geom_line(data = fixed, aes(x = Month, y = Ammonia), colour = "red") +
+#   geom_line(data = fixed, aes(x = Month, y = Nitrate))
+ 
+#### Decided to just use the Interpolated data directly because G_NEWS isn't in our time range ####
 
-fixed <- Seasonal %>% 
-  mutate(DIN = DIN/mean(DIN)*G_NEWs) %>%                                      # Scale the average DIN from G_NEWs by the seasonal change in DIN from Ob'   
-  mutate(Ammonia = `NH4/DIN` * DIN,                                           # Get proportion of new DIN as ammonia
-         Nitrate = (1-`NH4/DIN`) * DIN) %>%                                   # As Nitrate
+Seasonal <- filter(Interp_gg, between(Date, as.Date("2011-01-01"), as.Date("2019-12-31"))) %>% # Limit to StrathE2E target period
+  mutate(Month = lubridate::month(Date)) %>% 
+  group_by(Month) %>% 
+  summarise(Ammonia = mean(Proportion_INT * TDN_INT, na.rm = T),               # Get proportion of new DIN as ammonia
+            Nitrate = mean((1-Proportion_INT) * TDN_INT, na.rm = T)) %>%       # As Nitrate
+  ungroup() %>% 
   select(Month, Ammonia, Nitrate)
 
-saveRDS(fixed, "./Objects/River nitrate and ammonia.rds")
-
-ggplot() +
-  geom_line(data = fixed, aes(x = Month, y = Ammonia), colour = "red") +
-  geom_line(data = fixed, aes(x = Month, y = Nitrate))
- 
+ggplot(Seasonal) +
+  geom_line(aes(x = Month, y = Ammonia), colour = "red") +
+  geom_line(aes(x = Month, y = Nitrate))
+  
+saveRDS(Seasonal, "./Objects/River nitrate and ammonia.rds")
