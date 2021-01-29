@@ -77,8 +77,8 @@ Inshore_Ocean1 <- matrix(c(16.23, 20.25, 20.25, 16.23, 16.23,    # Longitudes
                            69.9, 68.4, 68.6, 70.1, 69.9), ncol = 2, byrow = F) %>% 
   shape()
 
-Inshore_Ocean2 <- matrix(c(41, 45.3, 45.3, 41, 41,               # Longitudes
-                           66.8, 65.7, 65.3, 66.4, 66.8), ncol = 2, byrow = F) %>% 
+Inshore_Ocean2 <- matrix(c(41, 43, 44.25, 41, 41,               # Longitudes
+                           66.8, 67, 66, 66.4, 66.8), ncol = 2, byrow = F) %>% 
   shape()
 
 Inshore_Ocean3 <- matrix(c(59.5, 55, 55, 59.5, 59.5,             # Longitudes
