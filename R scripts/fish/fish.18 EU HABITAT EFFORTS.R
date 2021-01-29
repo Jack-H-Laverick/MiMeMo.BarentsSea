@@ -61,7 +61,7 @@ tictoc::toc()
 
 #### Absolute effort scaled by proportion of GFW activity in an polygon falling in the model domain ####
 
-EU_effort <- readRDS("./Objects/EU corrected pixel fishing effort") %>% 
+EU_effort <- readRDS("./Objects/EU corrected pixel fishing effort.rds") %>% 
   dplyr::select(effort_contributions, Aggregated_gear, EU_polygon)
 
 #### Scale and sum efforts by habitat type and gear ####
@@ -79,7 +79,7 @@ Absolute_effort_habitats <- left_join(habitat_weights, EU_effort) %>%         # 
   column_to_rownames('Habitat') %>%                                           # Remove character column
   as.matrix() %>%                                                             # Convert to matrix
   .[order(row.names(.)), order(colnames(.))]                                  # Alphabetise rows and columns
-saveRDS(Absolute_effort_habitats, "./Objects/EU absolute habitat effort")     # Save
+saveRDS(Absolute_effort_habitats, "./Objects/EU absolute habitat effort.rds") # Save
 
 heatmap(Absolute_effort_habitats)
 
