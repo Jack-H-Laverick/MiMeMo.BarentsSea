@@ -1,6 +1,5 @@
 ---
-title: "Data Extraction Checks"
-date: "last updated: `r format(Sys.time(), '%A %d %b')`"
+title: "Data Sources for the Parameterisation"
 output:
   html_document:
     css: style.css
@@ -19,10 +18,6 @@ list.files("../Figures/", pattern = ".check.", recursive = T, full.names = T) %>
 <br>
 
 While developing the work-flow to parameterise StrathE2Epolar for MiMeMo, I put in plenty of checks along the way. Just because the code runs error free, it doesn't mean that geographic areas intersect correctly or that the end result isn't just a garbled mess of NAs. 
-
-Inspecting these checks for the Barents Sea was easy, I just looked at the results as I went, running one script at a time. Once I was confident individual scripts were working I could run multiple at once while away from the machine using my batch script. When I did this, I no longer saw the results of the checks. This didn't matter as I was confident in the code, but what happens when we try to apply this to a different area? I can't be sure things are perfect when running code for a new region.  
-
-The solution was to save out the checks for inspection after the code completes. Wading through a directory of images wasn't very fun, and required me to remember what's going on with each image. I created this page to collect all of my checks and organise them by script. This allows me to write notes about what each check is meant to do, and automatically updates when building th site. 
 
 <br>
 

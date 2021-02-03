@@ -1,17 +1,53 @@
 ---
-title: "MiMeMo Project Notes"
-date: "last updated: `r format(Sys.time(), '%A %d %b')`"
+title: "Exploratory Project Notes"
 output:
   html_document:
-    css: style.css
+    css: note.css
 ---
 
 <br>
 
-While developing the work-flow to parameterise StrathE2Epolar for MiMeMo, I put in plenty of checks along the way. Just because the code runs error free, it doesn't mean that geographic areas intersect correctly or that the end result isn't just a garbled mess of NAs. 
+While developing the code for summarising data sources, occasionally exploratory analyses were required. It was quite easy to lose these ad hoc scripts, and sifting through them was slow. This page brings the analyses together, with links to access the cached results.
 
 <br>
 
-[Example note](./domain_choose-horizontal-extent.html)
+The notes are organised by the code family they belong to.
 
-did the caching work?
+<br>
+
+## bathymetry
+
+<div class="square"> [Choosing the horizontal extent of the model domain](./domain_choose-horizontal-extent.html) </div>
+<div class="square"> [Choosing the boundary depth between the shallow and deep layers](./domain_choose-vertical-boundary.html) </div>
+
+<br><br>
+
+## nemo-medusa
+
+<div class="square"> [Looking for threshold values in sea-ice concentration](./domain_choose-horizontal-extent.html) </div>
+
+<br><br>
+
+## flows
+
+<div class="square"> [Checking how well water exchanges balance](./flows_check-water-exchanges.html) </div>
+
+<br><br>
+
+## fish
+
+<div class="square"> [Grouping fishing gears for StrathE2E](./fish_How-do-we-group-fishing-gears.html) </div>
+<div class="square"> [Visualing fishing activity](./fish_Most-fishing-is-inshore.html) </div>
+
+<br><br>
+
+## saltless
+
+<div class="square"> [Ground truthing light conversions from W to e](./domain_choose-horizontal-extent.html) </div> 
+<div class="square"> [Choosing which river nutrient source to use](./domain_choose-horizontal-extent.html) </div>
+
+<br><br>
+
+## strathe2e
+
+No notes on these just yet!

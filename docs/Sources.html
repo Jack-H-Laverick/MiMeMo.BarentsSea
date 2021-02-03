@@ -11,7 +11,7 @@
 
 
 
-<title>Exploratory Project Notes</title>
+<title>Data Sources for the Parameterisation</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -80,7 +80,7 @@ h6 {
 </style>
 
 
-<link rel="stylesheet" href="note.css" type="text/css" />
+<link rel="stylesheet" href="style.css" type="text/css" />
 
 
 
@@ -352,63 +352,165 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">Exploratory Project Notes</h1>
+<h1 class="title toc-ignore">Data Sources for the Parameterisation</h1>
 
 </div>
 
 
 <p><br></p>
-<p>While developing the code for summarising data sources, occasionally exploratory analyses were required. It was quite easy to lose these ad hoc scripts, and sifting through them was slow. This page brings the analyses together, with links to access the cached results.</p>
+<p>While developing the work-flow to parameterise StrathE2Epolar for MiMeMo, I put in plenty of checks along the way. Just because the code runs error free, it doesn’t mean that geographic areas intersect correctly or that the end result isn’t just a garbled mess of NAs.</p>
 <p><br></p>
-<p>The notes are organised by the code family they belong to.</p>
-<p><br></p>
-<div id="bathymetry" class="section level2">
-<h2>bathymetry</h2>
-<div class="square">
-<a href="./domain_choose-horizontal-extent.html">Choosing the horizontal extent of the model domain</a>
+<div id="choose-a-code-family-and-a-script-to-check" class="section level2 tabset tabset-pills tabset-fade">
+<h2>Choose a code family and a script to check</h2>
+<div id="bathymetry" class="section level3 tabset tabset-pills tabset-fade">
+<h3>bathymetry</h3>
+<div id="script-one" class="section level4">
+<h4>Script one</h4>
+<p><br> <br> <br> <br></p>
+<div class="hi-light">
+<strong>Bathymetry scripts are responsible for defining the model domain.</strong>
 </div>
-<div class="square">
-<a href="./domain_choose-vertical-boundary.html">Choosing the boundary depth between the shallow and deep layers</a>
+<p>Script one reduces the resolution of the GEBCO bathymetry to make things tractable.</p>
+<p>The only test is to make sure the global bathymetry still looks right. Check things like orientation.</p>
+<p><img src="Sources_files/figure-html/unnamed-chunk-1-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
-<p><br><br></p>
+<div id="script-two" class="section level4">
+<h4>Script two</h4>
+<p><img src="Sources_files/figure-html/unnamed-chunk-2-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
-<div id="nemo-medusa" class="section level2">
-<h2>nemo-medusa</h2>
-<div class="square">
-<a href="./domain_choose-horizontal-extent.html">Looking for threshold values in sea-ice concentration</a>
+<div id="script-three" class="section level4">
+<h4>Script three</h4>
+<p><img src="Sources_files/figure-html/unnamed-chunk-3-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
-<p><br><br></p>
 </div>
-<div id="flows" class="section level2">
-<h2>flows</h2>
-<div class="square">
-<a href="./flows_check-water-exchanges.html">Checking how well water exchanges balance</a>
+<div id="nemo-medusa" class="section level3 tabset tabset-pills tabset-fade">
+<h3>nemo-medusa</h3>
+<div id="script-one-1" class="section level4">
+<h4>Script one</h4>
+<p><br> <br> <br> <br></p>
+<div class="hi-light">
+<strong>nemo-medusa scripts summarise nemo-medusa model output over the StarthE2E domain.</strong>
 </div>
-<p><br><br></p>
+<p>Script one reduces the resolution of the GEBCO bathymetry to make things tractable.</p>
+<p>The only test is to make sure the global bathymetry still looks right. Check things like orientation.</p>
+<p><img src="Sources_files/figure-html/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
-<div id="fish" class="section level2">
-<h2>fish</h2>
-<div class="square">
-<a href="./fish_How-do-we-group-fishing-gears.html">Grouping fishing gears for StrathE2E</a>
+<div id="script-two-1" class="section level4">
+<h4>Script two</h4>
+<p><img src="Sources_files/figure-html/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
-<div class="square">
-<a href="./fish_Most-fishing-is-inshore.html">Visualing fishing activity</a>
+<div id="script-three-1" class="section level4">
+<h4>Script three</h4>
+<p><img src="Sources_files/figure-html/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
-<p><br><br></p>
 </div>
-<div id="saltless" class="section level2">
-<h2>saltless</h2>
-<div class="square">
-<a href="./domain_choose-horizontal-extent.html">Ground truthing light conversions from W to e</a>
+<div id="flows" class="section level3 tabset tabset-pills tabset-fade">
+<h3>flows</h3>
+<div id="script-one-2" class="section level4">
+<h4>Script one</h4>
+<p><br> <br> <br> <br></p>
+<div class="hi-light">
+<strong>flow scripts summarise compartment water exchanges and boundary conditions.</strong>
 </div>
-<div class="square">
-<a href="./domain_choose-horizontal-extent.html">Choosing which river nutrient source to use</a>
+<p>Script one reduces the resolution of the GEBCO bathymetry to make things tractable.</p>
+<p>The only test is to make sure the global bathymetry still looks right. Check things like orientation.</p>
+<p><img src="Sources_files/figure-html/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
-<p><br><br></p>
+<div id="script-two-2" class="section level4">
+<h4>Script two</h4>
+<p><img src="Sources_files/figure-html/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
-<div id="strathe2e" class="section level2">
-<h2>strathe2e</h2>
-<p>No notes on these just yet!</p>
+<div id="script-three-2" class="section level4">
+<h4>Script three</h4>
+<p><img src="Sources_files/figure-html/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+</div>
+<div id="fish" class="section level3 tabset tabset-pills tabset-fade">
+<h3>fish</h3>
+<div id="script-one-3" class="section level4">
+<h4>Script one</h4>
+<p><br> <br> <br> <br></p>
+<div class="hi-light">
+<strong>fish scripts are responsible for parameterising the fishing fleet model.</strong>
+</div>
+<p>Script one reduces the resolution of the GEBCO bathymetry to make things tractable.</p>
+<p>The only test is to make sure the global bathymetry still looks right. Check things like orientation.</p>
+<p><img src="Sources_files/figure-html/unnamed-chunk-10-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="script-two-3" class="section level4">
+<h4>Script two</h4>
+<p><img src="Sources_files/figure-html/unnamed-chunk-11-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="script-three-3" class="section level4">
+<h4>Script three</h4>
+<p><img src="Sources_files/figure-html/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+</div>
+<div id="saltless" class="section level3 tabset tabset-pills tabset-fade">
+<h3>saltless</h3>
+<div id="script-one-4" class="section level4">
+<h4>Script one</h4>
+<p><br> <br> <br> <br></p>
+<div class="hi-light">
+<strong>saltless scripts summarise atmospheric, freshwater, and sedimentary data.</strong>
+</div>
+<p>Script one reduces the resolution of the GEBCO bathymetry to make things tractable.</p>
+<p>The only test is to make sure the global bathymetry still looks right. Check things like orientation.</p>
+<p><img src="Sources_files/figure-html/unnamed-chunk-13-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="script-two-4" class="section level4">
+<h4>Script two</h4>
+<p><img src="Sources_files/figure-html/unnamed-chunk-14-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="script-three-4" class="section level4">
+<h4>Script three</h4>
+<p><img src="Sources_files/figure-html/unnamed-chunk-15-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="script-four" class="section level4">
+<h4>Script four</h4>
+<p><br> <br> <br> <br></p>
+<div class="hi-light">
+<strong>saltless scripts summarise atmospheric, freshwater, and sedimentary data.</strong>
+</div>
+<p>Script four summarises the freshwater volume contributed to the StrathE2E model domain from rivers.</p>
+<p>TEST 1: Check whether the model domain polygon overlaps the points in the river data we want.</p>
+<p><img src='man/figures/saltless.check.04.1.png' align="centre" width="100%" /></p>
+<p><br> <br></p>
+<p>TEST 2: Check whether the nemo-medusa model grid has been corectly built with the voronoi tesselation. The cells should look pretty uniform.</p>
+<p><br> <br></p>
+<p><img src='man/figures/saltless.check.04.2.png' align="centre" width="100%" /></p>
+<p><br> <br></p>
+<p>TEST 3: Does taking the mean of the cell area accurately reflect the modal cell area? Cells on the nemo-medusa grid should be roughly equal in area. Slight differences mean taking the mode won’t neccessarily return a central value, so the mean is safer if this works.</p>
+<p><br> <br></p>
+<p><img src='man/figures/saltless.check.04.3.png' align="centre" width="100%" /></p>
+<p><br> <br></p>
+<p>TEST 4: Did we successfully generate a time series? It’s possible if the script errored somewhere or returned NAs that this is just blank.</p>
+<p><br> <br></p>
+<p><img src='man/figures/saltless.check.04.4.png' align="centre" width="100%" /></p>
+<p><br> <br></p>
+</div>
+</div>
+<div id="strathe2e" class="section level3 tabset tabset-pills tabset-fade">
+<h3>strathe2e</h3>
+<div id="script-one-5" class="section level4">
+<h4>Script one</h4>
+<p><br> <br> <br> <br></p>
+<div class="hi-light">
+<strong>strathe2e scripts compile data summaries into driving files.</strong>
+</div>
+<p>Script one reduces the resolution of the GEBCO bathymetry to make things tractable.</p>
+<p>The only test is to make sure the global bathymetry still looks right. Check things like orientation.</p>
+<p><img src="Sources_files/figure-html/unnamed-chunk-16-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="script-two-5" class="section level4">
+<h4>Script two</h4>
+<p><img src="Sources_files/figure-html/unnamed-chunk-17-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="script-three-5" class="section level4">
+<h4>Script three</h4>
+<p><img src="Sources_files/figure-html/unnamed-chunk-18-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+</div>
 </div>
 
 

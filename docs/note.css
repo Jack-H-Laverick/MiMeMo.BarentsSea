@@ -12,22 +12,7 @@ body {font-family: 'Jura';}
 
 /* The .prefix means you are changing a class */
 
-.uri {color: red;}  /* Change hyperlink colour */
-
 .main-container {max-width: 85%;} /* Change how much of the page is used */
-
-/* You can define your own class and add it in the Rmarkdown document */
-
-.hi-light {
-  text-align: center;
-  font-size: 15px;
-  color: white;
-  background-image: linear-gradient(45deg, var(--grad-col-1), var(--grad-col-2));
-  border-radius: 16px;
-  padding: 5px;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.25);
-  margin-bottom: 20px;
-}
 
 /* You can define variables for repeated use */
 
@@ -52,55 +37,18 @@ h1, h2, .author, .date {
 
 h1.title {font-size: 30px;}
 
-h2 {font-size: 22px;}
+h2 {font-size: 22px;
+  margin-top: 100px;
+}
 
 .date{font-size: 17px;}
 
-/* Formatting table of contents.
-You can modify based on special conditions, like hovering and active */
-
-#TOC {
-  opacity: 0.8;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.25);
-}
-#TOC:hover {opacity: 1;}
-
-.list-group-item {
-  background-color: #fff0;}
-
-.list-group-item.active, .list-group-item.active:focus, 
-.list-group-item.active:hover {
-  background-image: linear-gradient(45deg, #ff8a00, #e52e71);
-  color: white;
-}
-  
 /* Formatting buttons. 
 # indicates an id.
 > allows you to acces child elements, so I can style the positioning 
 of the top level menu and then each tab underneath it separately*/
 
-#choose-a-code-family-and-a-script-to-check>ul {
-    display: block;
-    margin-block-start: 1em;
-    margin-block-end: 1em;
-    float: none;
-  position: absolute;
-  left: 50%;
-  transform: translate(-50%, -30%);
-}
-
-#bathymetry>ul, #saltless>ul,#fish>ul,
-#flows>ul, #nemo-medusa>ul, #strathe2e>ul {
-    display: block;
-    margin-block-start: 1em;
-    margin-block-end: 1em;
-    float: none;
-  position: absolute;
-  left: 50%;
-  transform: translate(-50%, 30%);
-}
-
-.nav-pills>li>a {
+.square {
   color: black;
   border-radius: 16px;
   padding: 10px;
@@ -108,10 +56,10 @@ of the top level menu and then each tab underneath it separately*/
   margin-right: 10px;
   margin-top: 10px;
   margin-bottom: 10px;
+  align-items: center;
 }
 
-.nav-pills>li.active>a, .nav-pills>li.active>a:focus, 
-.nav-pills>li.active>a:hover {
+.square:hover {
   background-image: linear-gradient(45deg, var(--grad-col-1), var(--grad-col-2));
   color: white;
   border-radius: 16px;
@@ -119,3 +67,29 @@ of the top level menu and then each tab underneath it separately*/
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.25);
 }
 
+.square>a {
+  background:
+     linear-gradient(
+       to right,
+       var(--grad-col-1) 0%,
+       var(--grad-col-1) 5px,
+       transparent 5px
+     );
+  background-repeat: repeat-x;
+  background-size: 100%;
+  color: #000;
+  padding-left: 10px;
+  text-decoration: none;
+  border-radius: 16px;
+}
+
+.square>a:hover {
+  background:
+     linear-gradient(
+       to right,
+       white 0%,
+       white 5px,
+       transparent
+     );
+  border-radius: 16px;
+}

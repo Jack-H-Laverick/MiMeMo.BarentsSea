@@ -6,11 +6,9 @@ it can span multiple lines */
 The how to was here https://rstudio4edu.github.io/rstudio4edu-book/doc-fancy.html */
 
 @import url('https://fonts.googleapis.com/css2?family=Jura:wght@500;700&display=swap');
-body {font-family: 'Jura';}
-
-/* Now a font for headings.*/
-
 @import url('https://fonts.googleapis.com/css2?family=Syncopate&display=swap');
+
+body {font-family: 'Jura';}
 
 /* The .prefix means you are changing a class */
 

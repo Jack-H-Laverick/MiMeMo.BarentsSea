@@ -1,6 +1,10 @@
 ---
-output: html_document
-pagetitle: "Overview"
+title: "Code Dependencies and Runtimes"
+date: "last updated: `r format(Sys.time(), '%A %d %b')`"
+output:
+  html_document:
+    css: style.css
+
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -13,8 +17,6 @@ knitr::opts_chunk$set(
   out.width = "100%"
 )
 ```
-
-# MiMeMo.EastGreenlandShelf
 
 Code to process raw data from the East Greenland Shelf for StrathE2E Polar
 

@@ -11,7 +11,7 @@
 
 
 
-<title>MiMeMo Data Extraction Checks</title>
+<title>Data Extraction Checks</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -291,24 +291,31 @@ $(document).ready(function () {
   </a>
 </li>
 <li>
+  <a href="Sources.html">
+    <span class="fas fa-cart-arrow-down"></span>
+     
+    Sources
+  </a>
+</li>
+<li>
   <a href="overview.html">
     <span class="fas fa-project-diagram"></span>
      
-    Code overview
+    Code
   </a>
 </li>
 <li>
   <a href="Checks.html">
     <span class="fas fa-check-square"></span>
      
-    Code checks
+    Checks
   </a>
 </li>
 <li>
   <a href="Notes.html">
     <span class="fas fa-clipboard"></span>
      
-    Project notes
+    Notes
   </a>
 </li>
       </ul>
@@ -318,14 +325,21 @@ $(document).ready(function () {
 </li>
 <li>
   <a href="https://jack-h-laverick.github.io/MiMeMo.tools/">
-    <span class="fas fa-screwdriver fa-lg"></span>
+    <span class="fas fa-cube fa-lg"></span>
      
     MiMeMo.tools
   </a>
 </li>
 <li>
+  <a href="https://jack-h-laverick.github.io/nemomedusR/">
+    <span class="fas fa-cube fa-lg"></span>
+     
+    nemomedusR
+  </a>
+</li>
+<li>
   <a href="https://github.com/Jack-H-Laverick/MiMeMo.BarentsSea">
-    <span class="fas fa-github fa-lg"></span>
+    <span class="fas fa-github-square"></span>
      
   </a>
 </li>
@@ -338,7 +352,7 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">MiMeMo Data Extraction Checks</h1>
+<h1 class="title toc-ignore">Data Extraction Checks</h1>
 <h4 class="date">last updated: Wednesday 03 Feb</h4>
 
 </div>
@@ -347,7 +361,7 @@ $(document).ready(function () {
 <p><br></p>
 <p>While developing the work-flow to parameterise StrathE2Epolar for MiMeMo, I put in plenty of checks along the way. Just because the code runs error free, it doesn’t mean that geographic areas intersect correctly or that the end result isn’t just a garbled mess of NAs.</p>
 <p>Inspecting these checks for the Barents Sea was easy, I just looked at the results as I went, running one script at a time. Once I was confident individual scripts were working I could run multiple at once while away from the machine using my batch script. When I did this, I no longer saw the results of the checks. This didn’t matter as I was confident in the code, but what happens when we try to apply this to a different area? I can’t be sure things are perfect when running code for a new region.</p>
-<p>The solution was to save out the checks for inspection after the code completes. Wading through a directory of images wasn’t very fun, and required me to remember what’s going on with each image. I created this page to collect all of my checks and organise them by script. This allows me to write notes about what each check is meant to do, and can be automatically updated by knitting the Rmarkdown document.</p>
+<p>The solution was to save out the checks for inspection after the code completes. Wading through a directory of images wasn’t very fun, and required me to remember what’s going on with each image. I created this page to collect all of my checks and organise them by script. This allows me to write notes about what each check is meant to do, and automatically updates when building th site.</p>
 <p><br></p>
 <div id="choose-a-code-family-and-a-script-to-check" class="section level2 tabset tabset-pills tabset-fade">
 <h2>Choose a code family and a script to check</h2>

@@ -2,7 +2,9 @@
 title: "Choosing horizontal domain extent"
 author: "Jack H Laverick, University of Strathclyde"
 date: "last updated: `r format(Sys.time(), '%A %d %b')`"
-output: html_document
+output: 
+  html_document:
+    css: note.css
 ---
 
 ```{r setup, include=FALSE}

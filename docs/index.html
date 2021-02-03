@@ -22,10 +22,6 @@
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
-<script src="site_libs/htmlwidgets-1.5.3/htmlwidgets.js"></script>
-<link href="site_libs/vis-4.20.1/vis.css" rel="stylesheet" />
-<script src="site_libs/vis-4.20.1/vis.min.js"></script>
-<script src="site_libs/visNetwork-binding-2.0.9/visNetwork.js"></script>
 <link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
 <link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
 
@@ -84,6 +80,7 @@ h6 {
 </style>
 
 
+<link rel="stylesheet" href="style.css" type="text/css" />
 
 
 
@@ -294,24 +291,31 @@ $(document).ready(function () {
   </a>
 </li>
 <li>
+  <a href="Sources.html">
+    <span class="fas fa-cart-arrow-down"></span>
+     
+    Sources
+  </a>
+</li>
+<li>
   <a href="overview.html">
     <span class="fas fa-project-diagram"></span>
      
-    Code overview
+    Code
   </a>
 </li>
 <li>
   <a href="Checks.html">
     <span class="fas fa-check-square"></span>
      
-    Code checks
+    Checks
   </a>
 </li>
 <li>
   <a href="Notes.html">
     <span class="fas fa-clipboard"></span>
      
-    Project notes
+    Notes
   </a>
 </li>
       </ul>
@@ -321,14 +325,21 @@ $(document).ready(function () {
 </li>
 <li>
   <a href="https://jack-h-laverick.github.io/MiMeMo.tools/">
-    <span class="fas fa-screwdriver fa-lg"></span>
+    <span class="fas fa-cube fa-lg"></span>
      
     MiMeMo.tools
   </a>
 </li>
 <li>
+  <a href="https://jack-h-laverick.github.io/nemomedusR/">
+    <span class="fas fa-cube fa-lg"></span>
+     
+    nemomedusR
+  </a>
+</li>
+<li>
   <a href="https://github.com/Jack-H-Laverick/MiMeMo.BarentsSea">
-    <span class="fas fa-github fa-lg"></span>
+    <span class="fas fa-github-square"></span>
      
   </a>
 </li>
@@ -345,78 +356,56 @@ $(document).ready(function () {
 </div>
 
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
-<p><img src='man/figures/Rayshade.png' align="centre" width="100%" /></p>
-<p>Code to process raw data from the East Greenland Shelf for StrathE2E Polar</p>
-<p>This page details at a broad level the code written to extract data and parameterise StrathE2E<em>Polar</em> as part of MiMeMo. You can find information on the depedencies, runtimes, and tasks performed by each of the scripts. Scripts are loosely classified into families - <em>bathymetry</em> - <em>fish</em> - <em>flows</em> - <em>NM</em> - <em>Sediment</em> - <em>StrathE2E</em>. These can all be run from a master script, with a region file allowing the user to define the model domain for data extraction.</p>
-<div id="script-dependencies" class="section level2">
-<h2>Script dependencies</h2>
-<p>The widget below illustrates the hierarchy for MiMeMo scripts. It’s interactive, so feel free to zoom in, drag the view, and highlight a script by clicking on a node. You can also move the nodes. When a script is highlighted, so are others within 1 degree of separation (scripts immediately upstream and downstream in the pipeline). You can also highlight a specific script from the drop down menu. Nodes are colour coded by family, and layers in the hierarchy indicate how many scripts must be run in advance. The network is created programmaticaly by looking for objects across all scripts present in both a <code>saveRDS</code> and <code>readRDS</code> call.</p>
-<div id="htmlwidget-c87220e9a842632bf2f6" style="width:100%;height:800px;" class="visNetwork html-widget"></div>
-<script type="application/json" data-for="htmlwidget-c87220e9a842632bf2f6">{"x":{"nodes":{"id":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54],"label":["bathymetry.01 DATA WRANGLING.R","bathymetry.02 PLOTTING.R","bathymetry.03 DOMAIN CHOICES.R","bathymetry.04 DEFINE DOMAIN.R","fish.0 MiMeMo GUILDS.R","fish.01 FAO REGIONS.R","fish.02 ICES.R","fish.03 GFW WRANGLING.R","fish.04 GFW FRESH FIGURE.R","fish.05 GFW PLOTTING.R","fish.06 IMR TABLES.R","fish.07 IMR GUILDS.R","fish.08 GFW TO NETCDF.R","fish.09 GFW EFFORT PROPORTIONS.R","fish.10 ICES LANDINGS PROPORTIONS.R","fish.11 IMR TRENDS.R","fish.12 EU LANDINGS.R","fish.12 IMR EFFORT AND LANDINGS.R","fish.13 INTERNATIONAL LANDINGS.R","fish.14 EU EFFORT.R","fish.15 INTERNATIONAL EFFORT.R","fish.16 IMR HABITAT EFFORTS.R","fish.17 EU HABITAT EFFORTS.R","fish.18 INTERNATIONAL HABITAT EFFORT.R","flows.01 VC-EXTRACTION.R","flows.02 MAKE TRANSECTS.R","flows.03 LABEL TRANSECTS.R","flows.04 SAMPLE PERIMETER.R","flows.05 SAMPLE FLUXES.R","flows.06 VOLUME CHECK.R","flows.07 PLOT EXCHANGES.R","flows.08 WAVES.R","nemo-medusa.01 GRID.R","nemo-medusa.02 EXTRACTION.R","nemo-medusa.02 general.R","nemo-medusa.03 SPATIAL.R","nemo-medusa.04 TIME SERIES.R","nemo-medusa.05 PLOTTING.R","nemo-medusa.06 LIGHT AND TEMP.R","saltless.01 ATMOSPHERE.R","saltless.02 RIVER VOLUMES.R","saltless.03 RIVER N CONCENTRATION.R","saltless.04 RIVER DIN FIX.R","saltless.05 SPM.R","saltless.06 HABITAT TYPES.R","saltless.07 DISTURBANCE.R","saltless.08 OTHER SEDIMENT SUMMARIES.R","strathE2E.00 QUICKSTART.R","strathE2E.01 DIN FIX.R","strathE2E.01 INITIALISE MODEL.R","strathE2E.02 COMPILE BOUNDARY FILE.R","strathE2E.03 COMPILE PHYSICS FILE.R","strathE2E.04 COMPILE PHYSICAL PARAMETERS.R","strathE2E.05 MODEL CLEANUP.R"],"group":["bathymetry","bathymetry","bathymetry","bathymetry","fish","fish","fish","fish","fish","fish","fish","fish","fish","fish","fish","fish","fish","fish","fish","fish","fish","fish","fish","fish","flows","flows","flows","flows","flows","flows","flows","flows","nemo-medusa","nemo-medusa","nemo-medusa","nemo-medusa","nemo-medusa","nemo-medusa","nemo-medusa","saltless","saltless","saltless","saltless","saltless","saltless","saltless","saltless","strathE2E","strathE2E","strathE2E","strathE2E","strathE2E","strathE2E","strathE2E"],"level":[1,2,2,3,1,1,1,2,4,3,1,1,1,5,1,1,4,4,5,4,4,5,5,5,4,4,5,6,6,7,7,4,2,4,4,5,5,6,4,4,4,4,5,4,4,5,5,1,4,1,7,7,6,1]},"edges":{"Object":["/Objects/Bathymetry_lines","/Objects/Bathymetry_lines","/Objects/Bathymetry_points","/Objects/Bathymetry_points","/Objects/Bathymetry_points","/Objects/Bathymetry_points","/Objects/Bathymetry_lines_proj","/Objects/Bathymetry and distance from shore","/Objects/Domains","/Objects/Domains","/Objects/Domains","/Objects/Domains","/Objects/Domains","/Objects/Domains","/Objects/Domains","/Objects/Domains","/Objects/Domains","/Objects/Domains","/Objects/Domains","/Objects/Domains","/Objects/Domains","/Objects/Domains","/Objects/Domains","/Objects/Domains","/Objects/Domains","/Objects/Domains","/Objects/Domains","/Objects/Domains","/Objects/Domains","/Objects/Domains","/Objects/Domains","/Objects/FAO","/Objects/FAO","/Objects/Seasonal","/Objects/Seasonal","/Objects/Regional_ts","/Objects/ICES landings inflation","/Objects/EU landings by gear and guild","/Objects/IMR regional absolute effort and landings","/Objects/IMR landings by gear and guild","/Objects/International effort by gear","/Objects/V-Flows","/Objects/V-Flows","/Objects/Split_boundary","/Objects/Boundary_transects","/Objects/Boundary_transects","/Objects/Boundary measurements","/Objects/H-Flows","/Objects/H-Flows","/Objects/H-Flows","/Objects/Significant wave height","/Objects/Fixed_grid","/Objects/Fixed_grid","/Objects/Fixed_grid","/Objects/Fixed_grid","/Objects/Fixed_grid","/Objects/Fixed_grid","/Objects/Months","/Objects/Months","/Objects/Months","/Objects/Months","/Objects/SPATIAL","/Objects/TS","/Objects/TS","/Objects/Air temp and light","/Objects/Atmospheric N deposition","/Objects/River volume input","/Objects/River DIN","/Objects/River nitrate and ammonia","/Objects/Suspended particulate matter","/Objects/Habitats","/Objects/Habitats","/Objects/Habitats","/Objects/Habitats","/Objects/Habitats","/Objects/Habitats","/Objects/Sediment area proportions","/Objects/Habitat disturbance","/Objects/Other habitat parameters","/Objects/Ammonia to DIN"],"from":[1,1,1,1,1,1,2,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,6,6,8,8,8,15,17,18,18,21,25,25,26,27,27,28,29,29,29,32,33,33,33,33,33,33,34,34,35,35,36,37,37,39,40,41,42,43,44,45,45,45,45,45,45,45,46,47,49],"to":[2,10,2,3,4,33,38,4,9,17,18,19,20,21,22,25,26,27,30,32,34,35,39,40,41,42,44,45,49,52,53,8,10,9,10,10,19,19,22,19,24,31,52,27,28,29,51,30,31,52,52,25,27,28,29,34,35,36,37,36,37,38,38,52,52,51,52,43,51,52,14,22,23,24,46,47,53,52,53,51],"arrows":["middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle","middle"]},"nodesToDataframe":true,"edgesToDataframe":true,"options":{"width":"100%","height":"100%","nodes":{"shape":"dot"},"manipulation":{"enabled":false},"layout":{"hierarchical":{"enabled":true,"direction":"UD"}},"clickToUse":true,"groups":{"atmosphere":{"shape":"dot","color":{"background":"#D86020","border":"#D86020","highlight":{"background":"white","border":"#D86020"}}},"bathymetry":{"shape":"dot","color":{"background":"#C03020","border":"#C03020","highlight":{"background":"white","border":"#C03020"}}},"detritus":{"shape":"dot","color":{"background":"#F89040","border":"#F89040","highlight":{"background":"white","border":"#F89040"}}},"fish":{"shape":"dot","color":{"background":"#207890","border":"#207890","highlight":{"background":"white","border":"#207890"}}},"flows":{"shape":"dot","color":{"background":"#184068","border":"#184068","highlight":{"background":"white","border":"#184068"}}},"NM":{"shape":"dot","color":{"background":"#F8D068","border":"#F8D068","highlight":{"background":"white","border":"#F8D068"}}},"sediment":{"shape":"dot","color":{"background":null,"border":null,"highlight":{"background":"white","border":null}}},"spm":{"shape":"dot","color":{"background":null,"border":null,"highlight":{"background":"white","border":null}}},"strathE2E":{"shape":"dot","color":{"background":null,"border":null,"highlight":{"background":"white","border":null}}},"useDefaultGroups":true,"targets":{"shape":"dot","color":{"background":null,"border":null,"highlight":{"background":"white","border":null}}}}},"groups":["bathymetry","fish","flows","nemo-medusa","saltless","strathE2E"],"width":"100%","height":"800","idselection":{"enabled":true,"style":"width: 150px; height: 26px","useLabels":true,"main":"Select by id"},"byselection":{"enabled":true,"style":"width: 150px; height: 26px","multiple":false,"hideColor":"rgba(200,200,200,0.5)","highlight":false,"variable":"group","main":"Select by group","values":["bathymetry","fish","flows","nemo-medusa","saltless","strathE2E"]},"main":null,"submain":null,"footer":null,"background":"rgba(0, 0, 0, 0)","legend":{"width":0.15,"useGroups":true,"position":"left","ncol":1,"stepX":100,"stepY":100,"zoom":false},"highlight":{"enabled":true,"hoverNearest":false,"degree":1,"algorithm":"all","hideColor":"rgba(200,200,200,0.5)","labelOnly":false},"collapse":{"enabled":false,"fit":false,"resetHighlight":true,"clusterOptions":null,"keepCoord":true,"labelSuffix":"(cluster)"}},"evals":[],"jsHooks":[]}</script>
+<style>
+.parallax {
+  /* The image used */
+  background-image: url('man/figures/Rayshade.png');
+
+  /* Set a specific height */
+  height: 700px;
+
+  /* Create the parallax scrolling effect */
+  background-attachment: fixed;
+  background-position: 50% 15%;
+  background-repeat: no-repeat;
+  background-size: 920px 575px;
+}
+</style>
+<!-- Container element -->
+<div class="parallax">
+
 </div>
-<div id="run-times" class="section level2">
-<h2>Run Times</h2>
-<p><img src="man/figures/README-code%20runtimes-1.png" width="100%" /></p>
+<div id="mimemo.barentssea" class="section level1">
+<h1>MiMeMo.BarentsSea</h1>
+<p>This site details the parameterisation of StrathE2E<em>polar</em> for the Barents Sea, as part of MiMeMo. From here you can access different types of documentation.</p>
+<div id="sources" class="section level3">
+<h3>Sources</h3>
+<p>Details the external data sources contributing to the parameterisation.</p>
 </div>
-<div id="script-objectives" class="section level2 tabset">
-<h2>Script Objectives</h2>
-<p>In the future I plan to detail blow by blow what exactly each script does. This will likely take the form of a dropdown list of vignettes on this website. As there are about 40 scripts at the moment this isn’t going to happen immediately. For now this section is here to briefly mention the purpose of each script.</p>
-<div id="bathymetry" class="section level3">
-<h3>bathymetry</h3>
-<ul>
-<li>bathymetry.1 DATA WRANGLING</li>
-<li>bathymetry.2 PLOTTING</li>
-<li>bathymetry.3 RAYSHADER</li>
-<li>bathymetry.4 DOMAIN CHOICES</li>
-<li>bathymetry.5 DEFINE DOMAIN</li>
-</ul>
+<div id="code" class="section level3">
+<h3>Code</h3>
+<p>Details the dependencies between, and run times of, the R scripts processing original data sources. The dependencies are updated every time the site is built. The run times must be saved out after batch-processing the project code.</p>
 </div>
-<div id="fish" class="section level3">
-<h3>fish</h3>
-<ul>
-<li>fish.1 FAO REGIONS</li>
-<li>ices SUMMARIES AND PLOTTING</li>
-<li>gfw.1 DATA WRANGLING</li>
-<li>gfw.2 PLOTTING</li>
-</ul>
+<div id="checks" class="section level3">
+<h3>Checks</h3>
+<p>Collects the visual data checks performed during data processing. This page allows descriptions to accompany each of the checks. The checks are imported from the project every time the site is built.</p>
 </div>
-<div id="flows" class="section level3">
-<h3>flows</h3>
-<ul>
-<li>flows.1 VC-EXTRACTION</li>
-<li>flows.2 MAKE TRANSECTS</li>
-<li>flows.3 LABEL TRANSECTS</li>
-<li>flows.4 SAMPLE PERIMETER</li>
-<li>flows.5 SAMPLE FLUXES</li>
-<li>flows.6 VOLUME CHECK</li>
-<li>flows.7 PLOT EXCHANGES</li>
-</ul>
+<div id="notes" class="section level3">
+<h3>Notes</h3>
+<p>Details the reasoning behind choices made during the development of the project pipeline. This includes things like defining the geographic extent of the model domain, and accommodating deep convection. These notes are cached to speed up the rendering of the site.</p>
 </div>
-<div id="nm" class="section level3">
-<h3>NM</h3>
-<ul>
-<li>NM.1 GRID</li>
-<li>NM.2 EXTRACTION</li>
-<li>NM.3 SPATIAL</li>
-<li>NM.4 TIME SERIES</li>
-<li>NM.5 PLOTTING</li>
-<li>NM.6 LIGHT AND TEMP</li>
-</ul>
+<div id="greenland" class="section level3">
+<h3>Greenland</h3>
+<p>Provides a link to the sister site for the East Greenland Shelf parameterisation of StrathE2E<em>polar</em>.</p>
 </div>
-<div id="sediment" class="section level3">
-<h3>Sediment</h3>
-<ul>
-<li>sediment.1 GRID</li>
-<li>sediment.2 RANDOM FOREST</li>
-</ul>
+<div id="mimemo.tools" class="section level3">
+<h3>MiMeMo.tools <img src='man/tools.png' /></h3>
+<p>Links to the pkgdown site of the R package produced during MiMeMo to streamline data extraction.</p>
 </div>
-<div id="strathe2e" class="section level3">
-<h3>StrathE2E</h3>
-<ul>
-<li>strathE2E.2 COMPILE DRIVING DATA</li>
-<li>strathE2E.3 COMPILE PHYSICAL PARAMETERS</li>
-</ul>
+<div id="nemomedusr" class="section level3">
+<h3>nemomedusR <img src='man/nm.png' /></h3>
+<p>Links to the pkgdown site of the R package produced during MiMeMo to summarise nemomedusR model output.</p>
+<p><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br></p>
 </div>
 </div>
 
