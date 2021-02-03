@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>MiMeMo Data Extraction Checks</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-inverse  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Barents Sea</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">
+    <span class="fas fa-home"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="overview.html">
+    <span class="fas fa-project-diagram"></span>
+     
+    Code overview
+  </a>
+</li>
+<li>
+  <a href="Checks.html">
+    <span class="fas fa-check-square"></span>
+     
+    Code checks
+  </a>
+</li>
+<li>
+  <a href="Notes.html">
+    <span class="fas fa-clipboard"></span>
+     
+    Project notes
+  </a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://jack-h-laverick.github.io/MiMeMo.EastGreenlandShelf/">Greenland</a>
+</li>
+<li>
+  <a href="https://jack-h-laverick.github.io/MiMeMo.tools/">
+    <span class="fas fa-screwdriver fa-lg"></span>
+     
+    MiMeMo.tools
+  </a>
+</li>
+<li>
+  <a href="https://github.com/Jack-H-Laverick/MiMeMo.BarentsSea">
+    <span class="fas fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">MiMeMo Data Extraction Checks</h1>
+<h4 class="date">last updated: Wednesday 03 Feb</h4>
+
+</div>
+
+
+<p><br></p>
+<p>While developing the work-flow to parameterise StrathE2Epolar for MiMeMo, I put in plenty of checks along the way. Just because the code runs error free, it doesn’t mean that geographic areas intersect correctly or that the end result isn’t just a garbled mess of NAs.</p>
+<p>Inspecting these checks for the Barents Sea was easy, I just looked at the results as I went, running one script at a time. Once I was confident individual scripts were working I could run multiple at once while away from the machine using my batch script. When I did this, I no longer saw the results of the checks. This didn’t matter as I was confident in the code, but what happens when we try to apply this to a different area? I can’t be sure things are perfect when running code for a new region.</p>
+<p>The solution was to save out the checks for inspection after the code completes. Wading through a directory of images wasn’t very fun, and required me to remember what’s going on with each image. I created this page to collect all of my checks and organise them by script. This allows me to write notes about what each check is meant to do, and can be automatically updated by knitting the Rmarkdown document.</p>
+<p><br></p>
+<div id="choose-a-code-family-and-a-script-to-check" class="section level2 tabset tabset-pills tabset-fade">
+<h2>Choose a code family and a script to check</h2>
+<div id="bathymetry" class="section level3 tabset tabset-pills tabset-fade">
+<h3>bathymetry</h3>
+<div id="script-one" class="section level4">
+<h4>Script one</h4>
+<p><br> <br> <br> <br></p>
+<div class="hi-light">
+<strong>Bathymetry scripts are responsible for defining the model domain.</strong>
+</div>
+<p>Script one reduces the resolution of the GEBCO bathymetry to make things tractable.</p>
+<p>The only test is to make sure the global bathymetry still looks right. Check things like orientation.</p>
+<p><img src="Checks_files/figure-html/unnamed-chunk-1-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="script-two" class="section level4">
+<h4>Script two</h4>
+<p><img src="Checks_files/figure-html/unnamed-chunk-2-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="script-three" class="section level4">
+<h4>Script three</h4>
+<p><img src="Checks_files/figure-html/unnamed-chunk-3-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+</div>
+<div id="nemo-medusa" class="section level3 tabset tabset-pills tabset-fade">
+<h3>nemo-medusa</h3>
+<div id="script-one-1" class="section level4">
+<h4>Script one</h4>
+<p><br> <br> <br> <br></p>
+<div class="hi-light">
+<strong>nemo-medusa scripts summarise nemo-medusa model output over the StarthE2E domain.</strong>
+</div>
+<p>Script one reduces the resolution of the GEBCO bathymetry to make things tractable.</p>
+<p>The only test is to make sure the global bathymetry still looks right. Check things like orientation.</p>
+<p><img src="Checks_files/figure-html/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="script-two-1" class="section level4">
+<h4>Script two</h4>
+<p><img src="Checks_files/figure-html/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="script-three-1" class="section level4">
+<h4>Script three</h4>
+<p><img src="Checks_files/figure-html/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+</div>
+<div id="flows" class="section level3 tabset tabset-pills tabset-fade">
+<h3>flows</h3>
+<div id="script-one-2" class="section level4">
+<h4>Script one</h4>
+<p><br> <br> <br> <br></p>
+<div class="hi-light">
+<strong>flow scripts summarise compartment water exchanges and boundary conditions.</strong>
+</div>
+<p>Script one reduces the resolution of the GEBCO bathymetry to make things tractable.</p>
+<p>The only test is to make sure the global bathymetry still looks right. Check things like orientation.</p>
+<p><img src="Checks_files/figure-html/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="script-two-2" class="section level4">
+<h4>Script two</h4>
+<p><img src="Checks_files/figure-html/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="script-three-2" class="section level4">
+<h4>Script three</h4>
+<p><img src="Checks_files/figure-html/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+</div>
+<div id="fish" class="section level3 tabset tabset-pills tabset-fade">
+<h3>fish</h3>
+<div id="script-one-3" class="section level4">
+<h4>Script one</h4>
+<p><br> <br> <br> <br></p>
+<div class="hi-light">
+<strong>fish scripts are responsible for parameterising the fishing fleet model.</strong>
+</div>
+<p>Script one reduces the resolution of the GEBCO bathymetry to make things tractable.</p>
+<p>The only test is to make sure the global bathymetry still looks right. Check things like orientation.</p>
+<p><img src="Checks_files/figure-html/unnamed-chunk-10-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="script-two-3" class="section level4">
+<h4>Script two</h4>
+<p><img src="Checks_files/figure-html/unnamed-chunk-11-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="script-three-3" class="section level4">
+<h4>Script three</h4>
+<p><img src="Checks_files/figure-html/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+</div>
+<div id="saltless" class="section level3 tabset tabset-pills tabset-fade">
+<h3>saltless</h3>
+<div id="script-one-4" class="section level4">
+<h4>Script one</h4>
+<p><br> <br> <br> <br></p>
+<div class="hi-light">
+<strong>saltless scripts summarise atmospheric, freshwater, and sedimentary data.</strong>
+</div>
+<p>Script one reduces the resolution of the GEBCO bathymetry to make things tractable.</p>
+<p>The only test is to make sure the global bathymetry still looks right. Check things like orientation.</p>
+<p><img src="Checks_files/figure-html/unnamed-chunk-13-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="script-two-4" class="section level4">
+<h4>Script two</h4>
+<p><img src="Checks_files/figure-html/unnamed-chunk-14-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="script-three-4" class="section level4">
+<h4>Script three</h4>
+<p><img src="Checks_files/figure-html/unnamed-chunk-15-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="script-four" class="section level4">
+<h4>Script four</h4>
+<p><br> <br> <br> <br></p>
+<div class="hi-light">
+<strong>saltless scripts summarise atmospheric, freshwater, and sedimentary data.</strong>
+</div>
+<p>Script four summarises the freshwater volume contributed to the StrathE2E model domain from rivers.</p>
+<p>TEST 1: Check whether the model domain polygon overlaps the points in the river data we want.</p>
+<p><img src='man/figures/saltless.check.04.1.png' align="centre" width="100%" /></p>
+<p><br> <br></p>
+<p>TEST 2: Check whether the nemo-medusa model grid has been corectly built with the voronoi tesselation. The cells should look pretty uniform.</p>
+<p><br> <br></p>
+<p><img src='man/figures/saltless.check.04.2.png' align="centre" width="100%" /></p>
+<p><br> <br></p>
+<p>TEST 3: Does taking the mean of the cell area accurately reflect the modal cell area? Cells on the nemo-medusa grid should be roughly equal in area. Slight differences mean taking the mode won’t neccessarily return a central value, so the mean is safer if this works.</p>
+<p><br> <br></p>
+<p><img src='man/figures/saltless.check.04.3.png' align="centre" width="100%" /></p>
+<p><br> <br></p>
+<p>TEST 4: Did we successfully generate a time series? It’s possible if the script errored somewhere or returned NAs that this is just blank.</p>
+<p><br> <br></p>
+<p><img src='man/figures/saltless.check.04.4.png' align="centre" width="100%" /></p>
+<p><br> <br></p>
+</div>
+</div>
+<div id="strathe2e" class="section level3 tabset tabset-pills tabset-fade">
+<h3>strathe2e</h3>
+<div id="script-one-5" class="section level4">
+<h4>Script one</h4>
+<p><br> <br> <br> <br></p>
+<div class="hi-light">
+<strong>strathe2e scripts compile data summaries into driving files.</strong>
+</div>
+<p>Script one reduces the resolution of the GEBCO bathymetry to make things tractable.</p>
+<p>The only test is to make sure the global bathymetry still looks right. Check things like orientation.</p>
+<p><img src="Checks_files/figure-html/unnamed-chunk-16-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="script-two-5" class="section level4">
+<h4>Script two</h4>
+<p><img src="Checks_files/figure-html/unnamed-chunk-17-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="script-three-5" class="section level4">
+<h4>Script three</h4>
+<p><img src="Checks_files/figure-html/unnamed-chunk-18-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+</div>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

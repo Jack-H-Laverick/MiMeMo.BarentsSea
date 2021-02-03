@@ -1,0 +1,17 @@
+---
+title: "MiMeMo Project Notes"
+date: "last updated: `r format(Sys.time(), '%A %d %b')`"
+output:
+  html_document:
+    css: style.css
+---
+
+<br>
+
+While developing the work-flow to parameterise StrathE2Epolar for MiMeMo, I put in plenty of checks along the way. Just because the code runs error free, it doesn't mean that geographic areas intersect correctly or that the end result isn't just a garbled mess of NAs. 
+
+<br>
+
+[Example note](./domain_choose-horizontal-extent.html)
+
+did the caching work?

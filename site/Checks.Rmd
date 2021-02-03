@@ -1,6 +1,6 @@
 ---
 title: "MiMeMo Data Extraction Checks"
-date: "last updated: 30/01/2021"
+date: "last updated: `r format(Sys.time(), '%A %d %b')`"
 output:
   html_document:
     css: style.css

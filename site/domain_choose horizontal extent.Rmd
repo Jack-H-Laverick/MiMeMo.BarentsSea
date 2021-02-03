@@ -1,0 +1,107 @@
+---
+title: "Choosing horizontal domain extent"
+author: "Jack H Laverick, University of Strathclyde"
+date: "last updated: `r format(Sys.time(), '%A %d %b')`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.align = "center", cache = TRUE)
+
+Tidy_packages <- c("tidyverse", "data.table", "pbapply", "viridis", "furrr")# List handy data packages
+Geo_packages <- c("sf", "rnaturalearth",  "stars")                          # List GIS packages
+lapply(c(Tidy_packages, Geo_packages), library, character.only = TRUE)      # Load packages
+source("../R scripts/@_Region file.R")                                       # Define project region 
+plan(multiprocess)                                                          # Choose the method to parallelise by
+
+Bathymetry <- readRDS("../Objects/Bathymetry_points.rds") %>%                # Get bathymetry
+  .[seq(1, nrow(.), 16),] %>%                                               # Reduce resolution for plotting speed
+  filter(between(Elevation, -1000, 0))  
+
+cells <- st_as_stars(Bathymetry)                                            # Convert to stars to get cells instead of points, (so no gaps) 
+st_crs(cells) <- st_crs(4326)                                               # set lat-lon crs
+
+cells <- st_as_sf(cells, as_points = F, merge = F) %>%                      # Convert the stars grid into SF polygons
+  drop_na() %>% 
+  st_transform(crs = crs)
+
+world <- ne_countries(scale = "medium", returnclass = "sf") %>%             # Get a world map
+  st_transform(crs = crs)                                                   # Assign polar projection
+
+
+```
+
+## Inspecting Depth Limits
+
+We need to choose the geographic extent of our model domain. There are a number of properties which would be good to bear in mind. 
+
+* The offshore zone should extend to the continental slope. 
+* Fishing activity in the Barents Sea is high along the shelf edge, so this activity should be within in the model domain. * The deep zone is directly below the offshore zone, so limit between shallow and deep also effects the horizontal partition. 
+* The depth of the shallow zone should be deep enough that there isn't significant mixing between the shallow and deep layers. See vertical boundary document.
+
+To get a sense of some options, we plotted all the combinations of some possible minimum (10, 20, 30, 40) and maximum (200, 300, 400, 500) depths(m) for the offshore zone. 
+
+The depth limits for the inshore zone will be 0 and the minimum depth for the offshore zone.
+
+```{r Depth limits}
+
+combos <- expand.grid(Shallow = c(-10,-20,-30,-40), 
+                      Deep = c(-200,-300,-400,-500))                        # Create combinations of max and min depths
+
+limit <- function(Shallow, Deep) {
+  
+labels <- data.frame("Deep" = abs(Deep), "Shallow" = abs(Shallow))
+  
+Shape <- filter(cells, between(Elevation, Deep, Shallow)) %>%
+  st_union() %>%
+  st_sf(labels)
+  }                                      # Filter the bathymetry by a max and min depth combo and turn to a polygon
+
+Choices <- future_map2(combos$Shallow, combos$Deep, .f=limit) %>% 
+  rbindlist() %>%
+  st_as_sf() %>% 
+  st_transform(crs = 3035)
+
+#### Plot choice maps ####
+
+ggplot() +
+  geom_sf(data = Choices, aes(geometry = .), fill = "yellow", size = 0.1) +
+  geom_sf(data = world, fill = "Black", colour = "Black", size = 0.1) +
+  theme_minimal() +
+  zoom +
+  facet_grid(rows = vars(Shallow), cols = vars(Deep)) +
+  labs(caption = "Bathymetry choice maps", x = NULL, y = NULL) +
+  theme(axis.text = element_blank()) +
+  NULL
+
+```
+
+We ended up choosing depth limits of 60 m and 400 m. 60 m was chosen because of vertical mixing (see the other appropriate document).
+
+## Inspecting Distance to Shore
+
+In StrathE2E terrestrial inputs can only reach the offshore zone by transiting through the inshore zone. In areas with very steep bathymetry it is possible the offshore zone polygons created above could contact land. We therefore also need to set a minimum distance from shore for the offshore zone. This ensures the inshore zone exists all along the coast. In practice this distance needs to allow a pixel of NEMO-MEDUSA model output to sit between the coast and offshore zone polygon.
+
+```{r distance to shore}
+
+shrink <- filter(world, subregion %in% c("Northern America", "Northern Europe", "Eastern Europe")) # Measuring distances goes faster if we don't check every country
+
+close <- st_as_sf(Bathymetry, coords = c("Longitude", "Latitude"), crs = 4326) %>% # Set dataframe to SF format
+  st_transform(crs) 
+
+dist <- st_distance(close, shrink) %>% pbapply(1, min)                      # Calculate the distances between points and polygons, grab the closest
+close$Shore_dist <- dist                                                    # Send distances to a column
+
+ggplot() +
+  geom_sf(data = close, aes(geometry = geometry, colour = Shore_dist), size = 0.1) +
+  geom_sf(data = world, size = 0.1) +
+  theme_minimal() +
+  theme(axis.text = element_blank()) +
+  scale_colour_viridis(name = 'Distance (m)') +
+  guides(colour = guide_colourbar(barwidth = 0.5, barheight = 15)) +
+  labs(caption = "Distance from shore") +
+  zoom +
+  NULL
+```
+
+We chose a minimum distance from shore for the offshore zone of 20km.
