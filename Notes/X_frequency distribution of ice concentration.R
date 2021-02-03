@@ -49,9 +49,9 @@ files <- paste0("./Objects/Months/NM.", seq(1:12), ".2000.rds")
 
 year <- map_dfr(files, ~{
   readRDS(.x) %>% 
-    select(Ice_conc, Month, Shore)}) %>% 
+    select(Ice_conc, Month, Shore)})
  
-  year2 <- drop_na(year)
+year2 <- drop_na(year)
 
 names(month.abb) <- seq(1:12) # Give months numeric name to work in faect
 
