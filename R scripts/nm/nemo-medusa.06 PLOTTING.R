@@ -19,7 +19,7 @@ vars_sp <- str_remove(vars_ts, "_avg") %>%                                  # Tw
   
 #### Plotting ####
     
-sapply(vars_ts, ts_plot)                                                    # Save a time series figure for each variable.
+walk(vars_ts, ts_plot)                                                      # Save a time series figure for each variable.
 
 future_map2(rep(SP, each = length(vars_sp)),                                # For each decade
             rep(vars_sp, times = length(SP)), point_plot,                   # And each variable
