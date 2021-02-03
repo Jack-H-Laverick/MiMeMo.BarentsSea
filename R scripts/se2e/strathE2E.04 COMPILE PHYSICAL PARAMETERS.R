@@ -4,8 +4,6 @@
 #### Setup ####
 
 rm(list=ls())                                                               # Wipe the brain
-
-library(StrathE2E2)
 library(tidyverse)
 
 Physical_parameters <- read.csv("./StrathE2E/Models/Barents Sea/2011-2019/Param/physical_parameters_NORTH_SEA.csv") # Read in example Physical drivers
@@ -47,10 +45,10 @@ Physical_parameters[16,"Value"] <- filter(My_sediment, Habitat == "Offshore Silt
 Physical_parameters[17,"Value"] <- filter(My_sediment, Habitat == "Offshore Sand")$D50   # Offshore_sediment_d2_median_grain_size_(mm)
 Physical_parameters[18,"Value"] <- filter(My_sediment, Habitat == "Offshore Gravel")$D50 # Offshore_sediment_d3_median_grain_size_(mm)
 
-Physical_parameters[20,"Value"] <- -0.435                   # Parameter_1_for_relationship_between_porosity_and_grainsize. Values from Matt Pace's thesis
-Physical_parameters[21,"Value"] <- 0.302                    # Parameter_2_for_relationship_between_porosity_and_grainsize. The values are also the defaults in the D50_to_porosity function
-Physical_parameters[22,"Value"] <- -1.035                   # Parameter_3_for_relationship_between_porosity_and_grainsize
-Physical_parameters[23,"Value"] <- -0.314                   # Parameter_4_for_relationship_between_porosity_and_grainsize
+Physical_parameters[20,"Value"] <- -1.035                  # Parameter_1_for_relationship_between_porosity_and_grainsize. Values from Matt Pace's thesis
+Physical_parameters[21,"Value"] <- -0.314                  # Parameter_2_for_relationship_between_porosity_and_grainsize. The values are also the defaults in the D50_to_porosity function
+Physical_parameters[22,"Value"] <- -0.435                  # Parameter_3_for_relationship_between_porosity_and_grainsize
+Physical_parameters[23,"Value"] <- 0.302                   # Parameter_4_for_relationship_between_porosity_and_grainsize
 
 Physical_parameters[34,"Value"] <- filter(My_sediment, Habitat == "Inshore Silt")$Porosity       # Defined_porosity_of_inshore_sediment_s1_(muddy)
 Physical_parameters[35,"Value"] <- filter(My_sediment, Habitat == "Inshore Sand")$Porosity       # Defined_porosity_of_inshore_sediment_s2_(sandy)
@@ -73,4 +71,16 @@ Physical_parameters[51,"Value"] <- filter(My_sediment, Habitat == "Offshore Silt
 Physical_parameters[52,"Value"] <- filter(My_sediment, Habitat == "Offshore Sand")$Nitrogen      # Defined_total_N%_of_offshore_sediment_d2_(%DW)
 Physical_parameters[53,"Value"] <- filter(My_sediment, Habitat == "Offshore Gravel")$Nitrogen    # Defined_total_N%_of_offshore_sediment_d3_(%DW)
 
-write.csv(Physical_parameters, file = "./StrathE2E/Models/Barents Sea/2011-2019/Param/physical_parameters_BARENTS_SEA.csv", row.names = F) # Read in example Physical drivers
+## Extra strathE2Epolar specific values 
+
+polar <- rbind(
+data.frame(Value = 0.2, Description = "Maximum_thickness_of_porous_ice_layer_(m)"),
+data.frame(Value = 0.1, Description = "Porosity_of_porous_ice_layer"),
+data.frame(Value = 0.2, Description = "Proportion_of_incident_light_reflected_by_snow_or_ice"),
+data.frame(Value = 2, Description = "Light_attenuation_coefficient_of_snow_(base_e_m-1)"),
+data.frame(Value = 2, Description = "Light_attenuation_coefficient_of_ice_(base_e_m-1)"),
+data.frame(Value = -0.005, Description = "Temperature_coefficient_for_nitrate_extrusion_from_ice_(expect_negative_value)"))
+
+write.csv(rbind(Physical_parameters, polar),
+          file = "./StrathE2E/Models/Barents Sea/2011-2019/Param/physical_parameters_BARENTS_SEA.csv", 
+          row.names = F)
