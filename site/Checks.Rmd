@@ -1,0 +1,235 @@
+---
+title: "MiMeMo Data Extraction Checks"
+date: "last updated: 30/01/2021"
+output:
+  html_document:
+    css: style.css
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F, fig.align = "center")
+
+library(magrittr)
+
+list.files("../Figures/", pattern = ".check.", recursive = T, full.names = T) %>% # Copy checks into the website directory
+  file.copy(overwrite = T, recursive = T, to = "./man/figures/") # Overwrite to ensure tests are updated.
+
+```
+
+<br>
+
+While developing the work-flow to parameterise StrathE2Epolar for MiMeMo, I put in plenty of checks along the way. Just because the code runs error free, it doesn't mean that geographic areas intersect correctly or that the end result isn't just a garbled mess of NAs. 
+
+Inspecting these checks for the Barents Sea was easy, I just looked at the results as I went, running one script at a time. Once I was confident individual scripts were working I could run multiple at once while away from the machine using my batch script. When I did this, I no longer saw the results of the checks. This didn't matter as I was confident in the code, but what happens when we try to apply this to a different area? I can't be sure things are perfect when running code for a new region.  
+
+The solution was to save out the checks for inspection after the code completes. Wading through a directory of images wasn't very fun, and required me to remember what's going on with each image. I created this page to collect all of my checks and organise them by script. This allows me to write notes about what each check is meant to do, and can be automatically updated by knitting the Rmarkdown document. 
+
+<br>
+
+## Choose a code family and a script to check {.tabset .tabset-pills .tabset-fade}
+
+### bathymetry {.tabset .tabset-pills .tabset-fade}
+
+#### Script one
+
+<br> <br> <br> <br>
+
+<div class="hi-light"> **Bathymetry scripts are responsible for defining the model domain.** </div>
+
+Script one reduces the resolution of the GEBCO bathymetry to make things tractable.
+
+The only test is to make sure the global bathymetry still looks right. Check things like orientation.
+
+```{r}
+plot(pressure)
+```
+
+#### Script two
+
+```{r}
+plot(pressure)
+```
+
+#### Script three
+
+```{r}
+plot(pressure)
+```
+
+### nemo-medusa {.tabset .tabset-pills .tabset-fade}
+
+#### Script one
+
+<br> <br> <br> <br>
+
+<div class="hi-light"> **nemo-medusa scripts summarise nemo-medusa model output over the StarthE2E domain.** </div>
+
+Script one reduces the resolution of the GEBCO bathymetry to make things tractable.
+
+The only test is to make sure the global bathymetry still looks right. Check things like orientation.
+
+```{r}
+plot(pressure)
+```
+
+#### Script two
+
+```{r}
+plot(pressure)
+```
+
+#### Script three
+
+```{r}
+plot(pressure)
+```
+
+### flows {.tabset .tabset-pills .tabset-fade}
+
+#### Script one
+
+<br> <br> <br> <br>
+
+<div class="hi-light"> **flow scripts summarise compartment water exchanges and boundary conditions.** </div>
+
+Script one reduces the resolution of the GEBCO bathymetry to make things tractable.
+
+The only test is to make sure the global bathymetry still looks right. Check things like orientation.
+
+```{r}
+plot(pressure)
+```
+
+#### Script two
+
+```{r}
+plot(pressure)
+```
+
+#### Script three
+
+```{r}
+plot(pressure)
+```
+
+### fish {.tabset .tabset-pills .tabset-fade}
+
+#### Script one
+
+<br> <br> <br> <br>
+
+<div class="hi-light"> **fish scripts are responsible for parameterising the fishing fleet model.** </div>
+
+Script one reduces the resolution of the GEBCO bathymetry to make things tractable.
+
+The only test is to make sure the global bathymetry still looks right. Check things like orientation.
+
+```{r}
+plot(pressure)
+```
+
+#### Script two
+
+```{r}
+plot(pressure)
+```
+
+#### Script three
+
+```{r}
+plot(pressure)
+```
+
+### saltless {.tabset .tabset-pills .tabset-fade}
+
+#### Script one
+
+<br> <br> <br> <br>
+
+<div class="hi-light"> **saltless scripts summarise atmospheric, freshwater, and sedimentary data.** </div>
+
+Script one reduces the resolution of the GEBCO bathymetry to make things tractable.
+
+The only test is to make sure the global bathymetry still looks right. Check things like orientation.
+
+```{r}
+plot(pressure)
+```
+
+#### Script two
+
+```{r}
+plot(pressure)
+```
+
+#### Script three
+
+```{r}
+plot(pressure)
+```
+
+#### Script four
+
+<br> <br> <br> <br>
+
+<div class="hi-light"> **saltless scripts summarise atmospheric, freshwater, and sedimentary data.** </div>
+
+Script four summarises the freshwater volume contributed to the StrathE2E model domain from rivers.
+
+TEST 1: Check whether the model domain polygon overlaps the points in the river data we want.
+
+<img src='man/figures/saltless.check.04.1.png' align="centre" width="100%" />
+
+ <br> <br>
+ 
+TEST 2: Check whether the nemo-medusa model grid has been corectly built with the voronoi tesselation. The cells should look pretty uniform.
+
+ <br> <br>
+ 
+<img src='man/figures/saltless.check.04.2.png' align="centre" width="100%" />
+
+ <br> <br>
+ 
+TEST 3: Does taking the mean of the cell area accurately reflect the modal cell area? Cells on the nemo-medusa grid should be roughly equal in area. Slight differences mean taking the mode won't neccessarily return a central value, so the mean is safer if this works.
+
+ <br> <br>
+ 
+<img src='man/figures/saltless.check.04.3.png' align="centre" width="100%" />
+
+ <br> <br>
+ 
+TEST 4: Did we successfully generate a time series? It's possible if the script errored somewhere or returned NAs that this is just blank.
+
+ <br> <br>
+ 
+<img src='man/figures/saltless.check.04.4.png' align="centre" width="100%" />
+
+ <br> <br>
+
+### strathe2e {.tabset .tabset-pills .tabset-fade}
+
+#### Script one
+
+<br> <br> <br> <br>
+
+<div class="hi-light"> **strathe2e scripts compile data summaries into driving files.** </div>
+
+Script one reduces the resolution of the GEBCO bathymetry to make things tractable.
+
+The only test is to make sure the global bathymetry still looks right. Check things like orientation.
+
+```{r}
+plot(pressure)
+```
+
+#### Script two
+
+```{r}
+plot(pressure)
+```
+
+#### Script three
+
+```{r}
+plot(pressure)
+```
