@@ -21,6 +21,6 @@ SP <- list.files("./Objects/Months/", full.names = T) %>%                   # Ge
          Speed = vectors_2_direction(Zonal, Meridional)[,"uvSpeed"]) %>%    # Convert currents to speed     
   split(., f = list(.$Decade, .$slab_layer)) %>%                            # Split into a large dataframe per decade (and depth to help plotting)
   lapply(strip_ice, dt = T) %>%                                             # Remove snow and ice variables from deep data before averaging
-  lapply(summarise_sp, dt = T) %>%                                          # Average the variables per decade, dt method is faster
+  lapply(NM_decadal_summary, dt = T) %>%                                    # Average the variables per decade, dt method is faster
   saveRDS("./Objects/SPATIAL.rds")                                          # Save out spatial file in the folder above WD
 toc()                                                                       # Stop timing
