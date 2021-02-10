@@ -80,7 +80,7 @@ Shortwave surface Irradiance inputs to NEMO-MEDUSA.
 
 ---
 
-#### File structure
+#### <i class='fa fa-folder' aria-hidden='true' style ='color:#003399;'></i> File structure
 
 <br>
 
@@ -159,7 +159,7 @@ Surface air temperatures as inputs to NEMO-MEDUSA.
 
 ---
 
-#### File structure
+#### <i class='fa fa-folder' aria-hidden='true' style ='color:#003399;'></i> File structure
 
 <br>
 
@@ -238,7 +238,7 @@ Freshwater inputs to NEMO-MEDUSA.
 
 ---
 
-#### File structure
+#### <i class='fa fa-folder' aria-hidden='true' style ='color:#003399;'></i> File structure
 
 <br>
 
@@ -316,7 +316,7 @@ NEMO-MEDUSA model **OUTPUTS** for multiple Variables.
 
 ---
 
-#### File structure
+#### <i class='fa fa-folder' aria-hidden='true' style ='color:#003399;'></i> File structure
 
 <br>
 
@@ -400,7 +400,7 @@ Global terrain model for ocean and land at 15 arc-second intervals.
 
 ---
 
-#### File structure
+#### <i class='fa fa-folder' aria-hidden='true' style ='color:#003399;'></i> File structure
 
 <br>
 
@@ -478,7 +478,7 @@ Sediment classes in the Barents Sea, an overview document of likely bottom types
 
 ---
 
-#### File structure
+#### <i class='fa fa-folder' aria-hidden='true' style ='color:#003399;'></i> File structure
 
 <br>
 
@@ -558,7 +558,7 @@ Significant wave height and direction from the CERA-20C 'Ocean Wave Synoptic Mon
 
 ---
 
-#### File structure
+#### <i class='fa fa-folder' aria-hidden='true' style ='color:#003399;'></i> File structure
 
 <br>
 
@@ -642,7 +642,7 @@ Tidally resolved water velocity fields in the Arctic. Numerical ocean model outp
 
 ---
 
-#### File structure
+#### <i class='fa fa-folder' aria-hidden='true' style ='color:#003399;'></i> File structure
 
 <br>
 
@@ -721,7 +721,7 @@ Tidally resolved water velocity fields in the Arctic. Numerical ocean model outp
 
 ---
 
-#### File structure
+#### <i class='fa fa-folder' aria-hidden='true' style ='color:#003399;'></i> File structure
 
 <br>
 
@@ -765,7 +765,7 @@ Tidally resolved water velocity fields in the Arctic. Numerical ocean model outp
 
 ### Arctic GRO              {.tabset} 
 
-'Arctic Greant Rivers Observatory'. Water quality field recordings from the 6 largest Arctic rivers.
+'Arctic Great Rivers Observatory'. Water quality field recordings from the 6 largest Arctic rivers.
 
 #### <i class='fa fa-download' aria-hidden='true' style ='color:#003399;'></i>  Source
 
@@ -799,7 +799,7 @@ Tidally resolved water velocity fields in the Arctic. Numerical ocean model outp
 
 ---
 
-#### File structure
+#### <i class='fa fa-folder' aria-hidden='true' style ='color:#003399;'></i> File structure
 
 <br>
 
@@ -949,7 +949,7 @@ pmap(files, download)                                 # Download all the files, 
 
 ---
 
-#### File structure
+#### <i class='fa fa-folder' aria-hidden='true' style ='color:#003399;'></i> File structure
 
 <br>
 
@@ -1069,7 +1069,7 @@ read_html("https://thredds.met.no/thredds/catalog/data/EMEP/2018_Reporting/catal
 
 ---
 
-#### File structure
+#### <i class='fa fa-folder' aria-hidden='true' style ='color:#003399;'></i> File structure
 
 <br>
 
@@ -1152,7 +1152,7 @@ Fishing effort from anonymised VMS signals and a model of vessel movement patter
 
 ---
 
-#### File structure
+#### <i class='fa fa-folder' aria-hidden='true' style ='color:#003399;'></i> File structure
 
 <br>
 
@@ -1230,7 +1230,7 @@ International report on fisheries landings by species and country.
 
 ---
 
-#### File structure
+#### <i class='fa fa-folder' aria-hidden='true' style ='color:#003399;'></i> File structure
 
 <br>
 
@@ -1309,7 +1309,7 @@ Reports of landings and effort by species and gear of Norwegian vessels.
 
 ---
 
-#### File structure
+#### <i class='fa fa-folder' aria-hidden='true' style ='color:#003399;'></i> File structure
 
 <br>
 
@@ -1351,6 +1351,86 @@ Reports of landings and effort by species and gear of Norwegian vessels.
 
 ---
 
+### Rafisklaget             {.tabset} 
+
+'The raw fish sellers society of Norway'. Value and weight of exploited species sold in different regions of Norway.
+
+#### <i class='fa fa-download' aria-hidden='true' style ='color:#003399;'></i>  Source
+
+<br>
+
+[Downloaded from rafisklaget](`r data['rafisklaget', 'Source']` 'Click to visit the page')
+
+<br>
+
+---
+
+#### <i class='fa fa-globe' aria-hidden='true' style ='color:#003399;'></i>  Space
+
+<br>
+
+`r data['rafisklaget', 'Space']`. 
+
+<br>
+
+---
+
+#### <i class='fa fa-stopwatch' aria-hidden='true' style ='color:#003399;'></i>  Time
+
+<br>
+
+* *From* `r data['rafisklaget', 'From']`. 
+* *To* `r data['rafisklaget', 'To']`.
+* *In* `r data['rafisklaget', 'By']`.
+
+<br>
+
+---
+
+#### <i class='fa fa-folder' aria-hidden='true' style ='color:#003399;'></i> File structure
+
+<br>
+
+* `r data['rafisklaget', 'Files']`
+* `r data['rafisklaget', 'Memory']`
+* `r data['rafisklaget', 'File_description']`
+
+<br>
+
+---
+
+#### <i class='fa fa-eye' aria-hidden='true' style ='color:#003399;'></i>  Target vars
+
+<br>
+
+`r data['rafisklaget', 'Target_variables']`
+
+<br>
+
+---
+
+#### <i class='fas fa-layer-group' aria-hidden='true' style ='color:#003399;'></i>  Spatial vars
+
+<br>
+
+`r data['rafisklaget', 'Spatial_variables']`
+
+<br>
+
+---
+
+#### <i class='fa fa-plus' aria-hidden='true' style ='color:#003399;'></i>  other vars
+
+<br>
+
+`r data['rafisklaget', 'Other_variables']`
+
+<br>
+
+---
+
+
+
 ### STECF Effort            {.tabset} 
 
 Reports of effort by gear for EU vessels.
@@ -1387,7 +1467,7 @@ Reports of effort by gear for EU vessels.
 
 ---
 
-#### File structure
+#### <i class='fa fa-folder' aria-hidden='true' style ='color:#003399;'></i> File structure
 
 <br>
 
@@ -1465,7 +1545,7 @@ Reports of landings by species and gear for EU vessels.
 
 ---
 
-#### File structure
+#### <i class='fa fa-folder' aria-hidden='true' style ='color:#003399;'></i> File structure
 
 <br>
 
