@@ -7,19 +7,12 @@ rm(list=ls())                                                                 # 
 
 library(tidyverse)
 
-gear <- read.csv("./Data/MiMeMo gears.csv")                                   # Load fishing gear classifications
+gears <- unique(read.csv("./Data/MiMeMo gears.csv")$Aggregated_gear)          # Load fishing gear classifications
 
-guild <- read.csv("./Data/MiMeMo fish guilds.csv") %>%                        # Get guilds for FAO codes
-  dplyr::select(FAO, Guild) %>% 
-  rename(species = FAO) %>% 
-  drop_na() %>% 
-  distinct() %>%                                                              # Drop duplicated rows which hang around after ditching other systems
-  group_by(species) %>%                                                       # 1 duplicated code to remove ()
-  slice_head() %>%                                                            # So only take the first instance of each code
-  ungroup()
+guild <- unique(read.csv("./Data/MiMeMo fish guilds.csv")$Guild)              # Get guilds
 
-landings_target <- expand.grid(Guild = unique(guild$Guild), 
-                               Aggregated_gear = unique(gear$Aggregated_gear)) %>% # Get combinations of gear and guild
+landings_target <- expand.grid(Guild = guild, 
+                               Aggregated_gear = gears) %>%                   # Get combinations of gear and guild
 filter(Aggregated_gear != "Dropped") %>%                                      # Ditch the uneeded gear class
   mutate(Tonnes = 0) %>% 
   pivot_wider(names_from = Aggregated_gear, values_from = Tonnes) %>%         # Spread dataframe to look like a matrix
@@ -72,7 +65,8 @@ summary <- filter(ts, Region == "Barents Sea") %>%                       # For t
 ## Add birds and pinnipeds
 
 landings_target["Macrophyte", "Kelp harvesting"] <- filter(summary, Species == "macroalgae")$Tonnes
-landings_target["Pinniped", "Rifles"] <- filter(summary, Species == "pinnipeds")$Tonnes
-landings_target["Cetacean", "Harpoons"] <- filter(summary, Species == "cetaceans")$Tonnes
+landings_target["Pinnipeds", "Rifles"] <- filter(summary, Species == "pinnipeds")$Tonnes
+#landings_target["Cetacean", "Harpoons"] <- filter(summary, Species == "cetaceans")$Tonnes # We've decided this would be double accounting with IMR data.
 
 saveRDS(landings_target, "./Objects/rafisklag landings by gear and guild.rds")
+
