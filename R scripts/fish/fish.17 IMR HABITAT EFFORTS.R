@@ -36,7 +36,15 @@ IMR <- data.table::fread("./Data/IMR/logbookNOR_00to20_b.lst", sep = ';',     # 
   dplyr::select(Year, Month, Day, Gear_code, Fishing_time, Region) %>% 
   left_join(gear) %>%                                                         # Attach labels
   filter(Aggregated_gear != "Dropped", Region %in% Regions$Region,            # Limit to regions and gears of interest
-         between(Year, 2011, 2019)) %>%  
+         between(Year, 2011, 2019))   
+
+Unrepresented <- expand.grid(Aggregated_gear = unique(IMR$Aggregated_gear),   # Averages were being inflated because years with 0 effort in gears
+                             Gear_type = unique(IMR$Gear_type),               # Aren't represented. 
+                             Region = unique(IMR$Region), 
+                             Year = unique(IMR$Year))
+
+IMR <- full_join(IMR, Unrepresented) %>%                                      # Add in 0s
+  replace_na(list(Fishing_time = 0)) %>% 
   group_by(Aggregated_gear, Gear_type, Region, Year) %>% 
   summarise(Effort = sum(Fishing_time, na.rm = T)) %>%
   summarise(Effort = mean(Effort, na.rm = T)) %>%                             # Get mean effort per region and gear across years
@@ -75,14 +83,14 @@ Absolute_effort_habitats <- left_join(habitat_weights, IMR_effort) %>%        # 
   summarise(effort = sum(effort, na.rm = T)) %>%                              # Total by group
   ungroup() %>%                                                               # Ungroup for speed
   drop_na() %>%                                                               # Drop habitats labelled as NA
-  right_join(target) %>%                                                      # Join to all combinations of gear and guild
+  right_join(target) %>%                                                      # Join to combinations of all gears and habitats
   filter(Aggregated_gear != "Dropped") %>%                                    # Ditch the unneeded gear class
   replace_na(replace = list(effort = 0)) %>%                                  # Nas are actually landings of 0
   pivot_wider(names_from = Aggregated_gear, values_from = effort) %>%         # Spread dataframe to look like a matrix
   column_to_rownames('Habitat') %>%                                           # Remove character column
   as.matrix() %>%                                                             # Convert to matrix
   .[order(row.names(.)), order(colnames(.))]                                  # Alphabetise rows and columns
-saveRDS(Absolute_effort_habitats, "./Objects/IMR absolute habitat effort")    # Save
+saveRDS(Absolute_effort_habitats, "./Objects/IMR absolute habitat effort.rds")# Save
 
 ## How much of the corrected effort is allocated a habitat type?
 sum(Absolute_effort_habitats, na.rm = T) / sum(IMR_effort$corrected_effort, na.rm = T)

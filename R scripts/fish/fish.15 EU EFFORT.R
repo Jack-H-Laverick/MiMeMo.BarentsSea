@@ -10,7 +10,7 @@ lapply(c(packages), library, character.only = TRUE)                           # 
 
 source("./R scripts/@_Region file.R")                                         # Get region mask
 
-plan(multiprocess)
+plan(multisession)
 
 Region_mask <- st_transform(Region_mask, crs = 4326)                          # reproject to match EU data
 
@@ -63,25 +63,28 @@ corrected_effort <- dplyr::select(EU_Arctic, EU_polygon, Gear_type) %>%       # 
   mutate(effort_contributions = ttfshdy*GFW_Scale*24)                         # Scale fishing effort by area in the model domain
 tictoc::toc()    
 
-saveRDS(corrected_effort, "./Objects/EU corrected pixel fishing effort")      # Save
+saveRDS(corrected_effort, "./Objects/EU corrected pixel fishing effort.rds")  # Save
 
 #### Summarise ####
 
-target <- dplyr::select(gears, Aggregated_gear) %>%                           # Select gear names
-  distinct() %>%                                                              # Drop duplicates
+target <- expand.grid(Aggregated_gear = unique(gears$Aggregated_gear),        # Select gear names
+                      year = 2015:2018) %>%                                   # Drop duplicates
   filter(Aggregated_gear != "Dropped")                                        # Drop unused gears
 
 summary <- group_by(corrected_effort, Aggregated_gear, year) %>%              # By year and gear
   summarise(effort = sum(effort_contributions, na.rm = TRUE)) %>%             # total the fishing effort
+  ungroup() %>% 
   drop_na() %>%                                                               # Drop unassigned gears
-  summarise(effort = mean(effort, na.rm = TRUE)) %>%                          # Average for each gear across years
-  right_join(target) %>%                                                      # Reintroduce unobserved gears
+  right_join(target) %>%                                                      # Reintroduce unobserved gears and years otherwise you miss 0s when averaging
   replace_na(replace = list(effort = 0)) %>%                                  # Nas are actually effort of 0
+  group_by(Aggregated_gear) %>% 
+  summarise(effort = mean(effort, na.rm = TRUE)) %>%                          # Average for each gear across years
+  remove_rownames() %>% 
   column_to_rownames('Aggregated_gear') %>%                                   # Remove character column
   as.matrix() %>%                                                             # Convert to matrix
   .[order(row.names(.)),]                                                     # Alphabetise rows to ensure a match with other objects
 
-saveRDS(summary, "./Objects/EU absolute fishing effort")                      # Save
+saveRDS(summary, "./Objects/EU absolute fishing effort.rds")                  # Save
 
 #### Visualise ####
 

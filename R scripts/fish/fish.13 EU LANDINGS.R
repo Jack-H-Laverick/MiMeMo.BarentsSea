@@ -10,7 +10,7 @@ lapply(c(packages), library, character.only = TRUE)                           # 
 
 source("./R scripts/@_Region file.R")                                         # Get region mask
 
-plan(multiprocess)                                                            # Set up parallel processing
+plan(multisession)                                                            # Set up parallel processing
 
 Region_mask <- st_transform(Region_mask, crs = 4326)                          # reproject to match EU data
 
@@ -36,8 +36,9 @@ GFW_mobile <- brick("./Objects/GFW.nc", varname = "NOR_mobile_gear") %>%      # 
 GFW_static <- brick("./Objects/GFW.nc", varname = "NOR_static_gear") %>%      # For each class of gear
   calc(mean, na.rm = T)
 
-landings_target <- expand.grid(Guild = unique(guild$Guild), 
-                               Aggregated_gear = unique(gear$Aggregated_gear))# Get combinations of gear and guild
+landings_target <- expand.grid(Guild = unique(read.csv("./Data/MiMeMo fish guilds.csv")$Guild), # reintroduces guilds not in FAO 
+                               Aggregated_gear = unique(gear$Aggregated_gear),
+                               year = 2015:2018) # Get combinations of gear, guild, and year to reintroduce unrepresented levels
 
 EU_landings <- str_glue("./Data/EU fish/spatial_landings_{2015:2018}/") %>%   # Programmatically build folder names
   future_map(~{ rgdal::readOGR(.x) %>%                                        # Import each EU effort shapefile
@@ -78,18 +79,20 @@ tictoc::toc()
 
 corrected_landings <- st_drop_geometry(EU_Arctic) %>%
   left_join(weights) %>% 
-  mutate(corrected_weight = ttwghtl * GFW_Scale) %>%                        # Scale features effort per gear by the proportion of GFW activity by gear type in the model domain 
+  mutate(corrected_weight = ttwghtl * GFW_Scale) %>%                          # Scale features effort per gear by the proportion of GFW activity by gear type in the model domain 
   group_by(Aggregated_gear, Guild, year) %>% 
-  summarise(corrected_weight = sum(corrected_weight, na.rm = TRUE)) %>% 
-  summarise(corrected_weight = mean(corrected_weight, na.rm = TRUE)) %>% 
+  summarise(corrected_weight = sum(corrected_weight, na.rm = TRUE)) %>%       # Total within years by guild and gear
   ungroup() %>% 
-  right_join(landings_target) %>%                                           # Join to all combinations of gear and guild
-  filter(Aggregated_gear != "Dropped") %>%                                  # Ditch the uneeded gear class
-  replace_na(replace = list(corrected_weight = 0)) %>%                      # Nas are actually landings of 0
+  right_join(landings_target) %>%                                             # Reintroduce unrepresented combinations of gear, guild, and year
+  filter(Aggregated_gear != "Dropped") %>%                                    # Ditch the unneeded gear class
+  replace_na(replace = list(corrected_weight = 0)) %>%                        # Nas are actually landings of 0
+  group_by(Aggregated_gear, Guild) %>% 
+  summarise(corrected_weight = mean(corrected_weight, na.rm = TRUE)) %>%      # Average across years 
+  ungroup() %>% 
   pivot_wider(names_from = Aggregated_gear, values_from = corrected_weight) %>% # Spread dataframe to look like a matrix
-  column_to_rownames('Guild') %>%                                           # Remove character column
-  as.matrix() %>%                                                           # Convert to matrix
-  .[order(row.names(.)), order(colnames(.))]                                # Alphabetise rows and columns
+  column_to_rownames('Guild') %>%                                             # Remove character column
+  as.matrix() %>%                                                             # Convert to matrix
+  .[order(row.names(.)), order(colnames(.))]                                  # Alphabetise rows and columns
 
 saveRDS(corrected_landings, "./Objects/EU landings by gear and guild.rds")
 

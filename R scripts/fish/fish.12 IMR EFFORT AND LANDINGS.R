@@ -1,6 +1,4 @@
 
-#**# Plot a time series of IMR landings by guild and gear to check for stability
-
 #### Set up ####
 
 rm(list=ls())                                                                 # Wipe the brain
@@ -43,7 +41,17 @@ IMR <- data.table::fread("./Data/IMR/logbookNOR_00to20_b.lst", sep = ';',     # 
   left_join(gear) %>%                                                         # Attach gear labels
   left_join(guild) %>%                                                        # Attach guild labels
   filter(Aggregated_gear != "Dropped", Region %in% Regions$Region,            # Limited to gears and regions of interest
-         between(Year, 2011, 2019)) %>%                                       # To when the electronic reporting system started to the last complete year
+         between(Year, 2011, 2019))                                           # To when the electronic reporting system started to the last complete year
+
+Unrepresented <- expand.grid(Aggregated_gear = unique(IMR$Aggregated_gear),   # Averages were being inflated because years with 0 landings
+                             Gear_type = unique(IMR$Gear_type),               # Aren't represented. 
+                             Guild = unique(IMR$Guild),                       # This object will add the 0s back in to correct things
+                             Region = unique(IMR$Region), 
+                             Year = unique(IMR$Year))
+  
+IMR <- full_join(IMR, Unrepresented) %>%                                      # Add in 0s
+  replace_na(list(Fishing_time = 0, Weight = 0)) %>% 
+  filter(ifelse(Guild == "Cetacean" & Year < 2013, F, T)) %>%                 # Remove excess 0s because whale records seem to start after 2012
   group_by(Aggregated_gear, Gear_type, Guild, Region, Year) %>%                         
   summarise(Effort = sum(Fishing_time, na.rm = T),                            # Total up effort within years
             Weight = sum(Weight, na.rm = T)/1000) %>%                         # Total up landings within years
@@ -74,7 +82,7 @@ saveRDS(corrected_IMR, "./Objects/IMR regional absolute effort and landings.rds"
 
 #### Convert IMR landings to a matrix by guild and gear ####
 
-landings_target <- expand.grid(Guild = unique(guild$Guild), 
+landings_target <- expand.grid(Guild = unique(read.csv("./Data/MiMeMo fish guilds.csv")$Guild), # Forces birds and pinnipeds back in 
                       Aggregated_gear = unique(gear$Aggregated_gear) )      # Get combinations of gear and guild
 
 landings <- st_drop_geometry(corrected_IMR) %>% 
@@ -108,7 +116,7 @@ effort <- st_drop_geometry(corrected_IMR) %>%                                 # 
   as.matrix() %>%                                                             # Convert to matrix
   .[order(row.names(.)),]                                                     # Alphabetise rows to ensure a match with other objects
 
-saveRDS(effort, "./Objects/IMR absolute fishing effort")                      # Save
+saveRDS(effort, "./Objects/IMR absolute fishing effort.rds")                  # Save
 
 #### visual checks ####
 
