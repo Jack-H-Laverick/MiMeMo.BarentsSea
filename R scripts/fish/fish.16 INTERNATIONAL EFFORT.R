@@ -49,7 +49,7 @@ Inflation <- c("NOR_mobile_gear", "NOR_static_gear",                        # Fo
   summarise(Inflation = mean(total_gear_effort)/sum(Hours))%>%              # How do we get from non-Russian effort to our known total?
   ungroup() %>%
   right_join(target) %>%                                                    # Bind to all gear names
-  mutate(Inflation = ifelse(Aggregated_gear %in% c("Harpoons", "Rifles", "Kelp harvesting"),
+  mutate(Inflation = ifelse(Aggregated_gear %in% c("Harpoons", "Rifles", "Kelp harvesting", "Recreational"),
                             1, Inflation)) %>% 
   column_to_rownames('Aggregated_gear') %>%                                 # Match names to EU and IMR objects
   dplyr::select(Inflation) %>%                                              # Select only numeric column
