@@ -22,11 +22,18 @@ Inflation <- readRDS("./Objects/ICES landings inflation.rds") %>%           # Ru
 
 IMR <- readRDS("./Objects/IMR landings by gear and guild.rds")              # Import corrected IMR landings
 
+Nor_seals <- readRDS("./Objects/rafisklag landings by gear and guild.rds")  # Import Norwegian seal catch
+
 EU <- readRDS("./Objects/EU landings by gear and guild.rds")                # Import corrected EU landings
   
 #### Combine EU and IMR landings then inflate to international ####
 
-International <- t(Inflation$Inflation * (EU + IMR))/domain_size            # Sum EU and IMR landings then inflate by Russian activity and conver to per m^2
+International <- t(((EU + IMR) *                                            # Sum EU and IMR landings
+                     Inflation$Inflation) +                                 # then inflate by Russian activity,
+                     Nor_seals)/                                            # add seals
+                     domain_size                                            # and convert to per m^2
+
+International["Seines", "Macrophyte"] <- 0                                  # There's one tiny bit of seaweed we think should be removed.
 
 heatmap(International)
 
