@@ -34,6 +34,7 @@ International <- t(((EU + IMR) *                                            # Su
                      domain_size                                            # and convert to per m^2
 
 International["Seines", "Macrophyte"] <- 0                                  # There's one tiny bit of seaweed we think should be removed.
+#International["Recreational", "Demersal (quota-limited)"] <- ??             # Add recreational fishing activity.
 
 heatmap(International)
 
