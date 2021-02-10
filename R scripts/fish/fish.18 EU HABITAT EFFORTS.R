@@ -59,9 +59,9 @@ check <- habitat_weights %>%                                                  # 
   summarise(check = sum(habitat_share, na.rm = T))
 tictoc::toc()
 
-#### Absolute effort scaled by proportion of GFW activity in an polygon falling in the model domain ####
+#### Absolute effort scaled by proportion of GFW activity in a polygon falling in the model domain ####
 
-EU_effort <- readRDS("./Objects/EU corrected pixel fishing effort.rds") %>% 
+EU_effort <- readRDS("./Objects/EU corrected pixel fishing effort.rds") %>%   # This also means the correction for 0 years has already been done.
   dplyr::select(effort_contributions, Aggregated_gear, EU_polygon)
 
 #### Scale and sum efforts by habitat type and gear ####
