@@ -17,7 +17,11 @@ navbar:
      href: Sources.html
    - icon: fa-project-diagram
      text: "Code"
-     href: overview.html
+     menu:
+      - text: "Dependencies"
+        href: network.html
+      - text: "Run times"
+        href: time.html
    - icon: fa-check-square
      text: "Checks"
      href: Checks.html

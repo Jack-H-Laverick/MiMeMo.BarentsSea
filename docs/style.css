@@ -14,7 +14,7 @@ body {font-family: 'Jura';}
 
 .uri {color: red;}  /* Change hyperlink colour */
 
-.main-container {max-width: 85%;} /* Change how much of the page is used */
+/* div.main-container {max-width: 85%;}  Change how much of the page is used */
 
 /* You can define your own class and add it in the Rmarkdown document */
 
@@ -40,7 +40,15 @@ body {font-family: 'Jura';}
 
 /* To use the defined variable you have to use var() */
 
-.r {background-color: var(--accent-col);}
+.r {background-image: linear-gradient(45deg, var(--grad-col-1), var(--grad-col-2));}
+
+/* Change code highlighting to work with code block background */
+.hljs-comment{color: white;}
+.hljs-keyword{color: #ffef00;}
+.hljs-string{color: #8dff00;
+             font.weight: bold;
+}
+
 
 /* You can make the same change to multiple classes at once 
 this also work for other things, like IDs and attributes */
@@ -70,7 +78,7 @@ You can modify based on special conditions, like hovering and active */
 
 .list-group-item.active, .list-group-item.active:focus, 
 .list-group-item.active:hover {
-  background-image: linear-gradient(45deg, #ff8a00, #e52e71);
+  background-image: linear-gradient(45deg, var(--grad-col-1), var(--grad-col-2));
   color: white;
 }
   

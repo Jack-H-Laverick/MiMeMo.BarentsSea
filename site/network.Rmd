@@ -1,0 +1,164 @@
+---
+title: "Script Dependencies"
+date: "last updated: `r format(Sys.time(), '%A %d %b')`"
+output:
+  html_document:
+    css: style.css
+
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  out.width = "100%",
+  warning = FALSE,
+  message = FALSE,
+  echo = FALSE,
+  fig.asp = 1)
+
+library(tidyverse)                                                         # Enter the tidyverse
+library(igraph)
+library(ggraph)
+
+```
+
+
+
+
+The figure below illustrates the hierarchy for MiMeMo scripts. Scripts are loosely classified into families - *bathymetry* - *fish* - *flows* - *NM* - *Sediment* - *StrathE2E*. These can all be run from a master script. The network is created programmaticaly by looking for objects across all scripts present in both a `saveRDS` and `readRDS` call. The blue end of a connection is where the object is created, the red end of a connection is a script using that object. You can see a broad structure where the script creating the domain polygon contributes to most other scripts (lots of blue), which then all feed into the strathe2e compiling scripts (lots of red).
+
+```{r code relations, echo = FALSE, eval = TRUE, warning= FALSE}
+
+## Automatically trawl my R scripts to find objects being written and read, 
+## and then connect these scripts for a network graph
+
+Scripts <- list.files("../R scripts",  pattern = ".R", recursive = T, full.names = T) %>%  # Read in all the Rscripts 
+  as.data.frame() %>% 
+  filter(!grepl('@|X_|Z_|rayshader|targets|R-chive', .)) %>%                       # Ignore files labelled in these ways
+  mutate(Script = as.character(.)) %>%                                    
+  select(-.)
+
+Links <- function(script) {
+  
+  #script <- Scripts[16,1]                                                  # Testing
+  example <- readLines(script)                                              # Get each line in a script as a character vector
+  
+  imports <- grepl("readRDS\\(", example)                                   # Which lines use readRDS
+  exports <- grepl("saveRDS\\(", example)                                   # Which lines use saveRDS
+  functions <- grepl("source\\(", example)                                  # Does the script call a function file?
+  
+  From <- example[exports] %>%                                              # Which objects come from this script
+    data.frame(Object = .) %>%                                              # A column of objects being saved
+    mutate(Object = as.character(Object),                                   
+           From = script) %>%                                               # Attach the script name
+    separate(From, into = c(NA, "From"), sep = "../R scripts/") %>%          # Shrink the script name
+    separate(Object, into = c(NA, "Object"), sep = "[.]")                   # Isolate the object name between ". and )"
+  
+  To <- example[imports] %>%                                                # Which objects are read into this script
+    data.frame(Object = .) %>%                                              
+    mutate(Object = as.character(Object),
+           To = script) %>% 
+    separate(To, into = c(NA, "To"), sep = "../R scripts/") %>%              # Shrink the script name
+    separate(Object, into = c(NA, "Object"), sep = "[.]")                   # Isolate the file name between ". and )"
+  
+  Functions <- example[functions] %>% 
+    data.frame(From = .) %>% 
+    filter(!grepl('Region file', .)) %>%                                    # Ignore files labelled in these ways
+    mutate(From = as.character(From),
+           To = script) %>% 
+    separate(From, into = c(NA, "From"), sep = "../R scripts/") %>%          # Shrink the script name
+    separate(To, into = c(NA, "To"), sep = "../R scripts/") %>%              # Shrink the script name
+    separate(From, into = c("From", NA), sep = " ") %>%                     # Shrink the script name
+    mutate(From = paste(From, "FUNCTIONS.R"))
+  
+  Links <- bind_rows(From, To) %>% 
+    bind_rows(Functions)
+  
+  return(Links)  
+}    # Function to return the files read and saved by a script, and any function files called
+
+#### Establish the relations file ####
+
+Scripts2 <- filter(Scripts, !grepl('FUNCTIONS', Scripts$Script))          # Ignore functions files as relationships aren't object mediated (but keep Scripts for defining nodes later)
+
+all <- map(Scripts2[,1], Links) %>%                                       # Check for links in all R scripts
+  bind_rows()
+
+From <- select(all, -To) %>%                                              # Grab just the files creating objects
+  drop_na() 
+
+To <- select(all, -From) %>%                                              # Grab just the files reading in objects
+  drop_na()
+
+#### Format for a network graph ####
+
+nodes <- data.frame(id = seq(1:length(unique(Scripts$Script))),
+                    label = as.character(unique(Scripts$Script))) %>% 
+  separate(label, into = c(NA, "label"), sep = "../R scripts/")
+
+Edges <- full_join(From, To) %>%                                          # Join Tos and Froms by the shared object 
+  drop_na() %>%                        
+  bind_rows(filter(all, is.na(Object)))  %>%                              # Add in the relationships to functions files, which aren't mediated by an object
+  distinct() %>%                                                          # Remove any repeated links
+  left_join(nodes, by = c("From" = "label")) %>%                          # add in numerical code for scripts
+  select(-From, from = id) %>%                                            # relabel
+  left_join(nodes, by = c("To" = "label")) %>%                            # repeat relabelling for to column
+  select(-To, to = id) %>% 
+  mutate(arrows = "middle") %>%                                           # Add arrows in the middle of the edge when plotting
+  select(from, to, arrows, Object) %>% 
+  drop_na()
+  
+nodes <- separate(nodes, label, into = c("group", NA), remove = F, sep = "[.]") %>% # Add a group field for colour
+  mutate(color = case_when(group == "bathymetry/bathymetry" ~ "#ff8000",
+                           group == "fish/fish" ~ "#00ffff",
+                           group == "flows/flows" ~ "#0993de",    
+                           group == "nm/nemo-medusa" ~ "#ffffff",       
+                           group == "saltless/saltless" ~ "#ffea09",   
+                           group == "se2e/strathE2E" ~ "#aba6a6")) %>%
+  mutate(label = str_remove(label, paste0(group, "."))) %>%
+  separate(group, into = c(NA, "group"))
+
+#### Format for hierarchical edge bundling ####
+
+# create a data frame giving the hierarchical structure of your individuals. 
+# Origin on top, then groups, then subgroups
+d1 <- data.frame(from="origin", to= unique(nodes$group))
+d2 <- data.frame(from=nodes$group, to=nodes$label)
+hierarchy <- rbind(d1, d2)
+
+# create a vertices data.frame. One line per object of our hierarchy, giving features of nodes.
+vertices <- data.frame(name = unique(c(as.character(hierarchy$from), as.character(hierarchy$to))) ) 
+vertices$group  <-  hierarchy$from[ match( vertices$name, hierarchy$to ) ]
+from <- match(nodes$label[Edges$from], vertices$name)
+to <- match(nodes$label[Edges$to], vertices$name)
+
+#calculate label angle
+vertices$id <- NA
+myleaves <- which(is.na(match(vertices$name, Edges$from)))
+nleaves <- length(myleaves)
+vertices$id[ myleaves ] <- seq(1:nleaves)                                                      
+vertices$angle <- 90 - 360 * vertices$id / (nleaves-7)# - 7 for the nodes not plotted (origin and each family level)
+
+vertices$hjust <- ifelse(between(vertices$angle, -270, -90), 0, 1)                               # Make sure labels are justified outwards
+vertices$angle <- ifelse(between(vertices$angle, -270, -90), vertices$angle+180, vertices$angle) # Flip labels if they are upside down
+
+mygraph <- graph_from_data_frame(hierarchy, vertices = vertices)                                 # Create the network 
+
+## plot
+ggraph(mygraph, layout = 'dendrogram', circular = TRUE) + 
+  theme_void() +
+  geom_conn_bundle(data = get_con(from = from, to = to), width=1, alpha=0.6, aes(colour=..index..), 
+                   tension = 0.3, show.legend = F) +
+  scale_edge_colour_distiller(palette = "RdBu") +
+  theme(legend.position = "bottom") +
+  geom_node_point(aes(filter = leaf, x = x*1, y=y*1, fill=group), 
+                  colour = "black", shape = 21, size=3) +
+  geom_node_text(aes(x = x*1.1, y=y*1.1, filter = leaf, label=name, angle = angle, hjust= hjust), 
+                 size=1.75, fontface = "bold", alpha=1) +
+  scale_colour_manual(values= unique(nodes$color)) +
+  scale_fill_manual(values= unique(nodes$color)) +
+  labs(fill = NULL) +
+  xlim(-1.7, 1.7) +
+  ylim(-1.7, 1.7)
+
+```  

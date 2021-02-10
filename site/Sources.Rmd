@@ -1,230 +1,1508 @@
 ---
-title: "Data Sources for the Parameterisation"
-output:
+title: 'Data Sources'
+output: 
   html_document:
+    toc: TRUE
+    toc_float: TRUE
+    code_folding: hide
     css: style.css
+
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = F, fig.align = "center")
+```{r, include = FALSE} 
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = '#>'
+)
 
-library(magrittr)
+library(tidyverse)
 
-list.files("../Figures/", pattern = ".check.", recursive = T, full.names = T) %>% # Copy checks into the website directory
-  file.copy(overwrite = T, recursive = T, to = "./man/figures/") # Overwrite to ensure tests are updated.
+data <- read.csv('../Data/sources.csv') %>%
+  remove_rownames() %>% 
+  column_to_rownames('Name')
+
+```
+
+Below is a record of the data products synthesised during MiMeMo. I've kept track of the structure of the data to make it easier to quickly check what we have. This will also function as a README for anyone else who follows and wants signposting to sources, or to know what additional data could be downloaded. 
+
+```{r overlap, echo = FALSE, message = FALSE, warning = FALSE, fig.align='center'} 
+
+overlap <- read.csv('../Data/sources.csv') %>% 
+  mutate(From = as.Date(From, format = "%d/%m/%Y"),
+         To = as.Date(To, format = "%d/%m/%Y")) %>% 
+  arrange(From) %>%                                    # First sort by val. This sort the dataframe but NOT the factor levels
+  mutate(Name = factor( Name, levels = Name))          # This trick update the factor levels
+
+
+ggplot(overlap) +
+  geom_segment(aes(x = From, xend = To, y = Name, yend = Name)) +
+  theme_minimal() +
+  labs(x = "Time period", y = "Source")
+
+```
+
+
+# NEMO-MEDUSA
+
+### Light                   {.tabset} 
+
+Shortwave surface Irradiance inputs to NEMO-MEDUSA.
+
+#### <i class='fa fa-download' aria-hidden='true' style ='color:#003399;'></i>  Source
+
+<br>
+
+`r data['DRIVER-Lit', 'Source']`
+
+<br>
+
+---
+
+#### <i class='fa fa-globe' aria-hidden='true' style ='color:#003399;'></i>  Space
+
+<br>
+
+`r data['DRIVER-Lit', 'Space']`. 
+
+<br>
+
+---
+
+#### <i class='fa fa-stopwatch' aria-hidden='true' style ='color:#003399;'></i>  Time
+
+<br>
+
+* *From* `r data['DRIVER-Lit', 'From']`. 
+* *To* `r data['DRIVER-Lit', 'To']`.
+* *In* `r data['DRIVER-Lit', 'By']`.
+
+<br>
+
+---
+
+#### File structure
+
+<br>
+
+* `r data['DRIVER-Lit', 'Files']`
+* `r data['DRIVER-Lit', 'Memory']`
+* `r data['DRIVER-Lit', 'File_description']`
+
+<br>
+
+---
+
+#### <i class='fa fa-eye' aria-hidden='true' style ='color:#003399;'></i>  Target vars
+
+<br>
+
+`r data['DRIVER-Lit', 'Target_variables']`
+
+<br>
+
+---
+
+#### <i class='fas fa-layer-group'></i>  Spatial vars
+
+<br>
+
+`r data['DRIVER-Lit', 'Spatial_variables']`
+
+<br>
+
+---
+
+#### <i class='fa fa-plus' aria-hidden='true' style ='color:#003399;'></i>  other vars
+
+<br>
+
+`r data['DRIVER-Lit', 'Other_variables']`
+
+<br>
+
+---
+
+
+### Air Temperature         {.tabset} 
+
+Surface air temperatures as inputs to NEMO-MEDUSA.
+
+#### <i class='fa fa-download' aria-hidden='true' style ='color:#003399;'></i>  Source
+
+<br>
+
+`r data['DRIVER-Tmp', 'Source']`
+
+<br>
+
+---
+
+#### <i class='fa fa-globe' aria-hidden='true' style ='color:#003399;'></i>  Space
+
+<br>
+
+`r data['DRIVER-Tmp', 'Space']`. 
+
+<br>
+
+---
+
+#### <i class='fa fa-stopwatch' aria-hidden='true' style ='color:#003399;'></i>  Time
+
+<br>
+
+* *From* `r data['DRIVER-Tmp', 'From']`. 
+* *To* `r data['DRIVER-Tmp', 'To']`.
+* *In* `r data['DRIVER-Tmp', 'By']`.
+
+<br>
+
+---
+
+#### File structure
+
+<br>
+
+* `r data['DRIVER-Tmp', 'Files']`
+* `r data['DRIVER-Tmp', 'Memory']`
+* `r data['DRIVER-Tmp', 'File_description']`
+
+<br>
+
+---
+
+#### <i class='fa fa-eye' aria-hidden='true' style ='color:#003399;'></i>  Target vars
+
+<br>
+
+`r data['DRIVER-Tmp', 'Target_variables']`
+
+<br>
+
+---
+
+#### <i class='fas fa-layer-group' aria-hidden='true' style ='color:#003399;'></i>  Spatial vars
+
+<br>
+
+`r data['DRIVER-Tmp', 'Spatial_variables']`
+
+<br>
+
+---
+
+#### <i class='fa fa-plus' aria-hidden='true' style ='color:#003399;'></i>  other vars
+
+<br>
+
+`r data['DRIVER-Tmp', 'Other_variables']`
+
+<br>
+
+---
+
+
+### Rivers                  {.tabset} 
+
+Freshwater inputs to NEMO-MEDUSA.
+
+#### <i class='fa fa-download' aria-hidden='true' style ='color:#003399;'></i>  Source
+
+<br>
+
+`r data['DRIVER-Riv', 'Source']`
+
+<br>
+
+---
+
+#### <i class='fa fa-globe' aria-hidden='true' style ='color:#003399;'></i>  Space
+
+<br>
+
+`r data['DRIVER-Riv', 'Space']`. 
+
+<br>
+
+---
+
+#### <i class='fa fa-stopwatch' aria-hidden='true' style ='color:#003399;'></i>  Time
+
+<br>
+
+* *From* `r data['DRIVER-Riv', 'From']`. 
+* *To* `r data['DRIVER-Riv', 'To']`.
+* *In* `r data['DRIVER-Riv', 'By']`.
+
+<br>
+
+---
+
+#### File structure
+
+<br>
+
+* `r data['DRIVER-Riv', 'Files']`
+* `r data['DRIVER-Riv', 'Memory']`
+* `r data['DRIVER-Riv', 'File_description']`
+
+<br>
+
+---
+
+#### <i class='fa fa-eye' aria-hidden='true' style ='color:#003399;'></i>  Target vars
+
+<br>
+
+`r data['DRIVER-Riv', 'Target_variables']`
+
+<br>
+
+---
+
+#### <i class='fas fa-layer-group' aria-hidden='true' style ='color:#003399;'></i>  Spatial vars
+
+<br>
+
+`r data['DRIVER-Riv', 'Spatial_variables']`
+
+<br>
+
+---
+
+#### <i class='fa fa-plus' aria-hidden='true' style ='color:#003399;'></i>  other vars
+
+<br>
+
+`r data['DRIVER-Riv', 'Other_variables']`
+
+<br>
+
+---
+
+### Model output            {.tabset} 
+
+NEMO-MEDUSA model **OUTPUTS** for multiple Variables.
+
+#### <i class='fa fa-download' aria-hidden='true' style ='color:#003399;'></i>  Source
+
+<br>
+
+`r data['NEMO-MEDUSA', 'Source']`
+
+<br>
+
+---
+
+#### <i class='fa fa-globe' aria-hidden='true' style ='color:#003399;'></i>  Space
+
+<br>
+
+`r data['NEMO-MEDUSA', 'Space']`. 
+
+<br>
+
+---
+
+#### <i class='fa fa-stopwatch' aria-hidden='true' style ='color:#003399;'></i>  Time
+
+<br>
+
+* *From* `r data['NEMO-MEDUSA', 'From']`. 
+* *To* `r data['NEMO-MEDUSA', 'To']`.
+* *In* `r data['NEMO-MEDUSA', 'By']`.
+
+<br>
+
+---
+
+#### File structure
+
+<br>
+
+* `r data['NEMO-MEDUSA', 'Files']`
+* `r data['NEMO-MEDUSA', 'Memory']`
+* `r data['NEMO-MEDUSA', 'File_description']`
+
+<br>
+
+---
+
+#### <i class='fa fa-eye' aria-hidden='true' style ='color:#003399;'></i>  Target vars
+
+<br>
+
+`r data['NEMO-MEDUSA', 'Target_variables']`
+
+<br>
+
+---
+
+#### <i class='fas fa-layer-group' aria-hidden='true' style ='color:#003399;'></i>  Spatial vars
+
+<br>
+
+❗ Note, these matrices are different for velocity files (cell corners not centres). The grid otherwise appears the same. 
+
+❗ Note, grid_W files contain different depths for layers.
+
+`r data['NEMO-MEDUSA', 'Spatial_variables']`
+
+<br>
+
+---
+
+#### <i class='fa fa-plus' aria-hidden='true' style ='color:#003399;'></i>  other vars
+
+<br>
+
+`r data['NEMO-MEDUSA', 'Other_variables']`
+
+<br>
+
+---
+
+
+# Other Ecological Drivers
+### GEBCO                   {.tabset} 
+
+Global terrain model for ocean and land at 15 arc-second intervals.
+
+#### <i class='fa fa-download' aria-hidden='true' style ='color:#003399;'></i>  Source
+
+<br>
+
+[Downloaded from GEBCO.net](`r data['GEBCO', 'Source']` 'Click to visit the page')
+
+<br>
+
+---
+
+#### <i class='fa fa-globe' aria-hidden='true' style ='color:#003399;'></i>  Space
+
+<br>
+
+`r data['GEBCO', 'Space']`. 
+
+<br>
+
+---
+
+#### <i class='fa fa-stopwatch' aria-hidden='true' style ='color:#003399;'></i>  Time
+
+<br>
+
+* *From* `r data['GEBCO', 'From']`. 
+* *To* `r data['GEBCO', 'To']`.
+* *In* `r data['GEBCO', 'By']`.
+
+<br>
+
+---
+
+#### File structure
+
+<br>
+
+* `r data['GEBCO', 'Files']`
+* `r data['GEBCO', 'Memory']`
+* `r data['GEBCO', 'File_description']`
+
+<br>
+
+---
+
+#### <i class='fa fa-eye' aria-hidden='true' style ='color:#003399;'></i>  Target vars
+
+<br>
+
+`r data['GEBCO', 'Target_variables']`
+
+<br>
+
+---
+
+#### <i class='fas fa-layer-group' aria-hidden='true' style ='color:#003399;'></i>  Spatial vars
+
+<br>
+
+`r data['GEBCO', 'Spatial_variables']`
+
+<br>
+
+---
+
+#### <i class='fa fa-plus' aria-hidden='true' style ='color:#003399;'></i>  other vars
+
+<br>
+
+`r data['GEBCO', 'Other_variables']`
+
+<br>
+
+---
+
+### NGU                     {.tabset} 
+
+Sediment classes in the Barents Sea, an overview document of likely bottom types from expert synthesis of multiple data sets ('SEABED SEDIMENTS (GRAIN SIZE), N750 OVERVIEW').
+
+#### <i class='fa fa-download' aria-hidden='true' style ='color:#003399;'></i>  Source
+
+<br>
+
+[Downloaded from NGU](`r data['NGU', 'Source']` 'Click to visit the page')
+
+<br>
+
+---
+
+#### <i class='fa fa-globe' aria-hidden='true' style ='color:#003399;'></i>  Space
+
+<br>
+
+`r data['NGU', 'Space']`. 
+
+<br>
+
+---
+
+#### <i class='fa fa-stopwatch' aria-hidden='true' style ='color:#003399;'></i>  Time
+
+<br>
+
+* *From* `r data['NGU', 'From']`. 
+* *To* `r data['NGU', 'To']`.
+* *In* `r data['NGU', 'By']`.
+
+<br>
+
+---
+
+#### File structure
+
+<br>
+
+* `r data['NGU', 'Files']`
+* `r data['NGU', 'Memory']`
+* `r data['NGU', 'File_description']`
+
+<br>
+
+---
+
+#### <i class='fa fa-eye' aria-hidden='true' style ='color:#003399;'></i>  Target vars
+
+<br>
+
+`r data['NGU', 'Target_variables']`
+
+<br>
+
+---
+
+#### <i class='fas fa-layer-group' aria-hidden='true' style ='color:#003399;'></i>  Spatial vars
+
+<br>
+
+`r data['NGU', 'Spatial_variables']`
+
+<br>
+
+---
+
+#### <i class='fa fa-plus' aria-hidden='true' style ='color:#003399;'></i>  other vars
+
+<br>
+
+`r data['NGU', 'Other_variables']`
+
+<br>
+
+---
+
+### ECMWF                   {.tabset} 
+
+Significant wave height and direction from the CERA-20C 'Ocean Wave Synoptic Monthly Means'.
+
+#### <i class='fa fa-download' aria-hidden='true' style ='color:#003399;'></i>  Source
+
+<br>
+
+[Downloaded from the ECMWF app](`r data['ECMWF', 'Source']` 'Click to visit the page')
+
+<br>
+
+---
+
+#### <i class='fa fa-globe' aria-hidden='true' style ='color:#003399;'></i>  Space
+
+<br>
+
+*I downloaded the Northern hemisphere only.*
+
+`r data['ECMWF', 'Space']`. 
+
+<br>
+
+---
+
+#### <i class='fa fa-stopwatch' aria-hidden='true' style ='color:#003399;'></i>  Time
+
+<br>
+
+* *From* `r data['ECMWF', 'From']`. 
+* *To* `r data['ECMWF', 'To']`.
+* *In* `r data['ECMWF', 'By']`.
+
+<br>
+
+---
+
+#### File structure
+
+<br>
+
+*I only downloaded as far back as 2000.*
+
+* `r data['ECMWF', 'Files']`
+* `r data['ECMWF', 'Memory']`
+* `r data['ECMWF', 'File_description']`
+
+<br>
+
+---
+
+#### <i class='fa fa-eye' aria-hidden='true' style ='color:#003399;'></i>  Target vars
+
+<br>
+
+`r data['ECMWF', 'Target_variables']`
+
+<br>
+
+---
+
+#### <i class='fas fa-layer-group' aria-hidden='true' style ='color:#003399;'></i>  Spatial vars
+
+<br>
+
+*Located within netcdf dims, not as variables.*
+
+`r data['ECMWF', 'Spatial_variables']`
+
+<br>
+
+---
+
+#### <i class='fa fa-plus' aria-hidden='true' style ='color:#003399;'></i>  other vars
+
+<br>
+
+*Additional variables are available, but have not been downloaded from the web portal.*
+
+`r data['ECMWF', 'Other_variables']`
+
+<br>
+
+---
+
+### SINMOD                  {.tabset} 
+
+Tidally resolved water velocity fields in the Arctic. Numerical ocean model output.
+
+#### <i class='fa fa-download' aria-hidden='true' style ='color:#003399;'></i>  Source
+
+<br>
+
+`r data['SINMOD', 'Source']`
+
+<br>
+
+---
+
+#### <i class='fa fa-globe' aria-hidden='true' style ='color:#003399;'></i>  Space
+
+<br>
+
+`r data['SINMOD', 'Space']`. 
+
+<br>
+
+---
+
+#### <i class='fa fa-stopwatch' aria-hidden='true' style ='color:#003399;'></i>  Time
+
+<br>
+
+* *From* `r data['SINMOD', 'From']`. 
+* *To* `r data['SINMOD', 'To']`.
+* *In* `r data['SINMOD', 'By']`.
+
+<br>
+
+---
+
+#### File structure
+
+<br>
+
+* `r data['SINMOD', 'Files']`
+* `r data['SINMOD', 'Memory']`
+* `r data['SINMOD', 'File_description']`
+
+<br>
+
+---
+
+#### <i class='fa fa-eye' aria-hidden='true' style ='color:#003399;'></i>  Target vars
+
+<br>
+
+`r data['SINMOD', 'Target_variables']`
+
+<br>
+
+---
+
+#### <i class='fas fa-layer-group' aria-hidden='true' style ='color:#003399;'></i>  Spatial vars
+
+<br>
+
+`r data['SINMOD', 'Spatial_variables']`
+
+<br>
+
+---
+
+#### <i class='fa fa-plus' aria-hidden='true' style ='color:#003399;'></i>  other vars
+
+<br>
+
+`r data['SINMOD', 'Other_variables']`
+
+<br>
+
+---
+
+### Global NEWS             {.tabset} 
+
+'Global Nutrient Export from Watersheds'. Modeled N and P input to oceans from rivers.
+
+#### <i class='fa fa-download' aria-hidden='true' style ='color:#003399;'></i>  Source
+
+<br>
+
+[Downloaded from DANS](`r data['Global NEWS', 'Source']` 'Click to visit the page')
+
+<br>
+
+---
+
+#### <i class='fa fa-globe' aria-hidden='true' style ='color:#003399;'></i>  Space
+
+<br>
+
+`r data['Global NEWS', 'Space']`. 
+
+<br>
+
+---
+
+#### <i class='fa fa-stopwatch' aria-hidden='true' style ='color:#003399;'></i>  Time
+
+<br>
+
+* *From* `r data['Global NEWS', 'From']`. 
+* *To* `r data['Global NEWS', 'To']`.
+* *In* `r data['Global NEWS', 'By']`.
+* *Duration* Updated annually.
+
+<br>
+
+---
+
+#### File structure
+
+<br>
+
+* `r data['Global NEWS', 'Files']`
+* `r data['Global NEWS', 'Memory']`
+* `r data['Global NEWS', 'File_description']`
+
+<br>
+
+---
+
+#### <i class='fa fa-eye' aria-hidden='true' style ='color:#003399;'></i>  Target vars
+
+<br>
+
+`r data['Global NEWS', 'Target_variables']`
+
+<br>
+
+---
+
+#### <i class='fas fa-layer-group' aria-hidden='true' style ='color:#003399;'></i>  Spatial vars
+
+<br>
+
+`r data['Global NEWS', 'Spatial_variables']`
+
+<br>
+
+---
+
+#### <i class='fa fa-plus' aria-hidden='true' style ='color:#003399;'></i>  other vars
+
+<br>
+
+`r data['Global NEWS', 'Other_variables']`
+
+<br>
+
+---
+
+### Arctic GRO              {.tabset} 
+
+'Arctic Greant Rivers Observatory'. Water quality field recordings from the 6 largest Arctic rivers.
+
+#### <i class='fa fa-download' aria-hidden='true' style ='color:#003399;'></i>  Source
+
+<br>
+
+[Downloaded from arcticgreatrivers.org](`r data['Arctic GRO', 'Source']` 'Click to visit the page')
+
+<br>
+
+---
+
+#### <i class='fa fa-globe' aria-hidden='true' style ='color:#003399;'></i>  Space
+
+<br>
+
+`r data['Arctic GRO', 'Space']`. 
+
+<br>
+
+---
+
+#### <i class='fa fa-stopwatch' aria-hidden='true' style ='color:#003399;'></i>  Time
+
+<br>
+
+* *From* `r data['Arctic GRO', 'From']`. 
+* *To* `r data['Arctic GRO', 'To']`.
+* *In* `r data['Arctic GRO', 'By']`.
+
+<br>
+
+---
+
+#### File structure
+
+<br>
+
+* `r data['Arctic GRO', 'Files']`
+* `r data['Arctic GRO', 'Memory']`
+* `r data['Arctic GRO', 'File_description']`
+
+<br>
+
+---
+
+#### <i class='fa fa-eye' aria-hidden='true' style ='color:#003399;'></i>  Target vars
+
+<br>
+
+`r data['Arctic GRO', 'Target_variables']`
+
+<br>
+
+---
+
+#### <i class='fas fa-layer-group' aria-hidden='true' style ='color:#003399;'></i>  Spatial vars
+
+<br>
+
+`r data['Arctic GRO', 'Spatial_variables']`
+
+<br>
+
+---
+
+#### <i class='fa fa-plus' aria-hidden='true' style ='color:#003399;'></i>  other vars
+
+<br>
+
+`r data['Arctic GRO', 'Other_variables']`
+
+<br>
+
+---
+
+
+### Globcolour              {.tabset} 
+
+Suspended particulate matter from binned monthly satellite colour data.
+
+#### <i class='fa fa-download' aria-hidden='true' style ='color:#003399;'></i>  Source
+
+<br>
+
+Downloaded across an FTP connection. The code below should automatically do this for you, but you will need to get your own
+username and password from Globcolour, and replace this in the script.
+
+```{r code Globcolour download, eval = FALSE, warning= FALSE}
+  
+## Automate the downloading of supsended particulate matter from GloColour server
+
+#### Set up ####
+
+rm(list=ls())
+
+library(tidyverse)
+library(RCurl)
+
+download <- function(Source, File) {
+ 
+  Sys.sleep(pause)                                    # Pause so we're not locked out
+ 
+  download.file(url = paste0(Source, File), destfile = paste("./Data/SPM/", File))
+ 
+}              # Create path, download, and specify destination file name
+
+url <- "ftp://ftp.hermes.acri.fr/GLOB/merged/month/"  # Path to directory of interest
+
+userpwd <- "ftp_gc_*******:*******"                   # Your username and password
+
+pause <- 120                                          # How long to leave between requests to the server
+ 
+#### Build folder structure and download SPM files ####
+
+files <- getURL(url, userpwd = userpwd, ftp.use.epsv = F, dirlistonly = T) %>% # List the sub-directories for years
+  strsplit("\n") %>%                                  # Seperate names into individual entries
+  map(function(x) paste0(url, x,"/")) %>%             # Create a full path for each subdirectory found
+  unlist() %>%                                        # Strip back to a vector of yearly subdirectories
+  map(~ {                                             # For each year folder
+ 
+  Sys.sleep(pause)                                    # Pause so we're not locked out
+ 
+  url <- .x                                           # Rememeber the name of this folder
+  print(url)
+ 
+  months <- getURL(.x, userpwd = userpwd, ftp.use.epsv = F, dirlistonly = T) %>% # Check which months are reported this year
+  strsplit("\n") %>%                                  # Seperate names again
+  map(function(x) paste0(url, x,"/01/")) %>%          # Create full paths for each source/year/month paths
+  unlist()
+  })  %>%                                   # How many months are in each year folder? pause so I'm not locked out
+  unlist() %>%
+  map(~ {
+ 
+  Sys.sleep(pause)                                    # Pause between checking each folder to stop getting locked out
+ 
+  url <- .x                                           # Remember the route to this subdirectory
+  print(url)
+ 
+  files <- getURL(.x, userpwd = userpwd, ftp.use.epsv = F, dirlistonly = T) %>% # Which files are in here?
+  strsplit("\n") %>%                                  # Separate files
+  map(function(x) paste0(url, x)) %>%                 # Create full path for each of these files
+  unlist() %>%                                        
+  as.data.frame(col.names = "Files") %>%              # Get a dataframe of all file names
+  filter(grepl(".nc", `.`, fixed = TRUE)) %>%         # Limit to netcdf files
+  filter(grepl("SPM", `.`, fixed = TRUE)) %>%         # Limit to suspended particulate matter files
+  filter(grepl("L3b", `.`, fixed = TRUE))             # Limit to files on their Binned grid (high resolution I think)
+   }) %>%                                             # Which files are in each folder? with a pause so I'm not locked out
+  bind_rows() %>%                                     # Bind file names into dataframe
+  rename(value = 1) %>%
+  separate(value, into = c("Source", "File"), sep = "L3b_") %>% # Isolate file name to use when saving files
+  mutate(File = paste0("L3b_", File),                 # Replace dropped separator
+         Source = str_replace(Source, "ftp.hermes", paste0(userpwd,"@ftp.hermes"))) # Add password into link request
+ 
+pmap(files, download)                                 # Download all the files, don't parallelise, we don't want to overload the server!
 
 ```
 
 <br>
 
-While developing the work-flow to parameterise StrathE2Epolar for MiMeMo, I put in plenty of checks along the way. Just because the code runs error free, it doesn't mean that geographic areas intersect correctly or that the end result isn't just a garbled mess of NAs. 
+---
+
+#### <i class='fa fa-globe' aria-hidden='true' style ='color:#003399;'></i>  Space
 
 <br>
 
-## Choose a code family and a script to check {.tabset .tabset-pills .tabset-fade}
+`r data['Globcolour', 'Space']`. 
 
-### bathymetry {.tabset .tabset-pills .tabset-fade}
+<br>
 
-#### Script one
+---
 
-<br> <br> <br> <br>
+#### <i class='fa fa-stopwatch' aria-hidden='true' style ='color:#003399;'></i>  Time
 
-<div class="hi-light"> **Bathymetry scripts are responsible for defining the model domain.** </div>
+<br>
 
-Script one reduces the resolution of the GEBCO bathymetry to make things tractable.
+* *From* `r data['Globcolour', 'From']`. 
+* *To* `r data['Globcolour', 'To']`.
+* *In* `r data['Globcolour', 'By']`.
 
-The only test is to make sure the global bathymetry still looks right. Check things like orientation.
+<br>
 
-```{r}
-plot(pressure)
+---
+
+#### File structure
+
+<br>
+
+* `r data['Globcolour', 'Files']`
+* `r data['Globcolour', 'Memory']`
+* `r data['Globcolour', 'File_description']`
+
+<br>
+
+---
+
+#### <i class='fa fa-eye' aria-hidden='true' style ='color:#003399;'></i>  Target vars
+
+<br>
+
+`r data['Globcolour', 'Target_variables']`
+
+<br>
+
+---
+
+#### <i class='fas fa-layer-group' aria-hidden='true' style ='color:#003399;'></i>  Spatial vars
+
+<br>
+
+`r data['Globcolour', 'Spatial_variables']`
+
+Two dimensions are also required:
+
+* 'bin', id for a pixel
+* 'row', the row in the grid for a pixel.
+
+To get to coordinates in latitude and longitude:
+
+```{r code Globcolour coordinates, eval = FALSE, warning= FALSE}
+  index <- row[bin] - row[1]+1 
+  lat_bin = center_lat[index]
+  lon_bin = center_lon[index] + col[bin] * lon_step[index]
 ```
 
-#### Script two
+<br>
 
-```{r}
-plot(pressure)
-```
+---
 
-#### Script three
+#### <i class='fa fa-plus' aria-hidden='true' style ='color:#003399;'></i>  other vars
 
-```{r}
-plot(pressure)
-```
+<br>
 
-### nemo-medusa {.tabset .tabset-pills .tabset-fade}
+*Additional variables are available, but have not been downloaded from the server.*
 
-#### Script one
+`r data['Globcolour', 'Other_variables']`
 
-<br> <br> <br> <br>
+<br>
 
-<div class="hi-light"> **nemo-medusa scripts summarise nemo-medusa model output over the StarthE2E domain.** </div>
+---
 
-Script one reduces the resolution of the GEBCO bathymetry to make things tractable.
 
-The only test is to make sure the global bathymetry still looks right. Check things like orientation.
+### EMEP                    {.tabset} 
 
-```{r}
-plot(pressure)
-```
+Modelled atmospheric deposition of reduced and oxidised Nitrogen from EMEP MSC-W.
 
-#### Script two
+#### <i class='fa fa-download' aria-hidden='true' style ='color:#003399;'></i>  Source
 
-```{r}
-plot(pressure)
-```
+<br>
 
-#### Script three
+Downloaded from the EMEP server. The code below should automatically do this for you.
 
-```{r}
-plot(pressure)
-```
+```{r code EMEP download, eval = FALSE, warning= FALSE}
+  
+## Automate the downloading of N atmospheric depostion data from EMEP server
 
-### flows {.tabset .tabset-pills .tabset-fade}
+library(tidyverse)
+library(rvest)
 
-#### Script one
-
-<br> <br> <br> <br>
-
-<div class="hi-light"> **flow scripts summarise compartment water exchanges and boundary conditions.** </div>
-
-Script one reduces the resolution of the GEBCO bathymetry to make things tractable.
-
-The only test is to make sure the global bathymetry still looks right. Check things like orientation.
-
-```{r}
-plot(pressure)
-```
-
-#### Script two
-
-```{r}
-plot(pressure)
-```
-
-#### Script three
-
-```{r}
-plot(pressure)
-```
-
-### fish {.tabset .tabset-pills .tabset-fade}
-
-#### Script one
-
-<br> <br> <br> <br>
-
-<div class="hi-light"> **fish scripts are responsible for parameterising the fishing fleet model.** </div>
-
-Script one reduces the resolution of the GEBCO bathymetry to make things tractable.
-
-The only test is to make sure the global bathymetry still looks right. Check things like orientation.
-
-```{r}
-plot(pressure)
-```
-
-#### Script two
-
-```{r}
-plot(pressure)
-```
-
-#### Script three
-
-```{r}
-plot(pressure)
-```
-
-### saltless {.tabset .tabset-pills .tabset-fade}
-
-#### Script one
-
-<br> <br> <br> <br>
-
-<div class="hi-light"> **saltless scripts summarise atmospheric, freshwater, and sedimentary data.** </div>
-
-Script one reduces the resolution of the GEBCO bathymetry to make things tractable.
-
-The only test is to make sure the global bathymetry still looks right. Check things like orientation.
-
-```{r}
-plot(pressure)
-```
-
-#### Script two
-
-```{r}
-plot(pressure)
-```
-
-#### Script three
-
-```{r}
-plot(pressure)
-```
-
-#### Script four
-
-<br> <br> <br> <br>
-
-<div class="hi-light"> **saltless scripts summarise atmospheric, freshwater, and sedimentary data.** </div>
-
-Script four summarises the freshwater volume contributed to the StrathE2E model domain from rivers.
-
-TEST 1: Check whether the model domain polygon overlaps the points in the river data we want.
-
-<img src='man/figures/saltless.check.04.1.png' align="centre" width="100%" />
-
- <br> <br>
+download <- function(file) {
  
-TEST 2: Check whether the nemo-medusa model grid has been corectly built with the voronoi tesselation. The cells should look pretty uniform.
-
- <br> <br>
+  download <- download.file(url = paste0(source, file), destfile = paste("./Data/EMEP Atmosphere/", file))
  
-<img src='man/figures/saltless.check.04.2.png' align="centre" width="100%" />
+}                                                # Create path, download, and specify destination file name
 
- <br> <br>
- 
-TEST 3: Does taking the mean of the cell area accurately reflect the modal cell area? Cells on the nemo-medusa grid should be roughly equal in area. Slight differences mean taking the mode won't neccessarily return a central value, so the mean is safer if this works.
+source <- "https://thredds.met.no/thredds/fileServer/data/EMEP/2018_Reporting/" # Where are the files stored?
 
- <br> <br>
- 
-<img src='man/figures/saltless.check.04.3.png' align="centre" width="100%" />
+read_html("https://thredds.met.no/thredds/catalog/data/EMEP/2018_Reporting/catalog.html") %>% # Import the file catalog
+  html_nodes("a") %>%                                                           # Extract links
+  html_attr("href") %>%                      
+  .[which(grepl("month", .), )] %>%                                             # Limit to monthly files
+  str_remove(., fixed("catalog.html?dataset=EMEP/2018_Reporting/")) %>%         # Extract file names from links
+  map(download)                                                                 # Download all the files, don't parallelise, we don't want to overload the website!
 
- <br> <br>
- 
-TEST 4: Did we successfully generate a time series? It's possible if the script errored somewhere or returned NAs that this is just blank.
 
- <br> <br>
- 
-<img src='man/figures/saltless.check.04.4.png' align="centre" width="100%" />
-
- <br> <br>
-
-### strathe2e {.tabset .tabset-pills .tabset-fade}
-
-#### Script one
-
-<br> <br> <br> <br>
-
-<div class="hi-light"> **strathe2e scripts compile data summaries into driving files.** </div>
-
-Script one reduces the resolution of the GEBCO bathymetry to make things tractable.
-
-The only test is to make sure the global bathymetry still looks right. Check things like orientation.
-
-```{r}
-plot(pressure)
 ```
 
-#### Script two
+<br>
 
-```{r}
-plot(pressure)
-```
+---
 
-#### Script three
+#### <i class='fa fa-globe' aria-hidden='true' style ='color:#003399;'></i>  Space
 
-```{r}
-plot(pressure)
-```
+<br>
+
+`r data['EMEP', 'Space']`. 
+
+<br>
+
+---
+
+#### <i class='fa fa-stopwatch' aria-hidden='true' style ='color:#003399;'></i>  Time
+
+<br>
+
+* *From* `r data['EMEP', 'From']`. 
+* *To* `r data['EMEP', 'To']`.
+* *In* `r data['EMEP', 'By']`.
+* *Duration* Updated annually.
+
+<br>
+
+---
+
+#### File structure
+
+<br>
+
+* `r data['EMEP', 'Files']`
+* `r data['EMEP', 'Memory']`
+* `r data['EMEP', 'File_description']`
+
+<br>
+
+---
+
+#### <i class='fa fa-eye' aria-hidden='true' style ='color:#003399;'></i>  Target vars
+
+<br>
+
+`r data['EMEP', 'Target_variables']`
+
+<br>
+
+---
+
+#### <i class='fas fa-layer-group' aria-hidden='true' style ='color:#003399;'></i>  Spatial vars
+
+<br>
+
+*Located within netcdf dims, not as variables.*
+
+`r data['EMEP', 'Spatial_variables']`
+
+<br>
+
+---
+
+#### <i class='fa fa-plus' aria-hidden='true' style ='color:#003399;'></i>  other vars
+
+<br>
+
+*Additional variables are available, but have not been downloaded from the web portal.*
+
+`r data['EMEP', 'Other_variables']`
+
+<br>
+
+---
+
+# Fishing
+### Global Fishing Watch    {.tabset} 
+
+Fishing effort from anonymised VMS signals and a model of vessel movement patterns.
+
+#### <i class='fa fa-download' aria-hidden='true' style ='color:#003399;'></i>  Source
+
+<br>
+
+[Downloaded from Global Fishing Watch.](`r data['GFW', 'Source']` 'Click to visit the page')
+
+<br>
+
+---
+
+#### <i class='fa fa-globe' aria-hidden='true' style ='color:#003399;'></i>  Space
+
+<br>
+
+`r data['GFW', 'Space']`. 
+
+<br>
+
+---
+
+#### <i class='fa fa-stopwatch' aria-hidden='true' style ='color:#003399;'></i>  Time
+
+<br>
+
+* *From* `r data['GFW', 'From']`. 
+* *To* `r data['GFW', 'To']`.
+* *In* `r data['GFW', 'By']`.
+
+<br>
+
+---
+
+#### File structure
+
+<br>
+
+* `r data['GFW', 'Files']`
+* `r data['GFW', 'Memory']`
+* `r data['GFW', 'File_description']`
+
+<br>
+
+---
+
+#### <i class='fa fa-eye' aria-hidden='true' style ='color:#003399;'></i>  Target vars
+
+<br>
+
+`r data['GFW', 'Target_variables']`
+
+<br>
+
+---
+
+#### <i class='fas fa-layer-group' aria-hidden='true' style ='color:#003399;'></i>  Spatial vars
+
+<br>
+
+`r data['GFW', 'Spatial_variables']`
+
+<br>
+
+---
+
+#### <i class='fa fa-plus' aria-hidden='true' style ='color:#003399;'></i>  other vars
+
+<br>
+
+`r data['GFW', 'Other_variables']`
+
+<br>
+
+---
+
+### ICES                    {.tabset} 
+
+International report on fisheries landings by species and country.
+
+#### <i class='fa fa-download' aria-hidden='true' style ='color:#003399;'></i>  Source
+
+<br>
+
+`r data['ICES', 'Source']`
+
+<br>
+
+---
+
+#### <i class='fa fa-globe' aria-hidden='true' style ='color:#003399;'></i>  Space
+
+<br>
+
+`r data['ICES', 'Space']`. 
+
+<br>
+
+---
+
+#### <i class='fa fa-stopwatch' aria-hidden='true' style ='color:#003399;'></i>  Time
+
+<br>
+
+* *From* `r data['ICES', 'From']`. 
+* *To* `r data['ICES', 'To']`.
+* *In* `r data['ICES', 'By']`.
+
+<br>
+
+---
+
+#### File structure
+
+<br>
+
+* `r data['ICES', 'Files']`
+* `r data['ICES', 'Memory']`
+* `r data['ICES', 'File_description']`
+
+<br>
+
+---
+
+#### <i class='fa fa-eye' aria-hidden='true' style ='color:#003399;'></i>  Target vars
+
+<br>
+
+`r data['ICES', 'Target_variables']`
+
+<br>
+
+---
+
+#### <i class='fas fa-layer-group' aria-hidden='true' style ='color:#003399;'></i>  Spatial vars
+
+<br>
+
+`r data['ICES', 'Spatial_variables']`
+
+<br>
+
+---
+
+#### <i class='fa fa-plus' aria-hidden='true' style ='color:#003399;'></i>  other vars
+
+<br>
+
+`r data['ICES', 'Other_variables']`
+
+<br>
+
+---
+
+
+### IMR                     {.tabset} 
+
+Reports of landings and effort by species and gear of Norwegian vessels.
+
+#### <i class='fa fa-download' aria-hidden='true' style ='color:#003399;'></i>  Source
+
+<br>
+
+`r data['IMR', 'Source']`
+
+<br>
+
+---
+
+#### <i class='fa fa-globe' aria-hidden='true' style ='color:#003399;'></i>  Space
+
+<br>
+
+`r data['IMR', 'Space']`. 
+
+<br>
+
+---
+
+#### <i class='fa fa-stopwatch' aria-hidden='true' style ='color:#003399;'></i>  Time
+
+<br>
+
+* *From* `r data['IMR', 'From']`. 
+* *To* `r data['IMR', 'To']`.
+* *In* `r data['IMR', 'By']`.
+
+<br>
+
+---
+
+#### File structure
+
+<br>
+
+* `r data['IMR', 'Files']`
+* `r data['IMR', 'Memory']`
+* `r data['IMR', 'File_description']`
+
+<br>
+
+---
+
+#### <i class='fa fa-eye' aria-hidden='true' style ='color:#003399;'></i>  Target vars
+
+<br>
+
+`r data['IMR', 'Target_variables']`
+
+<br>
+
+---
+
+#### <i class='fas fa-layer-group' aria-hidden='true' style ='color:#003399;'></i>  Spatial vars
+
+<br>
+
+`r data['IMR', 'Spatial_variables']`
+
+<br>
+
+---
+
+#### <i class='fa fa-plus' aria-hidden='true' style ='color:#003399;'></i>  other vars
+
+<br>
+
+`r data['IMR', 'Other_variables']`
+
+<br>
+
+---
+
+### STECF Effort            {.tabset} 
+
+Reports of effort by gear for EU vessels.
+
+#### <i class='fa fa-download' aria-hidden='true' style ='color:#003399;'></i>  Source
+
+<br>
+
+[Downloaded from the europa portal](`r data['STECF-eff', 'Source']` 'Click to visit the page')
+
+<br>
+
+---
+
+#### <i class='fa fa-globe' aria-hidden='true' style ='color:#003399;'></i>  Space
+
+<br>
+
+`r data['STECF-eff', 'Space']`. 
+
+<br>
+
+---
+
+#### <i class='fa fa-stopwatch' aria-hidden='true' style ='color:#003399;'></i>  Time
+
+<br>
+
+* *From* `r data['STECF-eff', 'From']`. 
+* *To* `r data['STECF-eff', 'To']`.
+* *In* `r data['STECF-eff', 'By']`.
+
+<br>
+
+---
+
+#### File structure
+
+<br>
+
+* `r data['STECF-eff', 'Files']`
+* `r data['STECF-eff', 'Memory']`
+* `r data['STECF-eff', 'File_description']`
+
+<br>
+
+---
+
+#### <i class='fa fa-eye' aria-hidden='true' style ='color:#003399;'></i>  Target vars
+
+<br>
+
+`r data['STECF-eff', 'Target_variables']`
+
+<br>
+
+---
+
+#### <i class='fas fa-layer-group' aria-hidden='true' style ='color:#003399;'></i>  Spatial vars
+
+<br>
+
+`r data['STECF-eff', 'Spatial_variables']`
+
+<br>
+
+---
+
+#### <i class='fa fa-plus' aria-hidden='true' style ='color:#003399;'></i>  other vars
+
+<br>
+
+`r data['STECF-eff', 'Other_variables']`
+
+<br>
+
+---
+
+### STECF Landings          {.tabset} 
+
+Reports of landings by species and gear for EU vessels.
+
+#### <i class='fa fa-download' aria-hidden='true' style ='color:#003399;'></i>  Source
+
+<br>
+
+[Downloaded from the europa portal](`r data['STECF-ton', 'Source']` 'Click to visit the page')
+
+<br>
+
+---
+
+#### <i class='fa fa-globe' aria-hidden='true' style ='color:#003399;'></i>  Space
+
+<br>
+
+`r data['STECF-ton', 'Space']`. 
+
+<br>
+
+---
+
+#### <i class='fa fa-stopwatch' aria-hidden='true' style ='color:#003399;'></i>  Time
+
+<br>
+
+* *From* `r data['STECF-ton', 'From']`. 
+* *To* `r data['STECF-ton', 'To']`.
+* *In* `r data['STECF-ton', 'By']`.
+
+<br>
+
+---
+
+#### File structure
+
+<br>
+
+* `r data['STECF-ton', 'Files']`
+* `r data['STECF-ton', 'Memory']`
+* `r data['STECF-ton', 'File_description']`
+
+<br>
+
+---
+
+#### <i class='fa fa-eye' aria-hidden='true' style ='color:#003399;'></i>  Target vars
+
+<br>
+
+`r data['STECF-ton', 'Target_variables']`
+
+<br>
+
+---
+
+#### <i class='fas fa-layer-group' aria-hidden='true' style ='color:#003399;'></i>  Spatial vars
+
+<br>
+
+`r data['STECF-ton', 'Spatial_variables']`
+
+<br>
+
+---
+
+#### <i class='fa fa-plus' aria-hidden='true' style ='color:#003399;'></i>  other vars
+
+<br>
+
+`r data['STECF-ton', 'Other_variables']`
+
+<br>
+
+---

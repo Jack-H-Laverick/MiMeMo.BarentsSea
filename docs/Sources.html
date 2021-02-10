@@ -11,7 +11,7 @@
 
 
 
-<title>Data Sources for the Parameterisation</title>
+<title>Data Sources</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -19,7 +19,11 @@
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
 <link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
@@ -258,7 +262,73 @@ $(document).ready(function () {
 </style>
 
 <!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
 
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
 
 
 
@@ -268,6 +338,16 @@ $(document).ready(function () {
 
 
 <div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
 
 
 
@@ -297,12 +377,22 @@ $(document).ready(function () {
     Sources
   </a>
 </li>
-<li>
-  <a href="overview.html">
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
     <span class="fas fa-project-diagram"></span>
      
     Code
+     
+    <span class="caret"></span>
   </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="network.html">Dependencies</a>
+    </li>
+    <li>
+      <a href="time.html">Run times</a>
+    </li>
+  </ul>
 </li>
 <li>
   <a href="Checks.html">
@@ -350,171 +440,1351 @@ $(document).ready(function () {
 
 <div class="fluid-row" id="header">
 
+<div class="btn-group pull-right">
+<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
 
 
-<h1 class="title toc-ignore">Data Sources for the Parameterisation</h1>
+
+<h1 class="title toc-ignore">Data Sources</h1>
 
 </div>
 
 
+<p>Below is a record of the data products synthesised during MiMeMo. I’ve kept track of the structure of the data to make it easier to quickly check what we have. This will also function as a README for anyone else who follows and wants signposting to sources, or to know what additional data could be downloaded.</p>
+<p><img src="Sources_files/figure-html/overlap-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div id="nemo-medusa" class="section level1">
+<h1>NEMO-MEDUSA</h1>
+<div id="light" class="section level3 tabset">
+<h3>Light</h3>
+<p>Shortwave surface Irradiance inputs to NEMO-MEDUSA.</p>
+<div id="source" class="section level4">
+<h4><i class='fa fa-download' aria-hidden='true' style ='color:#003399;'></i> Source</h4>
 <p><br></p>
-<p>While developing the work-flow to parameterise StrathE2Epolar for MiMeMo, I put in plenty of checks along the way. Just because the code runs error free, it doesn’t mean that geographic areas intersect correctly or that the end result isn’t just a garbled mess of NAs.</p>
+<p>Available on the idrive at Strathclyde, supplied by Andy Yool at NOC.</p>
 <p><br></p>
-<div id="choose-a-code-family-and-a-script-to-check" class="section level2 tabset tabset-pills tabset-fade">
-<h2>Choose a code family and a script to check</h2>
-<div id="bathymetry" class="section level3 tabset tabset-pills tabset-fade">
-<h3>bathymetry</h3>
-<div id="script-one" class="section level4">
-<h4>Script one</h4>
-<p><br> <br> <br> <br></p>
-<div class="hi-light">
-<strong>Bathymetry scripts are responsible for defining the model domain.</strong>
+<hr />
 </div>
-<p>Script one reduces the resolution of the GEBCO bathymetry to make things tractable.</p>
-<p>The only test is to make sure the global bathymetry still looks right. Check things like orientation.</p>
-<p><img src="Sources_files/figure-html/unnamed-chunk-1-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div id="space" class="section level4">
+<h4><i class='fa fa-globe' aria-hidden='true' style ='color:#003399;'></i> Space</h4>
+<p><br></p>
+<p>Global.</p>
+<p><br></p>
+<hr />
 </div>
-<div id="script-two" class="section level4">
-<h4>Script two</h4>
-<p><img src="Sources_files/figure-html/unnamed-chunk-2-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div id="time" class="section level4">
+<h4><i class='fa fa-stopwatch' aria-hidden='true' style ='color:#003399;'></i> Time</h4>
+<p><br></p>
+<ul>
+<li><em>From</em> 01/01/1980.</li>
+<li><em>To</em> 28/12/2099.</li>
+<li><em>In</em> 6 hours.</li>
+</ul>
+<p><br></p>
+<hr />
 </div>
-<div id="script-three" class="section level4">
-<h4>Script three</h4>
-<p><img src="Sources_files/figure-html/unnamed-chunk-3-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div id="file-structure" class="section level4">
+<h4>File structure</h4>
+<p><br></p>
+<ul>
+<li>120 netcdf files.</li>
+<li>4.5gb total memory requirment.</li>
+<li>1 netcdf file contains a 2D spatial grid and all timesteps within a year.</li>
+</ul>
+<p><br></p>
+<hr />
 </div>
+<div id="target-vars" class="section level4">
+<h4><i class='fa fa-eye' aria-hidden='true' style ='color:#003399;'></i> Target vars</h4>
+<p><br></p>
+<ul>
+<li>‘SWF’, Total downward short wave flux, or surface irradiance (W per m<sup>2</sup> per day). A Watt per m<sup>2</sup> is equivalent to a joule per m<sup>2</sup> per second.</li>
+</ul>
+<p><br></p>
+<hr />
 </div>
-<div id="nemo-medusa" class="section level3 tabset tabset-pills tabset-fade">
-<h3>nemo-medusa</h3>
-<div id="script-one-1" class="section level4">
-<h4>Script one</h4>
-<p><br> <br> <br> <br></p>
-<div class="hi-light">
-<strong>nemo-medusa scripts summarise nemo-medusa model output over the StarthE2E domain.</strong>
+<div id="spatial-vars" class="section level4">
+<h4><i class='fas fa-layer-group'></i> Spatial vars</h4>
+<p><br></p>
+<ul>
+<li>‘latitude’, vector of latitudes as a file dimension (rectilinear grid).</li>
+<li>‘longitude’, vector of longitudes as a file dimension (rectilinear grid).</li>
+</ul>
+<p><br></p>
+<hr />
 </div>
-<p>Script one reduces the resolution of the GEBCO bathymetry to make things tractable.</p>
-<p>The only test is to make sure the global bathymetry still looks right. Check things like orientation.</p>
-<p><img src="Sources_files/figure-html/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
-</div>
-<div id="script-two-1" class="section level4">
-<h4>Script two</h4>
-<p><img src="Sources_files/figure-html/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
-</div>
-<div id="script-three-1" class="section level4">
-<h4>Script three</h4>
-<p><img src="Sources_files/figure-html/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
-</div>
-</div>
-<div id="flows" class="section level3 tabset tabset-pills tabset-fade">
-<h3>flows</h3>
-<div id="script-one-2" class="section level4">
-<h4>Script one</h4>
-<p><br> <br> <br> <br></p>
-<div class="hi-light">
-<strong>flow scripts summarise compartment water exchanges and boundary conditions.</strong>
-</div>
-<p>Script one reduces the resolution of the GEBCO bathymetry to make things tractable.</p>
-<p>The only test is to make sure the global bathymetry still looks right. Check things like orientation.</p>
-<p><img src="Sources_files/figure-html/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
-</div>
-<div id="script-two-2" class="section level4">
-<h4>Script two</h4>
-<p><img src="Sources_files/figure-html/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" /></p>
-</div>
-<div id="script-three-2" class="section level4">
-<h4>Script three</h4>
-<p><img src="Sources_files/figure-html/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div id="other-vars" class="section level4">
+<h4><i class='fa fa-plus' aria-hidden='true' style ='color:#003399;'></i> other vars</h4>
+<p><br></p>
+<p>NA</p>
+<p><br></p>
+<hr />
 </div>
 </div>
-<div id="fish" class="section level3 tabset tabset-pills tabset-fade">
-<h3>fish</h3>
-<div id="script-one-3" class="section level4">
-<h4>Script one</h4>
-<p><br> <br> <br> <br></p>
-<div class="hi-light">
-<strong>fish scripts are responsible for parameterising the fishing fleet model.</strong>
+<div id="air-temperature" class="section level3 tabset">
+<h3>Air Temperature</h3>
+<p>Surface air temperatures as inputs to NEMO-MEDUSA.</p>
+<div id="source-1" class="section level4">
+<h4><i class='fa fa-download' aria-hidden='true' style ='color:#003399;'></i> Source</h4>
+<p><br></p>
+<p>Available on the idrive at Strathclyde, supplied by Andy Yool at NOC.</p>
+<p><br></p>
+<hr />
 </div>
-<p>Script one reduces the resolution of the GEBCO bathymetry to make things tractable.</p>
-<p>The only test is to make sure the global bathymetry still looks right. Check things like orientation.</p>
-<p><img src="Sources_files/figure-html/unnamed-chunk-10-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div id="space-1" class="section level4">
+<h4><i class='fa fa-globe' aria-hidden='true' style ='color:#003399;'></i> Space</h4>
+<p><br></p>
+<p>Global.</p>
+<p><br></p>
+<hr />
 </div>
-<div id="script-two-3" class="section level4">
-<h4>Script two</h4>
-<p><img src="Sources_files/figure-html/unnamed-chunk-11-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div id="time-1" class="section level4">
+<h4><i class='fa fa-stopwatch' aria-hidden='true' style ='color:#003399;'></i> Time</h4>
+<p><br></p>
+<ul>
+<li><em>From</em> 01/01/1980.</li>
+<li><em>To</em> 28/12/2099.</li>
+<li><em>In</em> day.</li>
+</ul>
+<p><br></p>
+<hr />
 </div>
-<div id="script-three-3" class="section level4">
-<h4>Script three</h4>
-<p><img src="Sources_files/figure-html/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div id="file-structure-1" class="section level4">
+<h4>File structure</h4>
+<p><br></p>
+<ul>
+<li>120 netcdf files.</li>
+<li>17.9gb total memory requirement</li>
+<li>1 netcdf file contains a 2D spatial grid and all timesteps within a year.</li>
+</ul>
+<p><br></p>
+<hr />
 </div>
+<div id="target-vars-1" class="section level4">
+<h4><i class='fa fa-eye' aria-hidden='true' style ='color:#003399;'></i> Target vars</h4>
+<p><br></p>
+<ul>
+<li>‘T150’, Air temperature at 1.5 m elevation (K).</li>
+</ul>
+<p><br></p>
+<hr />
 </div>
-<div id="saltless" class="section level3 tabset tabset-pills tabset-fade">
-<h3>saltless</h3>
-<div id="script-one-4" class="section level4">
-<h4>Script one</h4>
-<p><br> <br> <br> <br></p>
-<div class="hi-light">
-<strong>saltless scripts summarise atmospheric, freshwater, and sedimentary data.</strong>
+<div id="spatial-vars-1" class="section level4">
+<h4><i class='fas fa-layer-group' aria-hidden='true' style ='color:#003399;'></i> Spatial vars</h4>
+<p><br></p>
+<ul>
+<li>‘latitude’, vector of latitudes as a file dimension (rectilinear grid).</li>
+<li>‘longitude’, vector of longitudes as a file dimension (rectilinear grid).</li>
+</ul>
+<p><br></p>
+<hr />
 </div>
-<p>Script one reduces the resolution of the GEBCO bathymetry to make things tractable.</p>
-<p>The only test is to make sure the global bathymetry still looks right. Check things like orientation.</p>
-<p><img src="Sources_files/figure-html/unnamed-chunk-13-1.png" width="672" style="display: block; margin: auto;" /></p>
-</div>
-<div id="script-two-4" class="section level4">
-<h4>Script two</h4>
-<p><img src="Sources_files/figure-html/unnamed-chunk-14-1.png" width="672" style="display: block; margin: auto;" /></p>
-</div>
-<div id="script-three-4" class="section level4">
-<h4>Script three</h4>
-<p><img src="Sources_files/figure-html/unnamed-chunk-15-1.png" width="672" style="display: block; margin: auto;" /></p>
-</div>
-<div id="script-four" class="section level4">
-<h4>Script four</h4>
-<p><br> <br> <br> <br></p>
-<div class="hi-light">
-<strong>saltless scripts summarise atmospheric, freshwater, and sedimentary data.</strong>
-</div>
-<p>Script four summarises the freshwater volume contributed to the StrathE2E model domain from rivers.</p>
-<p>TEST 1: Check whether the model domain polygon overlaps the points in the river data we want.</p>
-<p><img src='man/figures/saltless.check.04.1.png' align="centre" width="100%" /></p>
-<p><br> <br></p>
-<p>TEST 2: Check whether the nemo-medusa model grid has been corectly built with the voronoi tesselation. The cells should look pretty uniform.</p>
-<p><br> <br></p>
-<p><img src='man/figures/saltless.check.04.2.png' align="centre" width="100%" /></p>
-<p><br> <br></p>
-<p>TEST 3: Does taking the mean of the cell area accurately reflect the modal cell area? Cells on the nemo-medusa grid should be roughly equal in area. Slight differences mean taking the mode won’t neccessarily return a central value, so the mean is safer if this works.</p>
-<p><br> <br></p>
-<p><img src='man/figures/saltless.check.04.3.png' align="centre" width="100%" /></p>
-<p><br> <br></p>
-<p>TEST 4: Did we successfully generate a time series? It’s possible if the script errored somewhere or returned NAs that this is just blank.</p>
-<p><br> <br></p>
-<p><img src='man/figures/saltless.check.04.4.png' align="centre" width="100%" /></p>
-<p><br> <br></p>
+<div id="other-vars-1" class="section level4">
+<h4><i class='fa fa-plus' aria-hidden='true' style ='color:#003399;'></i> other vars</h4>
+<p><br></p>
+<p>NA</p>
+<p><br></p>
+<hr />
 </div>
 </div>
-<div id="strathe2e" class="section level3 tabset tabset-pills tabset-fade">
-<h3>strathe2e</h3>
-<div id="script-one-5" class="section level4">
-<h4>Script one</h4>
-<p><br> <br> <br> <br></p>
-<div class="hi-light">
-<strong>strathe2e scripts compile data summaries into driving files.</strong>
+<div id="rivers" class="section level3 tabset">
+<h3>Rivers</h3>
+<p>Freshwater inputs to NEMO-MEDUSA.</p>
+<div id="source-2" class="section level4">
+<h4><i class='fa fa-download' aria-hidden='true' style ='color:#003399;'></i> Source</h4>
+<p><br></p>
+<p>Available on the idrive at Strathclyde, supplied by Andy Yool at NOC.</p>
+<p><br></p>
+<hr />
 </div>
-<p>Script one reduces the resolution of the GEBCO bathymetry to make things tractable.</p>
-<p>The only test is to make sure the global bathymetry still looks right. Check things like orientation.</p>
-<p><img src="Sources_files/figure-html/unnamed-chunk-16-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div id="space-2" class="section level4">
+<h4><i class='fa fa-globe' aria-hidden='true' style ='color:#003399;'></i> Space</h4>
+<p><br></p>
+<p>Global.</p>
+<p><br></p>
+<hr />
 </div>
-<div id="script-two-5" class="section level4">
-<h4>Script two</h4>
-<p><img src="Sources_files/figure-html/unnamed-chunk-17-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div id="time-2" class="section level4">
+<h4><i class='fa fa-stopwatch' aria-hidden='true' style ='color:#003399;'></i> Time</h4>
+<p><br></p>
+<ul>
+<li><em>From</em> 01/01/1980.</li>
+<li><em>To</em> 28/12/2099.</li>
+<li><em>In</em> month.</li>
+</ul>
+<p><br></p>
+<hr />
 </div>
-<div id="script-three-5" class="section level4">
-<h4>Script three</h4>
-<p><img src="Sources_files/figure-html/unnamed-chunk-18-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div id="file-structure-2" class="section level4">
+<h4>File structure</h4>
+<p><br></p>
+<ul>
+<li>120 netcdf files.</li>
+<li>1.3gb total memory requirement.</li>
+<li>1 netcdf file contains a 2D spatial grid and all timesteps within a year.</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="target-vars-2" class="section level4">
+<h4><i class='fa fa-eye' aria-hidden='true' style ='color:#003399;'></i> Target vars</h4>
+<p><br></p>
+<ul>
+<li>‘sorunoff’, Water runoff from land to sea (Kg per m<sup>2</sup> per second).</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="spatial-vars-2" class="section level4">
+<h4><i class='fas fa-layer-group' aria-hidden='true' style ='color:#003399;'></i> Spatial vars</h4>
+<p><br></p>
+<ul>
+<li>‘nav_Lat’, Matrix of latitudes (curvilinear grid).</li>
+<li>‘nav_Lon’, Matrix of longitudes (curvilinear grid).</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="other-vars-2" class="section level4">
+<h4><i class='fa fa-plus' aria-hidden='true' style ='color:#003399;'></i> other vars</h4>
+<p><br></p>
+<p>NA</p>
+<p><br></p>
+<hr />
+</div>
+</div>
+<div id="model-output" class="section level3 tabset">
+<h3>Model output</h3>
+<p>NEMO-MEDUSA model <strong>OUTPUTS</strong> for multiple Variables.</p>
+<div id="source-3" class="section level4">
+<h4><i class='fa fa-download' aria-hidden='true' style ='color:#003399;'></i> Source</h4>
+<p><br></p>
+<p>Available on the idrive at Strathclyde, supplied by Andy Yool at NOC.</p>
+<p><br></p>
+<hr />
+</div>
+<div id="space-3" class="section level4">
+<h4><i class='fa fa-globe' aria-hidden='true' style ='color:#003399;'></i> Space</h4>
+<p><br></p>
+<p>North Atlantic into Arctic..</p>
+<p><br></p>
+<hr />
+</div>
+<div id="time-3" class="section level4">
+<h4><i class='fa fa-stopwatch' aria-hidden='true' style ='color:#003399;'></i> Time</h4>
+<p><br></p>
+<ul>
+<li><em>From</em> 01/01/1980.</li>
+<li><em>To</em> 28/12/2099.</li>
+<li><em>In</em> 5 days.</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="file-structure-3" class="section level4">
+<h4>File structure</h4>
+<p><br></p>
+<ul>
+<li>51840 netcdf files.</li>
+<li>543gb total memory requirement.</li>
+<li>Files are organised into folders by year. There are 5 types of file per year, each contains a different set of variables for one time step.</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="target-vars-3" class="section level4">
+<h4><i class='fa fa-eye' aria-hidden='true' style ='color:#003399;'></i> Target vars</h4>
+<p><br></p>
+<ul>
+<li><strong>grid_T files:</strong>
+<ul>
+<li>‘soicecov’, Ice fraction (0-1).</li>
+<li>‘vosaline’, Salinity (psu).</li>
+<li>‘votemper’, Water temperature (C).</li>
+</ul></li>
+<li><strong>grid_U files:</strong>
+<ul>
+<li>‘vozocrtx’, Zonal current speed (m per second).</li>
+</ul></li>
+<li><strong>grid_V files:</strong>
+<ul>
+<li>‘vomecrty’, Meridional current speed (m per second).</li>
+</ul></li>
+<li><strong>grid_W files:</strong>
+<ul>
+<li>‘votkeavt’, Vertical eddy diffusivity (m<sup>2</sup> per second).</li>
+</ul></li>
+<li><strong>icemod files:</strong>
+<ul>
+<li>‘ice_pres’, Ice presence (logical).</li>
+<li>‘isnowthi’, Snow thickness (m).</li>
+<li>‘iicethic’, Ice thickness (m).</li>
+</ul></li>
+<li><strong>ptrc_T files:</strong>
+<ul>
+<li>‘PHN’, Non-diatom phytoplankton (mmol N per m<sup>3</sup>).</li>
+<li>‘PHD’, Diatom phytoplankton (mmol N per m<sup>3</sup>).</li>
+<li>‘DIN’, Dissolved inorganic nitrogen (mmol N per m<sup>3</sup>).</li>
+<li>‘DET’, Detritus (mmol N per m<sup>3</sup>).</li>
+</ul></li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="spatial-vars-3" class="section level4">
+<h4><i class='fas fa-layer-group' aria-hidden='true' style ='color:#003399;'></i> Spatial vars</h4>
+<p><br></p>
+<p>❗ Note, these matrices are different for velocity files (cell corners not centres). The grid otherwise appears the same.</p>
+<p>❗ Note, grid_W files contain different depths for layers.</p>
+<ul>
+<li>‘nav_Lat’, Matrix of latitudes for freshwater input (curvilinear grid).</li>
+<li>‘nav_Lon’, Matrix of longitudes for freshwater input (curvilinear grid).</li>
+<li>‘deptht’, Vector of depths as a dimension.</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="other-vars-3" class="section level4">
+<h4><i class='fa fa-plus' aria-hidden='true' style ='color:#003399;'></i> other vars</h4>
+<p><br></p>
+<ul>
+<li><strong>grid_T files:</strong>
+<ul>
+<li>‘sossheig’, Sea surface height (m).</li>
+</ul></li>
+<li><strong>grid_W files:</strong>
+<ul>
+<li>‘vovecrtz’, Ocean vertical velocity (m per second).</li>
+</ul></li>
+<li><strong>icemod files:</strong>
+<ul>
+<li>‘iicevelu’, Ice zonal velocity (m per second).</li>
+<li>‘iicevelv’, Ice meridional velocity (m per second).</li>
+</ul></li>
+<li><strong>ptrc_T files:</strong>
+<ul>
+<li>‘CHN’, Chl-a concentration in non-diatom phytoplankton (mg per m<sup>3</sup>).</li>
+<li>‘CHD’, Chl-a concentration in diatom phytoplankton (mg per m<sup>3</sup>).</li>
+<li>‘ZMI’, Micro-zooplankton (mmol N per m<sup>3</sup>).</li>
+<li>‘ZME’, Meso-zooplankton (mmol N per m<sup>3</sup>).</li>
+<li>‘SIL’, Silicate (mmol Si per m<sup>3</sup>).</li>
+</ul></li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+</div>
+</div>
+<div id="other-ecological-drivers" class="section level1">
+<h1>Other Ecological Drivers</h1>
+<div id="gebco" class="section level3 tabset">
+<h3>GEBCO</h3>
+<p>Global terrain model for ocean and land at 15 arc-second intervals.</p>
+<div id="source-4" class="section level4">
+<h4><i class='fa fa-download' aria-hidden='true' style ='color:#003399;'></i> Source</h4>
+<p><br></p>
+<p><a href="https://www.gebco.net/data_and_products/gridded_bathymetry_data/" title="Click to visit the page">Downloaded from GEBCO.net</a></p>
+<p><br></p>
+<hr />
+</div>
+<div id="space-4" class="section level4">
+<h4><i class='fa fa-globe' aria-hidden='true' style ='color:#003399;'></i> Space</h4>
+<p><br></p>
+<p>Global.</p>
+<p><br></p>
+<hr />
+</div>
+<div id="time-4" class="section level4">
+<h4><i class='fa fa-stopwatch' aria-hidden='true' style ='color:#003399;'></i> Time</h4>
+<p><br></p>
+<ul>
+<li><em>From</em> 01/01/2019.</li>
+<li><em>To</em> NA.</li>
+<li><em>In</em> NA.</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="file-structure-4" class="section level4">
+<h4>File structure</h4>
+<p><br></p>
+<ul>
+<li>1 netcdf</li>
+<li>11gb total memory requirement.</li>
+<li>The file contains a global 2D spatial grid.</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="target-vars-4" class="section level4">
+<h4><i class='fa fa-eye' aria-hidden='true' style ='color:#003399;'></i> Target vars</h4>
+<p><br></p>
+<ul>
+<li>‘elevation’, Bathymetry and topography.</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="spatial-vars-4" class="section level4">
+<h4><i class='fas fa-layer-group' aria-hidden='true' style ='color:#003399;'></i> Spatial vars</h4>
+<p><br></p>
+<ul>
+<li>‘lat’, vector of latitudes (rectilinear grid).</li>
+<li>‘lon’, vector of longitudes (rectilinear grid).</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="other-vars-4" class="section level4">
+<h4><i class='fa fa-plus' aria-hidden='true' style ='color:#003399;'></i> other vars</h4>
+<p><br></p>
+<p>NA</p>
+<p><br></p>
+<hr />
+</div>
+</div>
+<div id="ngu" class="section level3 tabset">
+<h3>NGU</h3>
+<p>Sediment classes in the Barents Sea, an overview document of likely bottom types from expert synthesis of multiple data sets (‘SEABED SEDIMENTS (GRAIN SIZE), N750 OVERVIEW’).</p>
+<div id="source-5" class="section level4">
+<h4><i class='fa fa-download' aria-hidden='true' style ='color:#003399;'></i> Source</h4>
+<p><br></p>
+<p><a href="http://geo.ngu.no/download/order?lang=en&amp;dataset=702" title="Click to visit the page">Downloaded from NGU</a></p>
+<p><br></p>
+<hr />
+</div>
+<div id="space-5" class="section level4">
+<h4><i class='fa fa-globe' aria-hidden='true' style ='color:#003399;'></i> Space</h4>
+<p><br></p>
+<p>Barents Sea. .</p>
+<p><br></p>
+<hr />
+</div>
+<div id="time-5" class="section level4">
+<h4><i class='fa fa-stopwatch' aria-hidden='true' style ='color:#003399;'></i> Time</h4>
+<p><br></p>
+<ul>
+<li><em>From</em> 01/01/2015.</li>
+<li><em>To</em> NA.</li>
+<li><em>In</em> NA.</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="file-structure-5" class="section level4">
+<h4>File structure</h4>
+<p><br></p>
+<ul>
+<li>1 shape file.</li>
+<li>8mb total memory requirement.</li>
+<li>The file contains a collection of spatial polygons where sediment classes are expected to occur within the Barents Sea.</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="target-vars-5" class="section level4">
+<h4><i class='fa fa-eye' aria-hidden='true' style ='color:#003399;'></i> Target vars</h4>
+<p><br></p>
+<ul>
+<li>‘SEDKORNSTR’, Sediment grain size code.</li>
+<li>‘SEDKO_NAVN’ , Sediment grain size class name.</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="spatial-vars-5" class="section level4">
+<h4><i class='fas fa-layer-group' aria-hidden='true' style ='color:#003399;'></i> Spatial vars</h4>
+<p><br></p>
+<p>Polygon boundaries embedded in shapefile.</p>
+<p><br></p>
+<hr />
+</div>
+<div id="other-vars-5" class="section level4">
+<h4><i class='fa fa-plus' aria-hidden='true' style ='color:#003399;'></i> other vars</h4>
+<p><br></p>
+<p>NA</p>
+<p><br></p>
+<hr />
+</div>
+</div>
+<div id="ecmwf" class="section level3 tabset">
+<h3>ECMWF</h3>
+<p>Significant wave height and direction from the CERA-20C ‘Ocean Wave Synoptic Monthly Means’.</p>
+<div id="source-6" class="section level4">
+<h4><i class='fa fa-download' aria-hidden='true' style ='color:#003399;'></i> Source</h4>
+<p><br></p>
+<p><a href="https://apps.ecmwf.int/datasets/data/cera20c/levtype=sfc/type=an/" title="Click to visit the page">Downloaded from the ECMWF app</a></p>
+<p><br></p>
+<hr />
+</div>
+<div id="space-6" class="section level4">
+<h4><i class='fa fa-globe' aria-hidden='true' style ='color:#003399;'></i> Space</h4>
+<p><br></p>
+<p><em>I downloaded the Northern hemisphere only.</em></p>
+<p>Global.</p>
+<p><br></p>
+<hr />
+</div>
+<div id="time-6" class="section level4">
+<h4><i class='fa fa-stopwatch' aria-hidden='true' style ='color:#003399;'></i> Time</h4>
+<p><br></p>
+<ul>
+<li><em>From</em> 01/01/1901.</li>
+<li><em>To</em> 28/12/2010.</li>
+<li><em>In</em> 3 hours.</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="file-structure-6" class="section level4">
+<h4>File structure</h4>
+<p><br></p>
+<p><em>I only downloaded as far back as 2000.</em></p>
+<ul>
+<li>11 netcdf files.</li>
+<li>78.3gb total memory requirement.</li>
+<li>1 netcdf file contains a 2D spatial grid and all timesteps within a year.</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="target-vars-6" class="section level4">
+<h4><i class='fa fa-eye' aria-hidden='true' style ='color:#003399;'></i> Target vars</h4>
+<p><br></p>
+<ul>
+<li>‘swh’, Mean significant wave height (m).</li>
+<li>‘mwd’, Mean wave direction (degrees).</li>
+<li>‘mwp’, Mean wave period.</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="spatial-vars-6" class="section level4">
+<h4><i class='fas fa-layer-group' aria-hidden='true' style ='color:#003399;'></i> Spatial vars</h4>
+<p><br></p>
+<p><em>Located within netcdf dims, not as variables.</em></p>
+<ul>
+<li>‘latitude’, vector of latitudes (rectilinear grid).</li>
+<li>‘longitude’, vector of longitudes (rectilinear grid).</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="other-vars-6" class="section level4">
+<h4><i class='fa fa-plus' aria-hidden='true' style ='color:#003399;'></i> other vars</h4>
+<p><br></p>
+<p><em>Additional variables are available, but have not been downloaded from the web portal.</em></p>
+<p>‘10 metre wind direction’, ‘10 metre wind speed’, ‘Air density over the oceans’, ‘Benjamin-Feir index’, ‘Coefficient of drag with waves’, ‘Free convective velocity over the oceans’, ‘Maximum individual wave height’, ‘Mean direction of total swell’, ‘Mean direction of wind waves’, ‘Mean period of total swell’, ‘Mean period of wind waves’, ‘Mean square slope of waves’, ‘Mean wave direction of first swell partition’, ‘Mean wave direction of second swell partition’, ‘Mean wave direction of third swell partition’, ‘Mean wave period based on first moment’, ‘Mean wave period based on first moment for swell’, ‘Mean wave period based on first moment for wind waves’, ‘Mean wave period based on second moment for swell’, ‘Mean wave period based on second moment for wind waves’, ‘Mean wave period of first swell partition’, ‘Mean wave period of second swell partition’, ‘Mean wave period of third swell partition’, ‘Mean zero-crossing wave period’, ‘Normalized energy flux into ocean’, ‘Normalized energy flux into waves’, ‘Normalized stress into ocean’, ‘Peak wave period’, ‘Period corresponding to maximum individual wave height’, ‘Significant height of total swell’, ‘Significant height of wind waves’, ‘Significant wave height of first swell partition’, ‘Significant wave height of second swell partition’, ‘Significant wave height of third swell partition’, ‘U-component stokes drift’, ‘V-component stokes drift’, ‘Wave Spectral Skewness’, ‘Wave spectral directional width’, ‘Wave spectral directional width for swell’, ‘Wave spectral directional width for wind waves’, ‘Wave spectral kurtosis’, ‘Wave spectral peakedness’.</p>
+<p><br></p>
+<hr />
+</div>
+</div>
+<div id="sinmod" class="section level3 tabset">
+<h3>SINMOD</h3>
+<p>Tidally resolved water velocity fields in the Arctic. Numerical ocean model output.</p>
+<div id="source-7" class="section level4">
+<h4><i class='fa fa-download' aria-hidden='true' style ='color:#003399;'></i> Source</h4>
+<p><br></p>
+<p>Available on the idrive at Strathclyde, supplied by Ingrid Ellingsen at SINTEF</p>
+<p><br></p>
+<hr />
+</div>
+<div id="space-7" class="section level4">
+<h4><i class='fa fa-globe' aria-hidden='true' style ='color:#003399;'></i> Space</h4>
+<p><br></p>
+<p>Arctic.</p>
+<p><br></p>
+<hr />
+</div>
+<div id="time-7" class="section level4">
+<h4><i class='fa fa-stopwatch' aria-hidden='true' style ='color:#003399;'></i> Time</h4>
+<p><br></p>
+<ul>
+<li><em>From</em> 01/01/2003.</li>
+<li><em>To</em> 28/12/2018.</li>
+<li><em>In</em> 336 timesteps (every 2 hours in a 28 day month)..</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="file-structure-7" class="section level4">
+<h4>File structure</h4>
+<p><br></p>
+<ul>
+<li>191 netcdf files.</li>
+<li>600gb total memory requirement.</li>
+<li>1 netcdf file contains a 3D spatial grid and all timesteps within a month.</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="target-vars-7" class="section level4">
+<h4><i class='fa fa-eye' aria-hidden='true' style ='color:#003399;'></i> Target vars</h4>
+<p><br></p>
+<ul>
+<li>‘u_east’, Zonal veolcity.</li>
+<li>‘v_north’, Meridional velocity.</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="spatial-vars-7" class="section level4">
+<h4><i class='fas fa-layer-group' aria-hidden='true' style ='color:#003399;'></i> Spatial vars</h4>
+<p><br></p>
+<ul>
+<li>‘gridLats’, matrix of latitudes (curvilinear grid).</li>
+<li>‘gridLons’, matrix of longitudes (curvilinear grid).</li>
+<li>‘depths’, matrix of depths.</li>
+<li>‘ldepths’, vector of depth layer thicknesses?</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="other-vars-7" class="section level4">
+<h4><i class='fa fa-plus' aria-hidden='true' style ='color:#003399;'></i> other vars</h4>
+<p><br></p>
+<p>w_east’, ‘w_north’, ‘w_velocity’, ‘vertical_diffusivity’, ‘NO3’, ‘PhytoF’, ‘PhytoD’, ‘temperature’, ‘salinity’, ‘ice_thickness’, ‘ice_compactness’, ‘freezing_rate’, ‘salinity_ice’, ‘uIce_east’, ‘vIce_north’, ‘uUnderIceE’, ‘vUnderIceN’, ‘elevation’.</p>
+<p><br></p>
+<hr />
+</div>
+</div>
+<div id="global-news" class="section level3 tabset">
+<h3>Global NEWS</h3>
+<p>‘Global Nutrient Export from Watersheds’. Modeled N and P input to oceans from rivers.</p>
+<div id="source-8" class="section level4">
+<h4><i class='fa fa-download' aria-hidden='true' style ='color:#003399;'></i> Source</h4>
+<p><br></p>
+<p><a href="https://easy.dans.knaw.nl/ui/datasets/id/easy-dataset:64145" title="Click to visit the page">Downloaded from DANS</a></p>
+<p><br></p>
+<hr />
+</div>
+<div id="space-8" class="section level4">
+<h4><i class='fa fa-globe' aria-hidden='true' style ='color:#003399;'></i> Space</h4>
+<p><br></p>
+<p>Global.</p>
+<p><br></p>
+<hr />
+</div>
+<div id="time-8" class="section level4">
+<h4><i class='fa fa-stopwatch' aria-hidden='true' style ='color:#003399;'></i> Time</h4>
+<p><br></p>
+<ul>
+<li><em>From</em> 01/01/1900.</li>
+<li><em>To</em> 28/12/2000.</li>
+<li><em>In</em> 5 years.</li>
+<li><em>Duration</em> Updated annually.</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="file-structure-8" class="section level4">
+<h4>File structure</h4>
+<p><br></p>
+<ul>
+<li>3 csv files.</li>
+<li>6mb total memory requirement.</li>
+<li>The files contain river mouth coordinates, Nitrogen loads, river discharge volume.</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="target-vars-8" class="section level4">
+<h4><i class='fa fa-eye' aria-hidden='true' style ='color:#003399;'></i> Target vars</h4>
+<p><br></p>
+<ul>
+<li>‘Nload’, Nitrogen reaching the sea from a river (kg per year).</li>
+<li>‘Discharge’, Water volume released at the river mouth (km<sup>3</sup> per year).</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="spatial-vars-8" class="section level4">
+<h4><i class='fas fa-layer-group' aria-hidden='true' style ='color:#003399;'></i> Spatial vars</h4>
+<p><br></p>
+<ul>
+<li>‘lat’, vector of latitudes (rectilinear grid).</li>
+<li>‘lon’, vector of longitudes (rectilinear grid).</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="other-vars-8" class="section level4">
+<h4><i class='fa fa-plus' aria-hidden='true' style ='color:#003399;'></i> other vars</h4>
+<p><br></p>
+<p>Nretention’, Pload’, ‘Pretention’.</p>
+<p><br></p>
+<hr />
+</div>
+</div>
+<div id="arctic-gro" class="section level3 tabset">
+<h3>Arctic GRO</h3>
+<p>‘Arctic Greant Rivers Observatory’. Water quality field recordings from the 6 largest Arctic rivers.</p>
+<div id="source-9" class="section level4">
+<h4><i class='fa fa-download' aria-hidden='true' style ='color:#003399;'></i> Source</h4>
+<p><br></p>
+<p><a href="https://arcticgreatrivers.org" title="Click to visit the page">Downloaded from arcticgreatrivers.org</a></p>
+<p><br></p>
+<hr />
+</div>
+<div id="space-9" class="section level4">
+<h4><i class='fa fa-globe' aria-hidden='true' style ='color:#003399;'></i> Space</h4>
+<p><br></p>
+<p>Arctic.</p>
+<p><br></p>
+<hr />
+</div>
+<div id="time-9" class="section level4">
+<h4><i class='fa fa-stopwatch' aria-hidden='true' style ='color:#003399;'></i> Time</h4>
+<p><br></p>
+<ul>
+<li><em>From</em> 16/07/2003.</li>
+<li><em>To</em> 04/11/2020.</li>
+<li><em>In</em> Irregular.</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="file-structure-9" class="section level4">
+<h4>File structure</h4>
+<p><br></p>
+<ul>
+<li>1 xslx file.</li>
+<li>185kb total memory requirement.</li>
+<li>The file contains a tab for each river.</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="target-vars-9" class="section level4">
+<h4><i class='fa fa-eye' aria-hidden='true' style ='color:#003399;'></i> Target vars</h4>
+<p><br></p>
+<ul>
+<li>‘TDN’, Concentration of total dissolved nitrogen (mg per l).</li>
+<li>‘NH4’, Concentration of Ammonia (<em>mu</em>g per l).</li>
+<li>‘Discharge’, Water volume released at the river mouth (m<sup>3</sup> per second).</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="spatial-vars-9" class="section level4">
+<h4><i class='fas fa-layer-group' aria-hidden='true' style ='color:#003399;'></i> Spatial vars</h4>
+<p><br></p>
+<ul>
+<li>‘River’, character vector of river ID.</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="other-vars-9" class="section level4">
+<h4><i class='fa fa-plus' aria-hidden='true' style ='color:#003399;'></i> other vars</h4>
+<p><br></p>
+<p>Cond’, ‘Alk’, ‘H20-2H’, ‘H20-180’, ‘DOC’, ‘DOC-13C’, ‘DOC-14C’, ‘DOC-fm’, ‘NO3’, ‘TDP’, ‘PO4’, ‘SiO2’, ‘Na’, ‘K’, ‘Mg’, ‘Ca’, ‘As’, ‘Ba’, ‘Cl’, ‘SO4’, ‘Li’, ‘Rb’, ‘Sr’, ‘U’, ‘F’, ‘UTHg’, ‘UMeHg’, ‘TSS’, ‘POC’, ‘POC-13C’, ‘POC-14C’, ‘POC-fm’, ‘PON’, ‘PON-15N’, ‘Sample depth 1’, ‘TSS (1)’, ‘POC (1)’, ‘POC-13C (1)’, ‘PON (1)’, ‘PON-15N (1)’, ‘Sample depth 2’,‘TSS (2)’, ‘POC (2)’, ‘POC-13C (2)’, ‘PON (2)’, ‘PON-15N (2)’.</p>
+<p><br></p>
+<hr />
+</div>
+</div>
+<div id="globcolour" class="section level3 tabset">
+<h3>Globcolour</h3>
+<p>Suspended particulate matter from binned monthly satellite colour data.</p>
+<div id="source-10" class="section level4">
+<h4><i class='fa fa-download' aria-hidden='true' style ='color:#003399;'></i> Source</h4>
+<p><br></p>
+<p>Downloaded across an FTP connection. The code below should automatically do this for you, but you will need to get your own username and password from Globcolour, and replace this in the script.</p>
+<pre class="r"><code>  
+## Automate the downloading of supsended particulate matter from GloColour server
+
+#### Set up ####
+
+rm(list=ls())
+
+library(tidyverse)
+library(RCurl)
+
+download &lt;- function(Source, File) {
+ 
+  Sys.sleep(pause)                                    # Pause so we&#39;re not locked out
+ 
+  download.file(url = paste0(Source, File), destfile = paste(&quot;./Data/SPM/&quot;, File))
+ 
+}              # Create path, download, and specify destination file name
+
+url &lt;- &quot;ftp://ftp.hermes.acri.fr/GLOB/merged/month/&quot;  # Path to directory of interest
+
+userpwd &lt;- &quot;ftp_gc_*******:*******&quot;                   # Your username and password
+
+pause &lt;- 120                                          # How long to leave between requests to the server
+ 
+#### Build folder structure and download SPM files ####
+
+files &lt;- getURL(url, userpwd = userpwd, ftp.use.epsv = F, dirlistonly = T) %&gt;% # List the sub-directories for years
+  strsplit(&quot;\n&quot;) %&gt;%                                  # Seperate names into individual entries
+  map(function(x) paste0(url, x,&quot;/&quot;)) %&gt;%             # Create a full path for each subdirectory found
+  unlist() %&gt;%                                        # Strip back to a vector of yearly subdirectories
+  map(~ {                                             # For each year folder
+ 
+  Sys.sleep(pause)                                    # Pause so we&#39;re not locked out
+ 
+  url &lt;- .x                                           # Rememeber the name of this folder
+  print(url)
+ 
+  months &lt;- getURL(.x, userpwd = userpwd, ftp.use.epsv = F, dirlistonly = T) %&gt;% # Check which months are reported this year
+  strsplit(&quot;\n&quot;) %&gt;%                                  # Seperate names again
+  map(function(x) paste0(url, x,&quot;/01/&quot;)) %&gt;%          # Create full paths for each source/year/month paths
+  unlist()
+  })  %&gt;%                                   # How many months are in each year folder? pause so I&#39;m not locked out
+  unlist() %&gt;%
+  map(~ {
+ 
+  Sys.sleep(pause)                                    # Pause between checking each folder to stop getting locked out
+ 
+  url &lt;- .x                                           # Remember the route to this subdirectory
+  print(url)
+ 
+  files &lt;- getURL(.x, userpwd = userpwd, ftp.use.epsv = F, dirlistonly = T) %&gt;% # Which files are in here?
+  strsplit(&quot;\n&quot;) %&gt;%                                  # Separate files
+  map(function(x) paste0(url, x)) %&gt;%                 # Create full path for each of these files
+  unlist() %&gt;%                                        
+  as.data.frame(col.names = &quot;Files&quot;) %&gt;%              # Get a dataframe of all file names
+  filter(grepl(&quot;.nc&quot;, `.`, fixed = TRUE)) %&gt;%         # Limit to netcdf files
+  filter(grepl(&quot;SPM&quot;, `.`, fixed = TRUE)) %&gt;%         # Limit to suspended particulate matter files
+  filter(grepl(&quot;L3b&quot;, `.`, fixed = TRUE))             # Limit to files on their Binned grid (high resolution I think)
+   }) %&gt;%                                             # Which files are in each folder? with a pause so I&#39;m not locked out
+  bind_rows() %&gt;%                                     # Bind file names into dataframe
+  rename(value = 1) %&gt;%
+  separate(value, into = c(&quot;Source&quot;, &quot;File&quot;), sep = &quot;L3b_&quot;) %&gt;% # Isolate file name to use when saving files
+  mutate(File = paste0(&quot;L3b_&quot;, File),                 # Replace dropped separator
+         Source = str_replace(Source, &quot;ftp.hermes&quot;, paste0(userpwd,&quot;@ftp.hermes&quot;))) # Add password into link request
+ 
+pmap(files, download)                                 # Download all the files, don&#39;t parallelise, we don&#39;t want to overload the server!
+</code></pre>
+<p><br></p>
+<hr />
+</div>
+<div id="space-10" class="section level4">
+<h4><i class='fa fa-globe' aria-hidden='true' style ='color:#003399;'></i> Space</h4>
+<p><br></p>
+<p>Global.</p>
+<p><br></p>
+<hr />
+</div>
+<div id="time-10" class="section level4">
+<h4><i class='fa fa-stopwatch' aria-hidden='true' style ='color:#003399;'></i> Time</h4>
+<p><br></p>
+<ul>
+<li><em>From</em> 01/09/1997.</li>
+<li><em>To</em> 31/28/2020.</li>
+<li><em>In</em> month.</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="file-structure-10" class="section level4">
+<h4>File structure</h4>
+<p><br></p>
+<ul>
+<li>269 netcdf files.</li>
+<li>17.5gb total memory requirement.</li>
+<li>1 netcdf file contains a 2D spatial grid of mean values within a month.</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="target-vars-10" class="section level4">
+<h4><i class='fa fa-eye' aria-hidden='true' style ='color:#003399;'></i> Target vars</h4>
+<p><br></p>
+<ul>
+<li>‘SPM-0C5_mean’, Mean inorganic suspended particulate matter in sea water.</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="spatial-vars-10" class="section level4">
+<h4><i class='fas fa-layer-group' aria-hidden='true' style ='color:#003399;'></i> Spatial vars</h4>
+<p><br></p>
+<ul>
+<li>‘col’, vector of longitudinal indices of the bins stored in the file.</li>
+<li>‘center_lat’, vector of centre latitudes for each useful row.</li>
+<li>‘centerlon’, vector of centre longitudes of the first left bin in a row.</li>
+<li>‘lon_step’, vector of longitudinal steps for each useful row.</li>
+</ul>
+<p>Two dimensions are also required:</p>
+<ul>
+<li>‘bin’, id for a pixel</li>
+<li>‘row’, the row in the grid for a pixel.</li>
+</ul>
+<p>To get to coordinates in latitude and longitude:</p>
+<pre class="r"><code>  index &lt;- row[bin] - row[1]+1 
+  lat_bin = center_lat[index]
+  lon_bin = center_lon[index] + col[bin] * lon_step[index]</code></pre>
+<p><br></p>
+<hr />
+</div>
+<div id="other-vars-10" class="section level4">
+<h4><i class='fa fa-plus' aria-hidden='true' style ='color:#003399;'></i> other vars</h4>
+<p><br></p>
+<p><em>Additional variables are available, but have not been downloaded from the server.</em></p>
+<p>CHL1’, ‘CHL-OC5’, ‘CHL2’, ‘TSM’, ‘PIC’, ‘POC’, ‘NFLH’, ‘WVCS’, ‘Txxx’, ‘Axxx’, ‘CF’, ‘ABSD’, ‘(N)RRSxxx’, ‘PAR’, ‘BBP’, ‘CDM’, ‘KD490’, ‘KDPAR’, ‘ZHL’, ‘ZEU’, ‘ZSD’, ‘CHL-CIA’, ‘BBPxxx-LOG’, ‘BBPS-LOG’, ‘PSD-XXX’, ‘POC-SURF’, ‘POC-INT’, ‘PP’, ‘PP-AM’, ‘PP-UITZ’, ‘PHYSAT’.</p>
+<p><br></p>
+<hr />
+</div>
+</div>
+<div id="emep" class="section level3 tabset">
+<h3>EMEP</h3>
+<p>Modelled atmospheric deposition of reduced and oxidised Nitrogen from EMEP MSC-W.</p>
+<div id="source-11" class="section level4">
+<h4><i class='fa fa-download' aria-hidden='true' style ='color:#003399;'></i> Source</h4>
+<p><br></p>
+<p>Downloaded from the EMEP server. The code below should automatically do this for you.</p>
+<pre class="r"><code>  
+## Automate the downloading of N atmospheric depostion data from EMEP server
+
+library(tidyverse)
+library(rvest)
+
+download &lt;- function(file) {
+ 
+  download &lt;- download.file(url = paste0(source, file), destfile = paste(&quot;./Data/EMEP Atmosphere/&quot;, file))
+ 
+}                                                # Create path, download, and specify destination file name
+
+source &lt;- &quot;https://thredds.met.no/thredds/fileServer/data/EMEP/2018_Reporting/&quot; # Where are the files stored?
+
+read_html(&quot;https://thredds.met.no/thredds/catalog/data/EMEP/2018_Reporting/catalog.html&quot;) %&gt;% # Import the file catalog
+  html_nodes(&quot;a&quot;) %&gt;%                                                           # Extract links
+  html_attr(&quot;href&quot;) %&gt;%                      
+  .[which(grepl(&quot;month&quot;, .), )] %&gt;%                                             # Limit to monthly files
+  str_remove(., fixed(&quot;catalog.html?dataset=EMEP/2018_Reporting/&quot;)) %&gt;%         # Extract file names from links
+  map(download)                                                                 # Download all the files, don&#39;t parallelise, we don&#39;t want to overload the website!
+</code></pre>
+<p><br></p>
+<hr />
+</div>
+<div id="space-11" class="section level4">
+<h4><i class='fa fa-globe' aria-hidden='true' style ='color:#003399;'></i> Space</h4>
+<p><br></p>
+<p>Europe.</p>
+<p><br></p>
+<hr />
+</div>
+<div id="time-11" class="section level4">
+<h4><i class='fa fa-stopwatch' aria-hidden='true' style ='color:#003399;'></i> Time</h4>
+<p><br></p>
+<ul>
+<li><em>From</em> 01/01/2000.</li>
+<li><em>To</em> 28/12/2017.</li>
+<li><em>In</em> month.</li>
+<li><em>Duration</em> Updated annually.</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="file-structure-11" class="section level4">
+<h4>File structure</h4>
+<p><br></p>
+<ul>
+<li>18 netcdf files.</li>
+<li>15gb total memory requirement.</li>
+<li>1 netcdf file contains a 2D spatial grid and all months within a year.</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="target-vars-11" class="section level4">
+<h4><i class='fa fa-eye' aria-hidden='true' style ='color:#003399;'></i> Target vars</h4>
+<p><br></p>
+<ul>
+<li>‘DDEP_OXN_m2Grid’, Mean dry deposition of oxidised nitrogen.</li>
+<li>‘WDEP_RDN’, Mean wet deposition of reduced nitrogen.</li>
+<li>‘DDEP_RDN_m2Grid’, Mean dry deposition of reduced nitrogen.</li>
+<li>‘WDEP_OXN’, mean wet deposition of oxidised nitrogen.</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="spatial-vars-11" class="section level4">
+<h4><i class='fas fa-layer-group' aria-hidden='true' style ='color:#003399;'></i> Spatial vars</h4>
+<p><br></p>
+<p><em>Located within netcdf dims, not as variables.</em></p>
+<ul>
+<li>‘lon’, vector of latitudes (rectilinear grid).</li>
+<li>‘lat’, vector of longitudes (rectilinear grid).</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="other-vars-11" class="section level4">
+<h4><i class='fa fa-plus' aria-hidden='true' style ='color:#003399;'></i> other vars</h4>
+<p><br></p>
+<p><em>Additional variables are available, but have not been downloaded from the web portal.</em></p>
+<p>SURF_ugN_NOX’, ‘SURF_ugN_RDN’, ‘SURF_ugN_OXN’, ‘WDEP_PREC’, ‘WDEP_SOX’, ‘SURF_MAXO3’, ‘SURF_PM25water’, ‘SOMO35’, ‘DDEP_SOX_m2Grid’, ‘DDEP_SOX_m2Conif’, ‘DDEP_SOX_m2Decid’, ‘DDEP_SOX_m2Seminat’, ‘DDEP_OXN_m2Conif’, ‘DDEP_OXN_m2Decid’, ‘DDEP_OXN_m2Seminat’, ‘DDEP_RDN_m2Conif’, ‘DDEP_RDN_m2Decid’, ‘DDEP_RDN_m2Seminat’, ‘MMAOT40_IAM_DF’, ‘MMAOT40_IAM_CR’, ‘EUAOT40_Crops’, ‘EUAOT40_Forests’, ‘SURF_ug_SO2’, ‘SURF_ug_NH3’, ‘SURF_ug_HNO3’, ‘SURF_ug_NO2’, ‘SURF_ug_NO’, ‘SURF_ug_SO4’, ‘SURF_ug_NO3_F’, ‘SURF_ug_NO3_C’, ‘SURF_ug_NH4_F’, ‘SURF_ppb_O3’, ‘SURF_ug_PM10’, ‘SURF_ug_PPM25’, ‘SURF_ug_PPM_C’, ‘SURF_ug_SS’, ‘SURF_ug_DUST’, ‘SURF_ug_ECFINE’, ‘SURF_ug_ECCOARSE’, ‘SURF_ug_PM25’, ‘SURF_ug_PM25_rh50’, ‘SURF_ug_PM10_rh50’.</p>
+<p><br></p>
+<hr />
+</div>
+</div>
+</div>
+<div id="fishing" class="section level1">
+<h1>Fishing</h1>
+<div id="global-fishing-watch" class="section level3 tabset">
+<h3>Global Fishing Watch</h3>
+<p>Fishing effort from anonymised VMS signals and a model of vessel movement patterns.</p>
+<div id="source-12" class="section level4">
+<h4><i class='fa fa-download' aria-hidden='true' style ='color:#003399;'></i> Source</h4>
+<p><br></p>
+<p><a href="https://globalfishingwatch.org/datasets-and-code/" title="Click to visit the page">Downloaded from Global Fishing Watch.</a></p>
+<p><br></p>
+<hr />
+</div>
+<div id="space-12" class="section level4">
+<h4><i class='fa fa-globe' aria-hidden='true' style ='color:#003399;'></i> Space</h4>
+<p><br></p>
+<p>Global.</p>
+<p><br></p>
+<hr />
+</div>
+<div id="time-12" class="section level4">
+<h4><i class='fa fa-stopwatch' aria-hidden='true' style ='color:#003399;'></i> Time</h4>
+<p><br></p>
+<ul>
+<li><em>From</em> 01/01/2012.</li>
+<li><em>To</em> 31/12/2016.</li>
+<li><em>In</em> day.</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="file-structure-12" class="section level4">
+<h4>File structure</h4>
+<p><br></p>
+<ul>
+<li>1,827 csv files.</li>
+<li>18gb total memory requirement.</li>
+<li>1 csv file contains a list of pixels from the global grid where fishing was detected for a day.</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="target-vars-12" class="section level4">
+<h4><i class='fa fa-eye' aria-hidden='true' style ='color:#003399;'></i> Target vars</h4>
+<p><br></p>
+<ul>
+<li>‘geartype’, Fishing gear used.</li>
+<li>‘fishing_hours’, Total fishing within a pixel for a given day (hours).</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="spatial-vars-12" class="section level4">
+<h4><i class='fas fa-layer-group' aria-hidden='true' style ='color:#003399;'></i> Spatial vars</h4>
+<p><br></p>
+<ul>
+<li>‘lat_bin’, Latitude * 100 (rectilinear grid).</li>
+<li>‘lon_bin’, Longitude * 100 (rectilinear grid).</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="other-vars-12" class="section level4">
+<h4><i class='fa fa-plus' aria-hidden='true' style ='color:#003399;'></i> other vars</h4>
+<p><br></p>
+<p>flag’, ‘vessel_hours’, ‘mmsi_present’.</p>
+<p><br></p>
+<hr />
+</div>
+</div>
+<div id="ices" class="section level3 tabset">
+<h3>ICES</h3>
+<p>International report on fisheries landings by species and country.</p>
+<div id="source-13" class="section level4">
+<h4><i class='fa fa-download' aria-hidden='true' style ='color:#003399;'></i> Source</h4>
+<p><br></p>
+<p>Landings from ICES were downloaded from Ian’s cleaned portal hosted at Strathclyde.</p>
+<p><br></p>
+<hr />
+</div>
+<div id="space-13" class="section level4">
+<h4><i class='fa fa-globe' aria-hidden='true' style ='color:#003399;'></i> Space</h4>
+<p><br></p>
+<p>Major fishing area 27. .</p>
+<p><br></p>
+<hr />
+</div>
+<div id="time-13" class="section level4">
+<h4><i class='fa fa-stopwatch' aria-hidden='true' style ='color:#003399;'></i> Time</h4>
+<p><br></p>
+<ul>
+<li><em>From</em> 01/01/1903.</li>
+<li><em>To</em> 31/12/2017.</li>
+<li><em>In</em> year.</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="file-structure-13" class="section level4">
+<h4>File structure</h4>
+<p><br></p>
+<ul>
+<li>1 csv file.</li>
+<li>37mb total memory requirement.</li>
+<li>The file contains a list of landings by species, FAO areas, and flag for the whole time span.</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="target-vars-13" class="section level4">
+<h4><i class='fa fa-eye' aria-hidden='true' style ='color:#003399;'></i> Target vars</h4>
+<p><br></p>
+<ul>
+<li>‘tonnage’, Weight of fish landed (tonnes).</li>
+<li>‘year’, Year of landing.</li>
+<li>‘cname’, Country name.</li>
+<li>‘N.blocs’, Block of nations.</li>
+<li>‘Category’, Species guild.</li>
+<li>‘Subcategory’, Species guild.</li>
+<li>‘scientific’, Species name.</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="spatial-vars-13" class="section level4">
+<h4><i class='fas fa-layer-group' aria-hidden='true' style ='color:#003399;'></i> Spatial vars</h4>
+<p><br></p>
+<ul>
+<li>‘area’, FAO region.</li>
+<li>‘area_orig’, Old FAO naming convention.</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="other-vars-13" class="section level4">
+<h4><i class='fa fa-plus' aria-hidden='true' style ='color:#003399;'></i> other vars</h4>
+<p><br></p>
+<p>ccode2’, ‘ccode3’, acronym’, ‘tsn’, ‘common’.</p>
+<p><br></p>
+<hr />
+</div>
+</div>
+<div id="imr" class="section level3 tabset">
+<h3>IMR</h3>
+<p>Reports of landings and effort by species and gear of Norwegian vessels.</p>
+<div id="source-14" class="section level4">
+<h4><i class='fa fa-download' aria-hidden='true' style ='color:#003399;'></i> Source</h4>
+<p><br></p>
+<p>Provided at request by Tom Clegg at IMR Bergen.</p>
+<p><br></p>
+<hr />
+</div>
+<div id="space-14" class="section level4">
+<h4><i class='fa fa-globe' aria-hidden='true' style ='color:#003399;'></i> Space</h4>
+<p><br></p>
+<p>Barents &amp; Norwegain Sea. .</p>
+<p><br></p>
+<hr />
+</div>
+<div id="time-14" class="section level4">
+<h4><i class='fa fa-stopwatch' aria-hidden='true' style ='color:#003399;'></i> Time</h4>
+<p><br></p>
+<ul>
+<li><em>From</em> 01/01/2000.</li>
+<li><em>To</em> 31/12/2019.</li>
+<li><em>In</em> day.</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="file-structure-14" class="section level4">
+<h4>File structure</h4>
+<p><br></p>
+<ul>
+<li>1 lst file plus meta data files.</li>
+<li>156mb total memory requirement.</li>
+<li>The file contains a list of landings and effort by species, IMR regions, and gear. Supporting files include species and gear codes, and a shape file for the IMR regions.</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="target-vars-14" class="section level4">
+<h4><i class='fa fa-eye' aria-hidden='true' style ='color:#003399;'></i> Target vars</h4>
+<p><br></p>
+<ul>
+<li>‘FAAR’, Year.</li>
+<li>‘FM’, Month.</li>
+<li>‘FD’, Day.</li>
+<li>‘RE’, IMR gear code.</li>
+<li>‘VAR’, Fishing time (hours).</li>
+<li>‘HO’, IMR fishing area code.</li>
+<li>‘FISK’, species ID.</li>
+<li>‘VEKT’, landings weight (kg).</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="spatial-vars-14" class="section level4">
+<h4><i class='fas fa-layer-group' aria-hidden='true' style ='color:#003399;'></i> Spatial vars</h4>
+<p><br></p>
+<ul>
+<li>‘OMRA’, IMR region where catch occured.</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="other-vars-14" class="section level4">
+<h4><i class='fa fa-plus' aria-hidden='true' style ='color:#003399;'></i> other vars</h4>
+<p><br></p>
+<ul>
+<li>‘OMRA’, Area code.</li>
+<li>‘OKSO’, Economic zone.</li>
+<li>‘LO’, Location.</li>
+<li>‘LENG’, Vessel length (m).</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+</div>
+<div id="stecf-effort" class="section level3 tabset">
+<h3>STECF Effort</h3>
+<p>Reports of effort by gear for EU vessels.</p>
+<div id="source-15" class="section level4">
+<h4><i class='fa fa-download' aria-hidden='true' style ='color:#003399;'></i> Source</h4>
+<p><br></p>
+<p><a href="https://stecf.jrc.ec.europa.eu/dd/fdi/spatial-eff-map" title="Click to visit the page">Downloaded from the europa portal</a></p>
+<p><br></p>
+<hr />
+</div>
+<div id="space-15" class="section level4">
+<h4><i class='fa fa-globe' aria-hidden='true' style ='color:#003399;'></i> Space</h4>
+<p><br></p>
+<p>Global.</p>
+<p><br></p>
+<hr />
+</div>
+<div id="time-15" class="section level4">
+<h4><i class='fa fa-stopwatch' aria-hidden='true' style ='color:#003399;'></i> Time</h4>
+<p><br></p>
+<ul>
+<li><em>From</em> 01/01/2015.</li>
+<li><em>To</em> 31/12/2018.</li>
+<li><em>In</em> year.</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="file-structure-15" class="section level4">
+<h4>File structure</h4>
+<p><br></p>
+<ul>
+<li>1 shape file.</li>
+<li>846mb total memory requirement.</li>
+<li>The shape file contains polygons for aggregated fishing effort in areas, by year.</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="target-vars-15" class="section level4">
+<h4><i class='fa fa-eye' aria-hidden='true' style ='color:#003399;'></i> Target vars</h4>
+<p><br></p>
+<ul>
+<li>‘year’, Year.</li>
+<li>‘quarter’, 3 month interval.</li>
+<li>‘ger_typ’, Gear type.</li>
+<li>‘rctngl_’, Polygon size.</li>
+<li>‘ttfshdy’, Total fishing days (days).</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="spatial-vars-15" class="section level4">
+<h4><i class='fas fa-layer-group' aria-hidden='true' style ='color:#003399;'></i> Spatial vars</h4>
+<p><br></p>
+<p>Polygon boundaries embedded in shapefile.</p>
+<p><br></p>
+<hr />
+</div>
+<div id="other-vars-15" class="section level4">
+<h4><i class='fa fa-plus' aria-hidden='true' style ='color:#003399;'></i> other vars</h4>
+<p><br></p>
+<p>vssl_ln’, ‘fshng_t’, ‘msh_sz_’, ‘trgt_ss’,‘metier’, ‘spr_rgn’, ‘sub_rgn’,‘spcn_tc’, ‘deep’,‘icesnam’, ‘cscode’.</p>
+<p><br></p>
+<hr />
+</div>
+</div>
+<div id="stecf-landings" class="section level3 tabset">
+<h3>STECF Landings</h3>
+<p>Reports of landings by species and gear for EU vessels.</p>
+<div id="source-16" class="section level4">
+<h4><i class='fa fa-download' aria-hidden='true' style ='color:#003399;'></i> Source</h4>
+<p><br></p>
+<p><a href="https://stecf.jrc.ec.europa.eu/dd/fdi/spatial-land-map" title="Click to visit the page">Downloaded from the europa portal</a></p>
+<p><br></p>
+<hr />
+</div>
+<div id="space-16" class="section level4">
+<h4><i class='fa fa-globe' aria-hidden='true' style ='color:#003399;'></i> Space</h4>
+<p><br></p>
+<p>Global.</p>
+<p><br></p>
+<hr />
+</div>
+<div id="time-16" class="section level4">
+<h4><i class='fa fa-stopwatch' aria-hidden='true' style ='color:#003399;'></i> Time</h4>
+<p><br></p>
+<ul>
+<li><em>From</em> 01/01/2015.</li>
+<li><em>To</em> 31/12/2018.</li>
+<li><em>In</em> year.</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="file-structure-16" class="section level4">
+<h4>File structure</h4>
+<p><br></p>
+<ul>
+<li>4 shape files.</li>
+<li>7.7gb total memory requirement</li>
+<li>Each file contains polygons with aggregated catches for one year of landings by EU vessels.</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="target-vars-16" class="section level4">
+<h4><i class='fa fa-eye' aria-hidden='true' style ='color:#003399;'></i> Target vars</h4>
+<p><br></p>
+<ul>
+<li>‘year’, Year.</li>
+<li>‘ger_typ’, Gear type.</li>
+<li>‘rctngl_’, Polygon size.</li>
+<li>‘species’, Landed species.</li>
+<li>‘ttwghtl’, Total weight landed (days).</li>
+<li>‘ttlvllnd’, Total value landed( Euros).</li>
+</ul>
+<p><br></p>
+<hr />
+</div>
+<div id="spatial-vars-16" class="section level4">
+<h4><i class='fas fa-layer-group' aria-hidden='true' style ='color:#003399;'></i> Spatial vars</h4>
+<p><br></p>
+<p>Polygon boundaries embedded in shapefile.</p>
+<p><br></p>
+<hr />
+</div>
+<div id="other-vars-16" class="section level4">
+<h4><i class='fa fa-plus' aria-hidden='true' style ='color:#003399;'></i> other vars</h4>
+<p><br></p>
+<p>cscode’, ‘quarter’, ‘vssl_ln’, ‘fshng_t’, ‘msh_sz_’, ‘trgt_ss’, ‘metier’, ‘spr_rgn’, ‘sub_rgn’, ‘spcn_tc’, ‘deep’, ‘icesnam’.</p>
+<p><br></p>
+<hr />
 </div>
 </div>
 </div>
 
 
 
+</div>
+</div>
 
 </div>
 
@@ -546,7 +1816,38 @@ $(document).ready(function () {
 </script>
 
 <!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
 
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>
