@@ -56,6 +56,7 @@ rate[c("Cetacean", "Macrophyte", "Birds", "Pinnipeds"),] <- 1                   
 rate["Cetacean", "Harpoons"] <- 0                                                # Except for specific targeted gears
 rate["Macrophyte", "Kelp harvesting"] <- 0
 rate["Pinnipeds", "Rifles"] <- 0
+rate["Cetacean", "Gillnets"] <- 7000 * 0.05                                      # Literature estimate of porpoise discards (7000 at 50kg)
 
 saveRDS(rate, "./Objects/Discard_rates.rds")
 
