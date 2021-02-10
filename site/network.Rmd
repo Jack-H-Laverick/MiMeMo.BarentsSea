@@ -22,9 +22,6 @@ library(ggraph)
 
 ```
 
-
-
-
 The figure below illustrates the hierarchy for MiMeMo scripts. Scripts are loosely classified into families - *bathymetry* - *fish* - *flows* - *NM* - *Sediment* - *StrathE2E*. These can all be run from a master script. The network is created programmaticaly by looking for objects across all scripts present in both a `saveRDS` and `readRDS` call. The blue end of a connection is where the object is created, the red end of a connection is a script using that object. You can see a broad structure where the script creating the domain polygon contributes to most other scripts (lots of blue), which then all feed into the strathe2e compiling scripts (lots of red).
 
 ```{r code relations, echo = FALSE, eval = TRUE, warning= FALSE}
