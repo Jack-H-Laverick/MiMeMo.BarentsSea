@@ -134,7 +134,7 @@ vertices$id <- NA
 myleaves <- which(is.na(match(vertices$name, Edges$from)))
 nleaves <- length(myleaves)
 vertices$id[ myleaves ] <- seq(1:nleaves)                                                      
-vertices$angle <- 90 - 360 * vertices$id / (nleaves-7)# - 7 for the nodes not plotted (origin and each family level)
+vertices$angle <- 30 - 360 * vertices$id / (nleaves-7)# - 7 for the nodes not plotted (origin and each family level)
 
 vertices$hjust <- ifelse(between(vertices$angle, -270, -90), 0, 1)                               # Make sure labels are justified outwards
 vertices$angle <- ifelse(between(vertices$angle, -270, -90), vertices$angle+180, vertices$angle) # Flip labels if they are upside down
