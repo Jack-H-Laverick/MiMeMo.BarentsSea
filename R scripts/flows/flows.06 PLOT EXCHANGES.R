@@ -11,21 +11,19 @@ H_Flows <- readRDS("./Objects/H-Flows.rds") %>%                             # Lo
   mutate(Neighbour = ifelse(Shore == "Inshore" & Neighbour == "Ocean", "Shelf", Neighbour)) %>% 
   filter(Year == 1980 & Month == 1)                                         # Use an example year
 
-V_Flows <- readRDS("./Objects/V-Flows.rds")
+V_Flows <- readRDS("./Objects/vertical diffusivity.rds")
 
 #### Combine vertical and horizontal flows ####
 
 #*# It doesn't actually make sense to just add Eddy diffusivity to the plot. They're different units.
-Exchanges <- mutate(V_Flows, Value = as.numeric(Value)) %>%   
-  mutate(Direction = ifelse(Value > 0, "In", "Out"),    # Introduce missing columns
+Exchanges <- mutate(V_Flows, Direction = ifelse(Vertical_diffusivity > 0, "In", "Out"),    # Introduce missing columns
          Shore = "Offshore",
          Neighbour = "Offshore (D)",
-         Depth = "S") %>%
-  filter(Flow != "Eddy Diffusivity") %>%                                    # Limit to velocities
-  select(-c(Flow, Date)) %>%
-  rename(Flow = Value) %>%                      
+         slab_layer = "S") %>%
+  rename(Flow = Vertical_diffusivity) %>%                      
   filter(Year == 1980 & Month == 1) %>%                                     # Limit to example month
-  bind_rows(H_Flows)                                                        # Combine to horizontal flows
+  bind_rows(H_Flows) %>%                                                    # Combine to horizontal flows
+  rename(Depth = slab_layer)                                                # Easier than changing the rest of the code
 
 #### Create network ####
 
