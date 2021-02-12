@@ -29,7 +29,7 @@ ggplot() +                                                                  # Ch
                          boundaries (red, over black). Specify the sampling polygons in the region file")) +
   NULL
  
-ggsave_map("./Figures/flows/Inshore-Ocean boundary.png")
+ggsave_map("./Figures/flows/Inshore-Ocean boundary.png", last_plot())
 
 #### Drop Inshore transects we don't need ####
 
