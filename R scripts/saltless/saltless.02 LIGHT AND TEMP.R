@@ -62,4 +62,4 @@ ggplot(data = Air) +
   theme(legend.position = "top") +
   NULL
 
-ggsave("./Figures/NEMO-MEDUSA/Air temp and Light.png", last_plot(), dpi = 500, width = 18, height = 10 , units = "cm")
+ggsave("./Figures/saltless/Air temp and Light.png", last_plot(), dpi = 500, width = 18, height = 10 , units = "cm")
