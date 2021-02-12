@@ -73,7 +73,7 @@ summary <- bind_rows(mobile, rock_summary) %>%                             # Add
   group_by(Month, Habitat, Shore) %>% 
   summarise(Disturbance = mean(Disturbance))                               # Average over months
 
-#saveRDS(summary, "./Objects/Habitat disturbance.rds")
+saveRDS(summary, "./Objects/Habitat disturbance.rds")
 
 ggplot(summary) +
   geom_line(aes(x = as.numeric(as.factor(Month)), y = Disturbance*100, colour = Shore, linetype = Habitat)) +
