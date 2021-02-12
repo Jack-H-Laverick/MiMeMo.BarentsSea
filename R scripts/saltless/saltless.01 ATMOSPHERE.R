@@ -127,7 +127,7 @@ ggplot(data = Deposition) +
   theme(legend.position = "top") +
   NULL
 
-ggsave("./Figures/NEMO-MEDUSA/Atmospheric N Deposition.png", last_plot(), dpi = 500, width = 18, height = 10 , units = "cm")
+ggsave("./Figures/saltless/Atmospheric N Deposition.png", last_plot(), dpi = 500, width = 18, height = 10 , units = "cm")
 
 
   
