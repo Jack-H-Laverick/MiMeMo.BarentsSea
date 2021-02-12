@@ -34,5 +34,5 @@ ggplot(values) +
   labs(y = "Mean significant wave height (m)", x = "Month", caption = "Data from ECMWF Cera-20C") +
 NULL
 
-ggsave("./Figures/sediment/Significant wave height.png", width = 16, height = 8, units = "cm")
+ggsave("./Figures/flows/Significant wave height.png", width = 16, height = 8, units = "cm")
 
