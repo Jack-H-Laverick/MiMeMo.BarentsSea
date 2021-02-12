@@ -41,7 +41,8 @@ domains <- readRDS("./Objects/Domains.rds") %>%                             # Im
   st_union(river_expansion) %>%                                             # Expand the polygon to catch distributed river run off 
   nngeo::st_remove_holes() %>%                                              # Remove holes
   st_sf() %>%                                                               # reinstate class
-  mutate(Keep = T)
+  mutate(Keep = T) %>%    
+  st_make_valid()
 
 #### Work out which pixels are in the model domain ####
 
