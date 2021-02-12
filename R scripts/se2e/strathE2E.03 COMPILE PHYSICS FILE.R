@@ -78,10 +78,6 @@ My_Stress <- readRDS("./Objects/Habitat disturbance.rds") %>%
   arrange(Month)                                                            # Arrange to match template
 
 My_Waves <- readRDS("./Objects/Significant wave height.rds") %>%  #*2000 - 2010   
-  filter(Shore =="Inshore") %>%                                             # Limit to inshore
-  group_by(Month) %>%                                                       # By month
-  summarise(SWH = mean(SWH, na.rm = T)) %>%                                 # Average
-  ungroup %>% 
   arrange(Month)                                                            # Arrange to match template
 
 #### Create new file ####
@@ -114,7 +110,7 @@ Physics_new <- mutate(Physics_template, SLight = My_light$Measured,
                      habD2_pdist = filter(My_Stress, Shore == "Offshore", Habitat == "Sand")$Disturbance,
                      habD3_pdist = filter(My_Stress, Shore == "Offshore", Habitat == "Gravel")$Disturbance, 
                      ## Monthly mean significant wave height inshore                     
-                     Inshore_waveheight = My_Waves$SWH,
+                     Inshore_waveheight = My_Waves$Waves,
                      ## Cryo variables
                      SO_IceFree = 1 - filter(My_volumes, Compartment == "Offshore S")$Ice_pres,
                      SI_IceFree = 1 - filter(My_volumes, Compartment == "Inshore S")$Ice_pres,
