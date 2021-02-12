@@ -14,8 +14,6 @@ Space <- list.files("/mnt/idrive/Science/MS/Shared/CAO/mimemo/clipped_medusa", r
   .[1] %>%                                                                  # Name an example NM file
   nemomedusR::get_spatial()                                                 # And pull the spatial variables
 
-original <- readRDS("./Objects/Fixed_grid.rds")
-
 #### Get NEMO-MEDUSA bathymetry data ####
 
 NM_bath <- "/mnt/idrive/Science/MS/Shared/CAO/nemo/GRID/allarc_bathy_meter.nc"
