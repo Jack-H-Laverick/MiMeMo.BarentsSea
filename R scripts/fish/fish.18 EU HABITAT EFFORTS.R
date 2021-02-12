@@ -81,7 +81,7 @@ Absolute_effort_habitats <- left_join(habitat_weights, EU_effort) %>%         # 
   .[order(row.names(.)), order(colnames(.))]                                  # Alphabetise rows and columns
 saveRDS(Absolute_effort_habitats, "./Objects/EU absolute habitat effort.rds") # Save
 
-heatmap(Absolute_effort_habitats)
+#heatmap(Absolute_effort_habitats)
 
 ## How much of the corrected effort is allocated a habitat type?
 sum(Absolute_effort_habitats, na.rm = T) / sum(EU_effort$effort_contributions, na.rm = T)
