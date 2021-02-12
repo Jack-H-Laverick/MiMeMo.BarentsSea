@@ -80,4 +80,4 @@ ggplot(data = SPM) +
   theme(legend.position = "top") +
   NULL
 
-ggsave("./Figures/NEMO-MEDUSA/Suspended particulate matter.png", last_plot(), dpi = 500, width = 18, height = 10 , units = "cm")
+ggsave("./Figures/saltless/Suspended particulate matter.png", last_plot(), dpi = 500, width = 18, height = 10 , units = "cm")
