@@ -16,7 +16,7 @@ guild <- read.csv("./Data/MiMeMo fish guilds.csv") %>%                          
   slice_head() %>%                                                                # So only take the first instance of each code
   ungroup()
 
-target <- expand.grid(Guild = c(unique(read.csv("./Data/MiMeMo fish guilds.csv")$Guild), "Birds", "Pinnipeds"), # Create our target matrix to fill
+target <- expand.grid(Guild = unique(read.csv("./Data/MiMeMo fish guilds.csv")$Guild), # Create our target matrix to fill
                       Aggregated_gear = unique(read.csv("./Data/MiMeMo gears.csv")$Aggregated_gear))
 
 #### Import data ####
@@ -50,13 +50,12 @@ rate <- filter(data, !`total discards (tonnes)` %in% c("NK", "C")) %>%          
   pivot_wider(names_from = Aggregated_gear, values_from = Discard_rate) %>%      # Spread dataframe to look like a matrix
   column_to_rownames('Guild') %>%                                                # Remove character column
   as.matrix() %>%                                                                # Convert to matrix
-  .[order(row.names(.)), order(colnames(.))]                                     # Alphabetise rows and columns
+  .[order(row.names(.)), order(colnames(.))] %>%                                 # Alphabetise rows and columns
+  t()
 
-rate[c("Cetacean", "Macrophyte", "Birds", "Pinnipeds"),] <- 1                    # Overwrite guilds which are always discarded
-rate["Cetacean", "Harpoons"] <- 0                                                # Except for specific targeted gears
-rate["Macrophyte", "Kelp harvesting"] <- 0
-rate["Pinnipeds", "Rifles"] <- 0
-rate["Cetacean", "Gillnets"] <- 7000 * 0.05                                      # Literature estimate of porpoise discards (7000 at 50kg)
+rate[,c("Cetacean", "Macrophyte", "Birds", "Pinnipeds")] <- 1                    # Overwrite guilds which are always discarded
+rate["Harpoons", "Cetacean"] <- 0                                                # Except for specific targeted gears
+rate["Kelp harvesting", "Macrophyte"] <- 0
+rate["Rifles", "Pinnipeds"] <- 0
 
-saveRDS(rate, "./Objects/Discard_rates.rds")
-
+saveRDS(rate, "./Objects/EU discard rates.rds")
