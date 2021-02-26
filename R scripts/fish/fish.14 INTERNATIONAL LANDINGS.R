@@ -34,8 +34,11 @@ International <- t(((EU + IMR) *                                            # Su
                      domain_size                                            # and convert to per m^2
 
 International["Seines", "Macrophyte"] <- 0                                  # There's one tiny bit of seaweed we think should be removed.
-#International["Recreational", "Demersal (quota-limited)"] <- ??             # Add recreational fishing activity.
+International["Recreational", "Demersal (quota limited)"] <- 9856 / domain_size # Add recreational fishing activity.
+International["Recreational", "Migratory"] <- 20 / domain_size              # Add recreational fishing activity.
 
 heatmap(International)
 
 saveRDS(International, "./Objects/International landings.rds")
+
+write.csv(International,"./StrathE2E/Models/Barents Sea/2011-2019/Target/TARGET_raw_landings_t_m2_y_BARENTS_SEA_2011-2019.csv", row.names=TRUE) # Save out target data
