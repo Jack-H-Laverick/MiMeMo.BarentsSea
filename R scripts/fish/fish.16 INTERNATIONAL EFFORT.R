@@ -8,7 +8,7 @@ rm(list=ls())                                                               # Wi
 packages <- c("tidyverse", "exactextractr", "raster", "furrr", "sf")        # List packages
 lapply(packages, library, character.only = TRUE)                            # Load packages
 
-plan(multiprocess)
+plan(multisession)
 
 domain_size <- readRDS("./Objects/Domains.rds") %>%                         # We need effort scaled per m^2
   sf::st_union() %>% 
@@ -60,6 +60,13 @@ Inflation <- c("NOR_mobile_gear", "NOR_static_gear",                        # Fo
 
 International <- (EU + IMR) * Inflation                                                           
 
-transformed_International <- International / 365 * 60 / domain_size         # Convert to daily effort in seconds per m^2  
+International["Recreational"] <- 1256616                                    # Hours from Mike's stories
+
+transformed_International <- (International / 365) *                        # Convert to daily effort
+                             (60 * 60) /                                    # in seconds (from hours) 
+                             domain_size                                    # per m^2
+
+transformed_International["Rifles"] <- 1                                    # We need a nominal effort for seal hunting so we can manipulate it in the model. Because it's one gear and 1 guild with no abrasion it doesn't matter it's not real
+transformed_International["Kelp harvesting"] <- 1                           # We need a nominal effort even though real values are 0
 
 saveRDS(transformed_International, "./Objects/International effort by gear.rds")
