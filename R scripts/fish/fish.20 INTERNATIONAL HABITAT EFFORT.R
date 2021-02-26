@@ -8,11 +8,12 @@ rm(list=ls())                                                               # Wi
 packages <- c("tidyverse", "exactextractr", "raster", "furrr", "sf")        # List packages
 lapply(packages, library, character.only = TRUE)                            # Load packages
 
-plan(multiprocess)
+plan(multisession)
 
 gear <- read.csv("./Data/MiMeMo gears.csv") 
 
-habitats <- readRDS("./Objects/Habitats.rds")                               # Load habitat polygons
+habitats <- readRDS("./Objects/Habitats.rds") %>%                           # Load habitat polygons
+  mutate(area = as.numeric(st_area(.)))
 
 target <- expand.grid(Habitat = paste0(habitats$Shore, " ", habitats$Habitat), 
                       Aggregated_gear = unique(gear$Aggregated_gear))       # Get combinations of gear and guild
@@ -23,14 +24,20 @@ domain_size <- readRDS("./Objects/Domains.rds") %>%                         # We
   sf::st_area() %>% 
   as.numeric()
 
-Non_Russian <- (readRDS("./Objects/IMR absolute fishing effort.rds") +      # Add Norwegian fishing effort        
-  readRDS("./Objects/EU absolute fishing effort.rds")) /                    # to EU fishing effort
-  365 * 60 / domain_size                                                    # Convert to same units as international landings
+Seal_habitats <- readRDS("./Objects/seal proportional habitat effort.rds")  # Import proportional distribution of seal hunting activity
+
+Non_Russian_habitat <- (readRDS("./Objects/IMR absolute habitat effort.rds") + # Add Norwegian fishing effort        
+                  readRDS("./Objects/EU absolute habitat effort.rds")) /    # to EU fishing effort
+  365 * (60 * 60) / domain_size                                             # Convert to same units as international effort
+
+Non_Russian_total <- (readRDS("./Objects/IMR absolute fishing effort.rds") +# Import Norwegian fishing effort        
+  readRDS("./Objects/EU absolute fishing effort.rds"))/                     # Import EU fishing effort
+  365 * (60 * 60) / domain_size                                             # Convert to same units as international effort
 
 #### Get Russian effort only ####
 
 Russian_effort <- readRDS("./Objects/International effort by gear.rds") -   # Subtracting the above from
-  Non_Russian                                                               # International effort gives us the Russsian effort
+  Non_Russian_total                                                         # International effort gives us the Russian effort
 
 #### Russian effort over habitat types ####
 
@@ -61,12 +68,15 @@ Russian <- t(t(Habitat_weights) * Russian_effort)                           # Sc
 
 ####  Scale to international effort ####
 
-International <- Non_Russian + Russian                                      # Get international effort by gear and habitat
+International <- Non_Russian_habitat + Russian                              # Get international effort by gear and habitat
+
+International[,"Recreational"] <- c(habitats$area[1:4],0,0,0,0)             # Distribute recreational activity across the inshore zone according to area
+International[,"Kelp harvesting"] <- 0                                      # We force all kelp harvesting to happen
+International["Inshore Rock", "Kelp harvesting"] <- 1                       # over inshore rock.
 
 International_proportion <- t(t(International)/colSums(International))      # Scale as proportions within gears
 
-International_proportion[,"Kelp harvesting"] <- 0                           # We force all kelp harvesting to happen
-International_proportion["Inshore Rock", "Kelp harvesting"] <- 1            # over inshore rock.
+International_proportion[,"Rifles"] <- Seal_habitats                        # Add seal hunting distribution
 
 heatmap(International_proportion)                                           # Visualise
 
