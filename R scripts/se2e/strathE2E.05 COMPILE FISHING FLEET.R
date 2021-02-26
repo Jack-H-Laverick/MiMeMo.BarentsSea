@@ -11,9 +11,9 @@ effort <- t(readRDS("./Objects/International effort by gear.rds"))         # Uni
 
 distribution <- t(readRDS("./Objects/International effort proportion by gear and habitat.rds"))
 
-lookup <- read.csv("gear_lookup.csv") %>% select(-X) %>% arrange(neworder)  # Import and order tables according to StrathE2E
-hablookup <- read.csv("habitat_lookup.csv") %>% select(-X) %>% arrange(hneworder)
-glookup <- read.csv("guild_lookup.csv") %>% select(-X) %>% arrange(gneworder)
+lookup <- read.csv("./Data/lookup_gear.csv") %>% select(-X) %>% arrange(neworder)  # Import and order tables according to StrathE2E
+hablookup <- read.csv("./Data/lookup_habitat.csv") %>% select(-X) %>% arrange(hneworder)
+glookup <- read.csv("./Data/lookup_guild.csv") %>% select(-X) %>% arrange(gneworder)
 
 domain_size <- readRDS("./Objects/Domains.rds") %>%                         # We need landings as tonnes per m^2
   sf::st_union() %>% 
