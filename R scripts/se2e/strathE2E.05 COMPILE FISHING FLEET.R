@@ -8,6 +8,7 @@ discard_rate <- readRDS("./Objects/EU discard rates.rds")                  # Imp
 landings_raw <- readRDS("./Objects/International landings.rds")            # Units tonnes/m2/year
 
 effort <- t(readRDS("./Objects/International effort by gear.rds"))         # Units sec/m2/day
+effort[,"Rifles"] <- 1e-8                                                  # Update Rifle effort to be a similar scale to other gears for plots
 
 distribution <- t(readRDS("./Objects/International effort proportion by gear and habitat.rds"))
 
@@ -102,6 +103,11 @@ write.csv(activity,"./StrathE2E/Models/Barents Sea/2011-2019/Param/fishing_activ
 
 #### create the fishing power table                   ####
 
+#Table of nitrogen per unit wet weight - from Table 18 of SE2E North Sea implementation
+mMNpergWW <- c(PF = 2.038, DF = 1.340, MF = 2.314, FDB = 0.503,
+               CSB = 1.006, CZ = 1.258, BD = 2.518, SL = 2.518, 
+               CT = 2.518, KP = 2.070) 
+
 power <- data.frame(activity[,c("Gear_name", "Gear_code")],    # Combine gear names and code
                     catch_new / activity[, "Activity_.s.m2.d."]) %>% # With fishing power
   setNames(c("Gear_name","Gear_code","Power_PF","Power_DF",    # Replace column names
@@ -110,6 +116,17 @@ power <- data.frame(activity[,c("Gear_name", "Gear_code")],    # Combine gear na
 power[is.na(power)] <- 0                                       # Overwrite Nas with 0
 
 power$Power_KP[3] <-0                                          # Reset the power of Demersal seines for kelp to 0
+
+power <- mutate(power, Power_PF = Power_PF * mMNpergWW["PF"],  # Convert to nitrogen units
+                Power_DF = Power_DF * mMNpergWW["DF"],    
+                Power_MF =Power_MF * mMNpergWW["MF"], 
+                Power_FDB = Power_FDB * mMNpergWW["FDB"],
+                Power_CSB = Power_CSB * mMNpergWW["CSB"],
+                Power_CZ = Power_CZ * mMNpergWW["CZ"],
+                Power_BD = Power_BD * mMNpergWW["BD"],
+                Power_SL = Power_SL * mMNpergWW["SL"], 
+                Power_CT = Power_CT * mMNpergWW["CT"],
+                Power_KP = Power_KP * mMNpergWW["KP"])     
 
 write.csv(power,"./StrathE2E/Models/Barents Sea/2011-2019/Param/fishing_power_BARENTS_SEA_2011-2019.csv",
           row.names=FALSE)
@@ -129,24 +146,10 @@ write.csv(discard_weight_target, "./StrathE2E/Models/Barents Sea/2011-2019/Targe
           row.names = FALSE)
 
 #Now calculate the total ANNUAL landings, catch and discards of each guild gWW/m2/y
-#and convert to Nitrogen units
-
-#Table of nitrogen per unit wet weight - from Table 18 of SE2E North Sea implementation
-mMNpergWW <- c(2.038, #PF
-               1.340, #DF
-               2.314, #MF
-               0.503,  #FDB
-               1.006,  #CSB
-               1.258, #CZ
-               2.518, #BD
-               2.518, #SL
-               2.518, #CT
-               2.070)  #KP
-
-## Units mMN/year
-landings_N <-(colSums(landings_new)) * 360 * mMNpergWW
-catch_N <-(colSums(catch_new)) * 360 * mMNpergWW
-discards_N <-(colSums(discards_new)) * 360 * mMNpergWW
+#and convert to Nitrogen units (mMN/year)
+#landings_N <-(colSums(landings_new)) * 360 * mMNpergWW
+#catch_N <-(colSums(catch_new)) * 360 * mMNpergWW
+#discards_N <-(colSums(discards_new)) * 360 * mMNpergWW
 
 #discard_rate_tot <- discards_N/catch_N
 #discard_rate_tot[is.na(discard_rate_tot)] <- 0
