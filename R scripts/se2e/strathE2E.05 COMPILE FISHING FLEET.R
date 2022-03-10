@@ -29,11 +29,12 @@ catch <- landings / (1-discard_rate)                                        # In
 
 catch[!is.finite(catch)] <- landings[!is.finite(catch)]                     # 0s and infinities mean no discard, so are overwritten with landings
 
-catch["Gillnets", "Cetacean"] <- catch["Gillnets", "Cetacean"] + (25.654 * 1e6 / 360 / domain_size) # Add extra discards following Mike's stories (see Notes)
-catch["Gillnets", "Birds"] <- catch["Gillnets", "Birds"] +(2.015 * 1e6 / 360/ domain_size)          # Converting the units as for landings
-catch["Longlines_and_Jigging", "Birds"] <- catch["Longlines_and_Jigging", "Birds"]+ (6.819 * 1e6 / 360 / domain_size)
+catch["Gillnets", "Cetacean"] <- catch["Gillnets", "Cetacean"] + (15.8 * 1e6 / 360 / domain_size) # Add extra discards following Mike's stories (see Notes)
+catch["Gillnets", "Birds"] <- catch["Gillnets", "Birds"] +(2.015 * 1e6 / 360/ domain_size)        # Converting the units as for landings
+catch["Gillnets", "Pinnipeds"] <- catch["Gillnets", "Pinnipeds"] + (6.2 * 1e6 / 360 / domain_size) 
 catch["Shrimp trawl", "Demersal (quota limited)"] <- catch["Shrimp trawl", "Demersal (quota limited)"] + (1822.57 * 1e6 / 360 / domain_size)
 catch["Shrimp trawl", "Planktivore"] <- catch["Shrimp trawl", "Planktivore"] + (3867.89 * 1e6 / 360 / domain_size)
+catch["Longlines_and_Jigging", "Birds"] <- catch["Longlines_and_Jigging", "Birds"]+ (6.819 * 1e6 / 360 / domain_size)
 
 discard_weight <- catch - landings
 
@@ -58,7 +59,7 @@ rearranged <- map(list(landings, catch, discard_weight), ~{
  new <- as.data.frame(.x) %>%                                  # Units here are gWW/m2/day
     mutate(Demersal = `Demersal (non quota)` +                 # Combine demersal guilds
                       `Demersal (quota limited)`) %>% 
-    .[lookup$oldorder, glookup$goldorder] %>%              # Reorder rows and columns
+    .[lookup$oldorder, glookup$goldorder] %>%                  # Reorder rows and columns
     .[, !names(.) %in% c("Demersal (non quota)",               # Drop unwanted columns
                          "Demersal (quota limited)", 
                          "Zooplankton omnivorous")]
@@ -68,7 +69,7 @@ rearranged <- map(list(landings, catch, discard_weight), ~{
 
 landings_new <- rearranged[[1]] ; catch_new <- rearranged[[2]] ; discards_new <- rearranged[[3]]
 
-all.equal((landings_new + discards_new), catch_new)                         # Check everything still balances
+all.equal((landings_new + discards_new), catch_new)            # Check everything still balances
 
 landings_new$Demersal[7]
 discards_new$Demersal[7]
